@@ -1,6 +1,7 @@
 import { ShoppingCart, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Link } from "react-router-dom";
 
 export interface Product {
   id: number;
@@ -13,6 +14,7 @@ export interface Product {
   inStock: boolean;
   isNew?: boolean;
   isSale?: boolean;
+  slug?: string;
 }
 
 interface ProductCardProps {
@@ -36,7 +38,7 @@ const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
   return (
     <div className="card-product bg-card group">
       {/* Image container */}
-      <div className="relative aspect-square overflow-hidden bg-muted">
+      <Link to={product.slug ? `/product/${product.slug}` : "#"} className="block relative aspect-square overflow-hidden bg-muted">
         <img
           src={product.image}
           alt={product.name}
@@ -54,7 +56,10 @@ const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
         </div>
 
         {/* Wishlist button */}
-        <button className="absolute top-3 right-3 p-2 bg-background/80 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-primary hover:text-primary-foreground">
+        <button 
+          className="absolute top-3 right-3 p-2 bg-background/80 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-primary hover:text-primary-foreground"
+          onClick={(e) => e.preventDefault()}
+        >
           <Heart className="h-4 w-4" />
         </button>
 
@@ -63,21 +68,24 @@ const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
           <Button
             variant="cart"
             className="w-full"
-            onClick={() => onAddToCart(product)}
+            onClick={(e) => {
+              e.preventDefault();
+              onAddToCart(product);
+            }}
             disabled={!product.inStock}
           >
             <ShoppingCart className="h-4 w-4 mr-2" />
             {product.inStock ? "Add to Cart" : "Out of Stock"}
           </Button>
         </div>
-      </div>
+      </Link>
 
       {/* Product info */}
-      <div className="p-4">
+      <Link to={product.slug ? `/product/${product.slug}` : "#"} className="block p-4">
         <span className="text-xs text-muted-foreground uppercase tracking-wider">
           {product.brand}
         </span>
-        <h3 className="font-medium text-foreground mt-1 line-clamp-2 min-h-[2.5rem]">
+        <h3 className="font-medium text-foreground mt-1 line-clamp-2 min-h-[2.5rem] hover:text-primary transition-colors">
           {product.name}
         </h3>
         
@@ -97,7 +105,7 @@ const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
             Out of Stock
           </span>
         )}
-      </div>
+      </Link>
     </div>
   );
 };

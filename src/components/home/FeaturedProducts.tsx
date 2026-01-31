@@ -27,6 +27,7 @@ const FeaturedProducts = ({ onAddToCart }: FeaturedProductsProps) => {
       inStock: (p.stock_quantity || 0) > 0,
       isNew: p.is_new || false,
       isSale: p.is_on_sale || false,
+      slug: p.slug,
     }));
   }, [products]);
 

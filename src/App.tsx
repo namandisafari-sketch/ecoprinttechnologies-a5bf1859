@@ -8,6 +8,7 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import AdminLayout from "@/components/admin/AdminLayout";
 import Index from "./pages/Index";
 import Search from "./pages/Search";
+import ProductDetail from "./pages/ProductDetail";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -32,6 +33,7 @@ const App = () => (
             {/* Public routes */}
             <Route path="/" element={<Index />} />
             <Route path="/search" element={<Search />} />
+            <Route path="/product/:slug" element={<ProductDetail />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             
