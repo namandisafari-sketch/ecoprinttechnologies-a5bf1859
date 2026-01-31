@@ -3,6 +3,7 @@ import { Search, ShoppingCart, Menu, X, Phone, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Link, useNavigate } from "react-router-dom";
 
 interface HeaderProps {
   cartCount: number;
@@ -12,6 +13,7 @@ interface HeaderProps {
 const Header = ({ cartCount, onCartClick }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
 
   const categories = [
     "Phone Screens",
@@ -22,19 +24,26 @@ const Header = ({ cartCount, onCartClick }: HeaderProps) => {
     "Accessories",
   ];
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
   return (
     <header className="sticky top-0 z-50 bg-background border-b border-border">
       {/* Top bar */}
       <div className="bg-secondary text-secondary-foreground">
         <div className="container mx-auto px-4 py-2 flex flex-wrap justify-between items-center text-sm">
           <div className="flex items-center gap-4">
-            <a href="tel:+256700000000" className="flex items-center gap-1 hover:text-primary transition-colors">
+            <a href="tel:+256705154828" className="flex items-center gap-1 hover:text-primary transition-colors">
               <Phone className="h-3 w-3" />
-              <span>+256 700 000 000</span>
+              <span>+256 705 154 828</span>
             </a>
             <span className="hidden sm:flex items-center gap-1">
               <MapPin className="h-3 w-3" />
-              <span>Kampala, Uganda</span>
+              <span>Gayaza, opp Extra Care Pharmacy</span>
             </span>
           </div>
           <div className="text-xs sm:text-sm">
@@ -47,7 +56,7 @@ const Header = ({ cartCount, onCartClick }: HeaderProps) => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between gap-4">
           {/* Logo */}
-          <a href="/" className="flex items-center gap-2 flex-shrink-0">
+          <Link to="/" className="flex items-center gap-2 flex-shrink-0">
             <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
               <span className="text-primary-foreground font-bold text-lg">SW</span>
             </div>
@@ -55,10 +64,10 @@ const Header = ({ cartCount, onCartClick }: HeaderProps) => {
               <h1 className="font-bold text-lg leading-tight text-foreground">Sir Wanda</h1>
               <p className="text-xs text-muted-foreground">Phone Care</p>
             </div>
-          </a>
+          </Link>
 
           {/* Search bar */}
-          <div className="hidden md:flex flex-1 max-w-xl mx-4">
+          <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl mx-4">
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -69,7 +78,7 @@ const Header = ({ cartCount, onCartClick }: HeaderProps) => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-          </div>
+          </form>
 
           {/* Right side actions */}
           <div className="flex items-center gap-2">
@@ -99,7 +108,7 @@ const Header = ({ cartCount, onCartClick }: HeaderProps) => {
         </div>
 
         {/* Mobile search */}
-        <div className="md:hidden mt-4">
+        <form onSubmit={handleSearch} className="md:hidden mt-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -110,7 +119,7 @@ const Header = ({ cartCount, onCartClick }: HeaderProps) => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-        </div>
+        </form>
       </div>
 
       {/* Navigation */}
@@ -119,12 +128,13 @@ const Header = ({ cartCount, onCartClick }: HeaderProps) => {
           <ul className="flex flex-col md:flex-row md:items-center gap-1 md:gap-0 py-2 md:py-0">
             {categories.map((category) => (
               <li key={category}>
-                <a
-                  href={`#${category.toLowerCase().replace(' ', '-')}`}
+                <Link
+                  to={`/search?q=${encodeURIComponent(category)}`}
                   className="block px-4 py-2 text-sm font-medium text-foreground hover:text-primary hover:bg-muted rounded-md md:rounded-none transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
                 >
                   {category}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>

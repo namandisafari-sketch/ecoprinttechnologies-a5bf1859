@@ -7,6 +7,7 @@ import FeaturedProducts from "@/components/home/FeaturedProducts";
 import BrandsSection from "@/components/home/BrandsSection";
 import PromoSection from "@/components/home/PromoSection";
 import CartDrawer, { CartItem } from "@/components/cart/CartDrawer";
+import ChatWidget from "@/components/chat/ChatWidget";
 import { Product } from "@/components/home/ProductCard";
 import { useToast } from "@/hooks/use-toast";
 
@@ -82,6 +83,8 @@ const Index = () => {
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveItem={handleRemoveItem}
       />
+
+      <ChatWidget />
     </div>
   );
 };
