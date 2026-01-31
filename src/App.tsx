@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import AdminLayout from "@/components/admin/AdminLayout";
 import Index from "./pages/Index";
+import Search from "./pages/Search";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -15,6 +16,8 @@ import AdminProducts from "./pages/admin/Products";
 import AdminOrders from "./pages/admin/Orders";
 import AdminCategories from "./pages/admin/Categories";
 import AdminCustomers from "./pages/admin/Customers";
+import AdminInventory from "./pages/admin/Inventory";
+import AdminChat from "./pages/admin/Chat";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +31,7 @@ const App = () => (
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<Index />} />
+            <Route path="/search" element={<Search />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             
@@ -43,8 +47,10 @@ const App = () => (
               <Route index element={<AdminDashboard />} />
               <Route path="products" element={<AdminProducts />} />
               <Route path="orders" element={<AdminOrders />} />
+              <Route path="inventory" element={<AdminInventory />} />
               <Route path="categories" element={<AdminCategories />} />
               <Route path="customers" element={<AdminCustomers />} />
+              <Route path="chat" element={<AdminChat />} />
             </Route>
             
             {/* Catch-all */}

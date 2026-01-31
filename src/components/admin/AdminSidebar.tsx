@@ -6,11 +6,11 @@ import {
   ShoppingCart,
   Tags,
   Users,
-  Settings,
+  Boxes,
+  MessageCircle,
   LogOut,
   Menu,
   X,
-  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -20,8 +20,10 @@ const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { label: "Products", href: "/admin/products", icon: Package },
   { label: "Orders", href: "/admin/orders", icon: ShoppingCart },
+  { label: "Inventory", href: "/admin/inventory", icon: Boxes },
   { label: "Categories", href: "/admin/categories", icon: Tags },
   { label: "Customers", href: "/admin/customers", icon: Users },
+  { label: "Chat", href: "/admin/chat", icon: MessageCircle },
 ];
 
 const AdminSidebar = () => {

@@ -85,6 +85,7 @@ export type Database = {
           customer_phone: string
           id: string
           last_message_at: string | null
+          session_id: string | null
           status: string
           updated_at: string
         }
@@ -95,6 +96,7 @@ export type Database = {
           customer_phone: string
           id?: string
           last_message_at?: string | null
+          session_id?: string | null
           status?: string
           updated_at?: string
         }
@@ -105,6 +107,7 @@ export type Database = {
           customer_phone?: string
           id?: string
           last_message_at?: string | null
+          session_id?: string | null
           status?: string
           updated_at?: string
         }

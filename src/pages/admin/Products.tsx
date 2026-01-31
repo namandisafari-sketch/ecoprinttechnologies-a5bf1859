@@ -31,6 +31,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Search, Loader2, Package } from "lucide-react";
+import ImageUpload from "@/components/ImageUpload";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Product = Tables<"products">;
@@ -57,6 +58,8 @@ const AdminProducts = () => {
     is_featured: false,
     is_new: false,
     is_on_sale: false,
+    color: "",
+    model: "",
   });
 
   const { data: products, isLoading } = useQuery({
@@ -174,11 +177,13 @@ const AdminProducts = () => {
       is_featured: false,
       is_new: false,
       is_on_sale: false,
+      color: "",
+      model: "",
     });
     setEditingProduct(null);
   };
 
-  const openEditDialog = (product: Product) => {
+  const openEditDialog = (product: any) => {
     setEditingProduct(product);
     setFormData({
       name: product.name,
@@ -194,6 +199,8 @@ const AdminProducts = () => {
       is_featured: product.is_featured ?? false,
       is_new: product.is_new ?? false,
       is_on_sale: product.is_on_sale ?? false,
+      color: product.color || "",
+      model: product.model || "",
     });
     setIsDialogOpen(true);
   };
@@ -215,6 +222,8 @@ const AdminProducts = () => {
       is_featured: formData.is_featured,
       is_new: formData.is_new,
       is_on_sale: formData.is_on_sale,
+      color: formData.color || null,
+      model: formData.model || null,
     };
 
     if (editingProduct) {
@@ -356,14 +365,30 @@ const AdminProducts = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="image_url">Image URL</Label>
-                <Input
-                  id="image_url"
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  placeholder="https://..."
-                />
+              <ImageUpload
+                value={formData.image_url}
+                onChange={(url) => setFormData({ ...formData, image_url: url })}
+              />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="model">Model</Label>
+                  <Input
+                    id="model"
+                    value={formData.model}
+                    onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+                    placeholder="e.g., iPhone 14 Pro"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="color">Color</Label>
+                  <Input
+                    id="color"
+                    value={formData.color}
+                    onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                    placeholder="e.g., Space Black"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
