@@ -16,7 +16,7 @@ export type Database = {
     Tables: {
       admin_access_codes: {
         Row: {
-          code_hash: string
+          code: string
           created_at: string
           description: string | null
           id: string
@@ -24,7 +24,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          code_hash: string
+          code?: string
           created_at?: string
           description?: string | null
           id?: string
@@ -32,7 +32,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          code_hash?: string
+          code?: string
           created_at?: string
           description?: string | null
           id?: string
