@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Link, useNavigate } from "react-router-dom";
+import AccessCodeDialog from "@/components/auth/AccessCodeDialog";
 
 interface HeaderProps {
   cartCount: number;
@@ -90,6 +91,9 @@ const Header = ({ cartCount, onCartClick }: HeaderProps) => {
             >
               {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
+
+            {/* Admin Access */}
+            <AccessCodeDialog />
 
             <Button
               variant="ghost"
