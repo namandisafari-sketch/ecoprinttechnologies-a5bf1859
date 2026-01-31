@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, ShoppingCart, Menu, X, Phone, MapPin } from "lucide-react";
+import { Search, ShoppingCart, Menu, X, Phone, MapPin, PackageSearch } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -141,6 +141,16 @@ const Header = ({ cartCount, onCartClick }: HeaderProps) => {
                 </Link>
               </li>
             ))}
+            <li className="md:ml-auto">
+              <Link
+                to="/track-order"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/10 rounded-md md:rounded-none transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <PackageSearch className="h-4 w-4" />
+                Track Order
+              </Link>
+            </li>
           </ul>
         </div>
       </nav>
