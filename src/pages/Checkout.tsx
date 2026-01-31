@@ -131,10 +131,10 @@ const Checkout = () => {
 
       if (orderError) throw orderError;
 
-      // Create order items
+      // Create order items - product_id is optional (might be a display product without DB id)
       const orderItems = cartItems.map(item => ({
         order_id: order.id,
-        product_id: item.id.toString(),
+        product_id: typeof item.id === 'string' ? item.id : null,
         product_name: item.name,
         product_price: item.price,
         quantity: item.quantity,
