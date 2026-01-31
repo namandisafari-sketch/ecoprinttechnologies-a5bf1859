@@ -12,9 +12,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Search, Plus, Minus, Trash2, Printer, Receipt, Loader2 } from "lucide-react";
+import { Search, Plus, Minus, Trash2, Printer, Receipt, Loader2, ScanBarcode } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import ReceiptModal from "@/components/pos/ReceiptModal";
+import BarcodeScanner from "@/components/pos/BarcodeScanner";
 
 type Product = Tables<"products">;
 
@@ -37,6 +38,7 @@ const AdminPOS = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
   const [completedOrder, setCompletedOrder] = useState<any>(null);
+  const [showScanner, setShowScanner] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -56,9 +58,44 @@ const AdminPOS = () => {
 
       const { data, error } = await query.limit(20);
       if (error) throw error;
-      return data;
+      return data as Product[];
     },
   });
+
+  const handleBarcodeScan = async (code: string) => {
+    try {
+      // Search for product by SKU (barcode typically maps to SKU)
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("is_active", true)
+        .gt("stock_quantity", 0)
+        .or(`sku.eq.${code},name.ilike.%${code}%`)
+        .limit(1)
+        .single();
+
+      if (error || !data) {
+        toast({
+          title: "Product not found",
+          description: `No product found with code: ${code}`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      addToCart(data);
+      toast({
+        title: "Product added",
+        description: `${data.name} added to cart`,
+      });
+    } catch (err) {
+      toast({
+        title: "Scan error",
+        description: "Failed to process scanned code",
+        variant: "destructive",
+      });
+    }
+  };
 
   const addToCart = (product: Product) => {
     setCart((prev) => {
@@ -221,14 +258,24 @@ const AdminPOS = () => {
         </div>
 
         {/* Search */}
-        <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search products by name or SKU..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
+        <div className="flex gap-2 mb-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search products by name or SKU..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setShowScanner(true)}
+            title="Scan barcode"
+          >
+            <ScanBarcode className="h-5 w-5" />
+          </Button>
         </div>
 
         {/* Products Grid */}
@@ -427,6 +474,13 @@ const AdminPOS = () => {
           onClose={handleReceiptClose}
         />
       )}
+
+      {/* Barcode Scanner */}
+      <BarcodeScanner
+        isOpen={showScanner}
+        onClose={() => setShowScanner(false)}
+        onScan={handleBarcodeScan}
+      />
     </div>
   );
 };
