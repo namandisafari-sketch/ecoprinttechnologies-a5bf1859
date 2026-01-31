@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
+import { useNotifications } from "@/hooks/useNotifications";
 import {
   MessageCircle,
   Send,
@@ -15,6 +16,9 @@ import {
   Phone,
   Clock,
   CheckCheck,
+  Bell,
+  BellOff,
+  Lock,
 } from "lucide-react";
 
 interface Conversation {
@@ -42,6 +46,7 @@ const AdminChat = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { permission, requestPermission, showNotification, isSupported } = useNotifications();
 
   // Fetch conversations
   const { data: conversations, isLoading: loadingConversations } = useQuery({
@@ -108,9 +113,23 @@ const AdminChat = () => {
           schema: "public",
           table: "messages",
         },
-        () => {
+        (payload) => {
           queryClient.invalidateQueries({ queryKey: ["admin-messages"] });
           queryClient.invalidateQueries({ queryKey: ["admin-conversations"] });
+          
+          // Show notification for customer messages
+          const newMsg = payload.new as { sender_type: string; content: string; conversation_id: string };
+          if (newMsg.sender_type === "customer") {
+            showNotification(
+              "New customer message",
+              newMsg.content.substring(0, 100),
+              () => {
+                // Focus on the conversation
+                const conv = conversations?.find(c => c.id === newMsg.conversation_id);
+                if (conv) setSelectedConversation(conv);
+              }
+            );
+          }
         }
       )
       .on(
@@ -120,8 +139,12 @@ const AdminChat = () => {
           schema: "public",
           table: "conversations",
         },
-        () => {
+        (payload) => {
           queryClient.invalidateQueries({ queryKey: ["admin-conversations"] });
+          showNotification(
+            "New conversation started",
+            "A customer has started a new chat",
+          );
         }
       )
       .subscribe();
@@ -129,7 +152,7 @@ const AdminChat = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [queryClient]);
+  }, [queryClient, showNotification, conversations]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -163,11 +186,24 @@ const AdminChat = () => {
       {/* Conversations List */}
       <Card className="w-80 flex-shrink-0">
         <CardContent className="p-0 h-full flex flex-col">
-          <div className="p-4 border-b border-border">
+          <div className="p-4 border-b border-border flex items-center justify-between">
             <h2 className="font-semibold text-lg flex items-center gap-2">
               <MessageCircle className="h-5 w-5 text-primary" />
               Conversations
             </h2>
+            {isSupported && (
+              <button
+                onClick={requestPermission}
+                className="p-2 hover:bg-muted rounded-full transition-colors"
+                title={permission === "granted" ? "Notifications enabled" : "Enable notifications"}
+              >
+                {permission === "granted" ? (
+                  <Bell className="h-4 w-4 text-primary" />
+                ) : (
+                  <BellOff className="h-4 w-4 text-muted-foreground" />
+                )}
+              </button>
+            )}
           </div>
 
           <ScrollArea className="flex-1">
@@ -221,17 +257,20 @@ const AdminChat = () => {
       <Card className="flex-1 flex flex-col">
         {selectedConversation ? (
           <>
-            {/* Chat Header */}
             <div className="p-4 border-b border-border flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-full">
                 <User className="h-5 w-5 text-primary" />
               </div>
-              <div>
+              <div className="flex-1">
                 <p className="font-medium">{selectedConversation.customer_name}</p>
                 <p className="text-sm text-muted-foreground flex items-center gap-1">
                   <Phone className="h-3 w-3" />
                   {selectedConversation.customer_phone}
                 </p>
+              </div>
+              <div className="flex items-center gap-1 text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
+                <Lock className="h-3 w-3" />
+                Encrypted
               </div>
             </div>
 

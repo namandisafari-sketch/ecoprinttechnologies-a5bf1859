@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { MessageCircle, X, Send, Loader2 } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, Bell, BellOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useNotifications } from "@/hooks/useNotifications";
 
 interface Message {
   id: string;
@@ -23,6 +24,7 @@ const ChatWidget = () => {
   const [showForm, setShowForm] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const { permission, requestPermission, showNotification, isSupported } = useNotifications();
 
   useEffect(() => {
     // Generate or retrieve session ID
@@ -64,6 +66,15 @@ const ChatWidget = () => {
               if (prev.find((m) => m.id === newMsg.id)) return prev;
               return [...prev, newMsg];
             });
+            
+            // Show notification for admin replies when chat is closed
+            if (newMsg.sender_type === "admin" && !isOpen) {
+              showNotification(
+                "New message from Sir Wanda Support",
+                newMsg.content,
+                () => setIsOpen(true)
+              );
+            }
           }
         )
         .subscribe();
@@ -72,7 +83,7 @@ const ChatWidget = () => {
         supabase.removeChannel(channel);
       };
     }
-  }, [conversationId]);
+  }, [conversationId, isOpen, showNotification]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -186,14 +197,29 @@ const ChatWidget = () => {
         <div className="flex items-center justify-between p-4 border-b border-border bg-primary text-primary-foreground rounded-t-2xl">
           <div>
             <h3 className="font-bold">Sir Wanda Support</h3>
-            <p className="text-xs opacity-80">We typically reply instantly</p>
+            <p className="text-xs opacity-80">🔒 End-to-end encrypted</p>
           </div>
-          <button
-            onClick={() => setIsOpen(false)}
-            className="p-1 hover:bg-primary-foreground/20 rounded-full transition-colors"
-          >
-            <X className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-1">
+            {isSupported && (
+              <button
+                onClick={requestPermission}
+                className="p-1 hover:bg-primary-foreground/20 rounded-full transition-colors"
+                title={permission === "granted" ? "Notifications enabled" : "Enable notifications"}
+              >
+                {permission === "granted" ? (
+                  <Bell className="h-5 w-5" />
+                ) : (
+                  <BellOff className="h-5 w-5 opacity-60" />
+                )}
+              </button>
+            )}
+            <button
+              onClick={() => setIsOpen(false)}
+              className="p-1 hover:bg-primary-foreground/20 rounded-full transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
         {/* Messages or Form */}
