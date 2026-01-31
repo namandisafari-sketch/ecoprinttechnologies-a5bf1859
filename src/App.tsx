@@ -9,6 +9,8 @@ import AdminLayout from "@/components/admin/AdminLayout";
 import Index from "./pages/Index";
 import Search from "./pages/Search";
 import ProductDetail from "./pages/ProductDetail";
+import Checkout from "./pages/Checkout";
+import TrackOrder from "./pages/TrackOrder";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -34,6 +36,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/search" element={<Search />} />
             <Route path="/product/:slug" element={<ProductDetail />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/track-order" element={<TrackOrder />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             

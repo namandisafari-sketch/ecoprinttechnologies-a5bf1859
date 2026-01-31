@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { X, Plus, Minus, ShoppingBag, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -22,6 +23,8 @@ const CartDrawer = ({
   onUpdateQuantity,
   onRemoveItem,
 }: CartDrawerProps) => {
+  const navigate = useNavigate();
+  
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-UG", {
       style: "currency",
@@ -137,7 +140,15 @@ const CartDrawer = ({
                 <span className="text-primary">{formatPrice(total)}</span>
               </div>
               
-              <Button variant="cart" className="w-full" size="lg">
+              <Button 
+                variant="cart" 
+                className="w-full" 
+                size="lg"
+                onClick={() => {
+                  onClose();
+                  navigate("/checkout", { state: { cartItems: items } });
+                }}
+              >
                 Proceed to Checkout
               </Button>
             </div>
