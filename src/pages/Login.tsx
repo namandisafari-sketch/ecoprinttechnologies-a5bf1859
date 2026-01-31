@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,19 @@ const Login = () => {
   const { signIn } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Check if access was verified
+  useEffect(() => {
+    const isVerified = sessionStorage.getItem('admin_access_verified');
+    if (!isVerified) {
+      toast({
+        title: "Access Required",
+        description: "Please use the profile icon to enter the access code first.",
+        variant: "destructive",
+      });
+      navigate("/");
+    }
+  }, [navigate, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
