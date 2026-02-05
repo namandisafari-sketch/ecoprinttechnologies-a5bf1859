@@ -4,9 +4,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, User, Wrench } from "lucide-react";
+import { Loader2, User, Wrench, ChevronLeft } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const Signup = () => {
@@ -20,9 +19,7 @@ const Signup = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Check if access was verified
   useEffect(() => {
-    // Only require access code for admin signup, not regular users
     const isAdminSignup = sessionStorage.getItem('admin_access_verified');
     setRequiresAccessCode(!!isAdminSignup);
   }, [navigate, toast]);
@@ -52,7 +49,7 @@ const Signup = () => {
     } else {
       toast({
         title: "Account Created!",
-        description: "Please check your email to verify your account before logging in.",
+        description: "Please check your email to verify your account.",
       });
       navigate("/login");
     }
@@ -61,103 +58,104 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/50 px-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <img src="/logo.jpeg" alt="Eco Hub" className="w-12 h-12 rounded-lg object-cover" />
-          </div>
-          <CardTitle className="text-2xl">Create Account</CardTitle>
-          <CardDescription>
-            Join Eco Hub today
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            {/* Role Selection */}
-            <div className="space-y-3">
-              <Label>I want to</Label>
-              <RadioGroup value={role} onValueChange={(v) => setRole(v as 'customer' | 'seller')} className="grid grid-cols-2 gap-4">
-                <div>
-                  <RadioGroupItem value="customer" id="customer" className="peer sr-only" />
-                  <Label
-                    htmlFor="customer"
-                    className="flex flex-col items-center justify-center rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
-                  >
-                    <User className="mb-2 h-6 w-6" />
-                    <span className="text-sm font-medium">Buy Laptops</span>
-                    <span className="text-xs text-muted-foreground">Find your dream laptop</span>
-                  </Label>
-                </div>
-                <div>
-                  <RadioGroupItem value="seller" id="seller" className="peer sr-only" />
-                  <Label
-                    htmlFor="seller"
-                    className="flex flex-col items-center justify-center rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
-                  >
-                    <Wrench className="mb-2 h-6 w-6" />
-                    <span className="text-sm font-medium">Sell / Repair</span>
-                    <span className="text-xs text-muted-foreground">Offer services</span>
-                  </Label>
-                </div>
-              </RadioGroup>
-            </div>
+    <div className="min-h-screen flex flex-col bg-background">
+      {/* Header */}
+      <header className="flex items-center h-14 px-4 border-b border-border">
+        <Link to="/" className="p-1">
+          <ChevronLeft className="h-5 w-5" />
+        </Link>
+        <span className="ml-3 font-medium">Create Account</span>
+      </header>
 
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Full Name</Label>
-              <Input
-                id="fullName"
-                type="text"
-                placeholder="John Doe"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-              />
-              <p className="text-xs text-muted-foreground">
-                Must be at least 6 characters
-              </p>
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col gap-4">
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Create Account
-            </Button>
-            <p className="text-sm text-muted-foreground text-center">
-              Already have an account?{" "}
-              <Link to="/login" className="text-primary hover:underline">
-                Sign in
-              </Link>
+      <main className="flex-1 px-6 py-6 overflow-y-auto">
+        {/* Logo */}
+        <div className="text-center mb-6">
+          <img src="/logo.jpeg" alt="Eco Hub" className="w-14 h-14 rounded-xl object-cover mx-auto mb-3" />
+          <h1 className="text-xl font-bold">Join Eco Hub</h1>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4 max-w-sm mx-auto w-full">
+          {/* Role Selection */}
+          <div className="space-y-2">
+            <Label className="text-sm">I want to</Label>
+            <RadioGroup value={role} onValueChange={(v) => setRole(v as 'customer' | 'seller')} className="grid grid-cols-2 gap-3">
+              <div>
+                <RadioGroupItem value="customer" id="customer" className="peer sr-only" />
+                <Label
+                  htmlFor="customer"
+                  className="flex flex-col items-center justify-center rounded-xl border-2 border-muted bg-card p-3 hover:bg-accent peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer transition-colors"
+                >
+                  <User className="mb-1.5 h-5 w-5" />
+                  <span className="text-xs font-medium">Buy Laptops</span>
+                </Label>
+              </div>
+              <div>
+                <RadioGroupItem value="seller" id="seller" className="peer sr-only" />
+                <Label
+                  htmlFor="seller"
+                  className="flex flex-col items-center justify-center rounded-xl border-2 border-muted bg-card p-3 hover:bg-accent peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer transition-colors"
+                >
+                  <Wrench className="mb-1.5 h-5 w-5" />
+                  <span className="text-xs font-medium">Sell / Repair</span>
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="fullName" className="text-sm">Full Name</Label>
+            <Input
+              id="fullName"
+              type="text"
+              placeholder="John Doe"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+              className="h-11"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="email" className="text-sm">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="h-11"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="password" className="text-sm">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+              className="h-11"
+            />
+            <p className="text-[11px] text-muted-foreground">
+              At least 6 characters
             </p>
-            <Link to="/" className="text-sm text-muted-foreground hover:text-foreground text-center">
-              ← Back to Store
-            </Link>
-          </CardFooter>
+          </div>
+
+          <Button type="submit" className="w-full h-11" disabled={isLoading}>
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Create Account
+          </Button>
         </form>
-      </Card>
+
+        <p className="text-sm text-muted-foreground text-center mt-6">
+          Already have an account?{" "}
+          <Link to="/login" className="text-primary font-medium hover:underline">
+            Sign in
+          </Link>
+        </p>
+      </main>
     </div>
   );
 };

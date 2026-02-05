@@ -4,9 +4,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, ChevronLeft } from "lucide-react";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -34,15 +33,12 @@ const Login = () => {
         title: "Welcome back!",
         description: "You have successfully logged in.",
       });
-      // Wait a bit for role to be fetched, then navigate
       setTimeout(() => {
         setIsLoading(false);
-        // Check if admin access was verified for admin login
         const isAdminAccess = sessionStorage.getItem('admin_access_verified');
         if (isAdminAccess) {
           navigate("/admin");
         } else {
-          // Redirect based on role - we'll check in the component after auth state updates
           navigate("/");
         }
       }, 500);
@@ -50,7 +46,6 @@ const Login = () => {
     }
   };
 
-  // Redirect authenticated users based on role
   useEffect(() => {
     if (!isLoading && userRole) {
       const isAdminAccess = sessionStorage.getItem('admin_access_verified');
@@ -63,59 +58,62 @@ const Login = () => {
   }, [userRole, isAdmin, isSeller, navigate, isLoading]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/50 px-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <img src="/logo.jpeg" alt="Eco Hub" className="w-12 h-12 rounded-lg object-cover" />
+    <div className="min-h-screen flex flex-col bg-background">
+      {/* Header */}
+      <header className="flex items-center h-14 px-4 border-b border-border">
+        <Link to="/" className="p-1">
+          <ChevronLeft className="h-5 w-5" />
+        </Link>
+        <span className="ml-3 font-medium">Sign In</span>
+      </header>
+
+      <main className="flex-1 flex flex-col justify-center px-6 py-8">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <img src="/logo.jpeg" alt="Eco Hub" className="w-16 h-16 rounded-2xl object-cover mx-auto mb-4" />
+          <h1 className="text-2xl font-bold">Welcome Back</h1>
+          <p className="text-sm text-muted-foreground mt-1">Sign in to continue</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4 max-w-sm mx-auto w-full">
+          <div className="space-y-1.5">
+            <Label htmlFor="email" className="text-sm">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="h-12"
+            />
           </div>
-          <CardTitle className="text-2xl">Welcome Back</CardTitle>
-          <CardDescription>
-            Sign in to your Eco Hub account
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col gap-4">
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Sign In
-            </Button>
-            <p className="text-sm text-muted-foreground text-center">
-              Don't have an account?{" "}
-              <Link to="/signup" className="text-primary hover:underline">
-                Sign up
-              </Link>
-            </p>
-            <Link to="/" className="text-sm text-muted-foreground hover:text-foreground text-center">
-              ← Back to Store
-            </Link>
-          </CardFooter>
+          <div className="space-y-1.5">
+            <Label htmlFor="password" className="text-sm">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="h-12"
+            />
+          </div>
+
+          <Button type="submit" className="w-full h-12" disabled={isLoading}>
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Sign In
+          </Button>
         </form>
-      </Card>
+
+        <p className="text-sm text-muted-foreground text-center mt-6">
+          Don't have an account?{" "}
+          <Link to="/signup" className="text-primary font-medium hover:underline">
+            Sign up
+          </Link>
+        </p>
+      </main>
     </div>
   );
 };

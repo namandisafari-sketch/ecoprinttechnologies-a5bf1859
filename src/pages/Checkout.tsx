@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft, Upload, Copy, Check, Loader2 } from "lucide-react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import { ChevronLeft, Upload, Copy, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,8 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+import BottomNavigation from "@/components/layout/BottomNavigation";
 import { CartItem } from "@/components/cart/CartDrawer";
 
 const PAYMENT_DETAILS = {
@@ -99,7 +98,6 @@ const Checkout = () => {
 
         if (uploadError) {
           console.error("Upload error:", uploadError);
-          // Continue without the proof - admin can request it later
         } else {
           const { data: urlData } = supabase.storage
             .from('payment-proofs')
@@ -131,7 +129,7 @@ const Checkout = () => {
 
       if (orderError) throw orderError;
 
-      // Create order items - product_id is optional (might be a display product without DB id)
+      // Create order items
       const orderItems = cartItems.map(item => ({
         order_id: order.id,
         product_id: typeof item.id === 'string' ? item.id : null,
@@ -148,8 +146,8 @@ const Checkout = () => {
       if (itemsError) throw itemsError;
 
       toast({
-        title: "Order placed successfully!",
-        description: `Your order number is ${orderNumber}. We'll contact you shortly to confirm payment.`,
+        title: "Order placed!",
+        description: `Order #${orderNumber} submitted successfully.`,
       });
 
       navigate(`/track-order?order=${orderNumber}`);
@@ -157,7 +155,7 @@ const Checkout = () => {
       console.error("Checkout error:", error);
       toast({
         title: "Order failed",
-        description: "There was an error placing your order. Please try again.",
+        description: "Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -168,17 +166,20 @@ const Checkout = () => {
   if (cartItems.length === 0) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
-        <Header cartCount={0} onCartClick={() => {}} />
-        <main className="flex-1 container mx-auto px-4 py-8 flex items-center justify-center">
-          <Card className="max-w-md w-full text-center">
+        <header className="sticky top-0 z-50 bg-background/95 backdrop-blur h-14 flex items-center px-4 border-b border-border">
+          <Link to="/" className="p-1"><ChevronLeft className="h-5 w-5" /></Link>
+          <span className="ml-3 font-medium">Checkout</span>
+        </header>
+        <main className="flex-1 flex items-center justify-center p-4 pb-20">
+          <Card className="w-full max-w-sm text-center">
             <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold mb-4">Your cart is empty</h2>
-              <p className="text-muted-foreground mb-6">Add some products before checking out</p>
-              <Button onClick={() => navigate("/")}>Continue Shopping</Button>
+              <h2 className="text-lg font-semibold mb-2">Cart is empty</h2>
+              <p className="text-sm text-muted-foreground mb-4">Add products first</p>
+              <Button size="sm" onClick={() => navigate("/")}>Continue Shopping</Button>
             </CardContent>
           </Card>
         </main>
-        <Footer />
+        <BottomNavigation cartCount={0} onCartClick={() => {}} />
       </div>
     );
   }
@@ -187,223 +188,209 @@ const Checkout = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Header cartCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)} onCartClick={() => {}} />
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-border">
+        <div className="flex items-center h-14 px-4 gap-3">
+          <button onClick={() => navigate(-1)} className="p-1">
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <h1 className="font-semibold text-lg">Checkout</h1>
+        </div>
+      </header>
       
-      <main className="flex-1 container mx-auto px-4 py-8">
-        <Button variant="ghost" className="mb-6" onClick={() => navigate(-1)}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
-        </Button>
+      <main className="flex-1 px-4 py-4 pb-24">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Order Summary - Compact */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Order Summary</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {cartItems.map((item) => (
+                <div key={item.id} className="flex gap-3">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-14 h-14 object-cover rounded"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium line-clamp-1">{item.name}</p>
+                    <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
+                    <p className="text-sm font-semibold text-primary">
+                      {formatPrice(item.price * item.quantity)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+              <div className="border-t pt-3 space-y-1.5 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span>{formatPrice(subtotal)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Delivery</span>
+                  <span>{deliveryFee === 0 ? <span className="text-primary">Free</span> : formatPrice(deliveryFee)}</span>
+                </div>
+                <div className="flex justify-between font-bold text-base pt-1 border-t">
+                  <span>Total</span>
+                  <span className="text-primary">{formatPrice(total)}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-        <h1 className="text-2xl font-bold mb-6">Checkout</h1>
-
-        <form onSubmit={handleSubmit} className="grid lg:grid-cols-2 gap-8">
           {/* Customer Details */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Customer Details</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="name">Full Name *</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="phone">Phone Number *</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      placeholder="0772xxxxxx"
-                      required
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="email">Email *</Label>
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Your Details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label htmlFor="name" className="text-xs">Name *</Label>
                   <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     required
+                    className="h-10"
                   />
                 </div>
-                <div>
-                  <Label htmlFor="city">City *</Label>
+                <div className="space-y-1">
+                  <Label htmlFor="phone" className="text-xs">Phone *</Label>
                   <Input
-                    id="city"
-                    value={formData.city}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                    placeholder="Kampala"
+                    id="phone"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    placeholder="0772..."
                     required
+                    className="h-10"
                   />
                 </div>
-                <div>
-                  <Label htmlFor="address">Delivery Address *</Label>
-                  <Textarea
-                    id="address"
-                    value={formData.address}
-                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    placeholder="Street, Building, Landmark..."
-                    required
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="email" className="text-xs">Email *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  required
+                  className="h-10"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="city" className="text-xs">City *</Label>
+                <Input
+                  id="city"
+                  value={formData.city}
+                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                  placeholder="Kampala"
+                  required
+                  className="h-10"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="address" className="text-xs">Address *</Label>
+                <Textarea
+                  id="address"
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  placeholder="Street, Building..."
+                  required
+                  className="min-h-[70px]"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Payment Method */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Payment</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <RadioGroup
+                value={formData.paymentMethod}
+                onValueChange={(value) => setFormData({ ...formData, paymentMethod: value })}
+                className="gap-2"
+              >
+                <div className="flex items-center space-x-2 p-3 border rounded-lg">
+                  <RadioGroupItem value="mtn" id="mtn" />
+                  <Label htmlFor="mtn" className="flex-1 cursor-pointer text-sm">MTN Mobile Money</Label>
+                </div>
+                <div className="flex items-center space-x-2 p-3 border rounded-lg">
+                  <RadioGroupItem value="airtel" id="airtel" />
+                  <Label htmlFor="airtel" className="flex-1 cursor-pointer text-sm">Airtel Money</Label>
+                </div>
+              </RadioGroup>
+
+              <div className="bg-muted p-3 rounded-lg space-y-2">
+                <p className="text-xs font-medium">Send {formatPrice(total)} to:</p>
+                <div className="flex items-center justify-between bg-background p-2 rounded border">
+                  <div>
+                    <p className="text-xs text-muted-foreground">{selectedPayment.name}</p>
+                    <p className="font-mono font-semibold">{selectedPayment.number}</p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={() => handleCopyNumber(selectedPayment.number)}
+                  >
+                    {copiedNumber ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="proof" className="text-xs">Payment Proof (Optional)</Label>
+                <div className="mt-1.5 border-2 border-dashed rounded-lg p-3 text-center">
+                  <input
+                    type="file"
+                    id="proof"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
                   />
+                  <label htmlFor="proof" className="cursor-pointer">
+                    {paymentProof ? (
+                      <div className="flex items-center justify-center gap-2 text-primary text-sm">
+                        <Check className="h-4 w-4" />
+                        <span className="truncate max-w-[200px]">{paymentProof.name}</span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-1 text-muted-foreground">
+                        <Upload className="h-6 w-6" />
+                        <span className="text-xs">Upload screenshot</span>
+                      </div>
+                    )}
+                  </label>
                 </div>
-                <div>
-                  <Label htmlFor="notes">Order Notes (Optional)</Label>
-                  <Textarea
-                    id="notes"
-                    value={formData.notes}
-                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                    placeholder="Any special instructions..."
-                  />
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-            {/* Payment Method */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Payment Method</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <RadioGroup
-                  value={formData.paymentMethod}
-                  onValueChange={(value) => setFormData({ ...formData, paymentMethod: value })}
-                >
-                  <div className="flex items-center space-x-2 p-3 border rounded-lg">
-                    <RadioGroupItem value="mtn" id="mtn" />
-                    <Label htmlFor="mtn" className="flex-1 cursor-pointer">MTN Mobile Money</Label>
-                  </div>
-                  <div className="flex items-center space-x-2 p-3 border rounded-lg">
-                    <RadioGroupItem value="airtel" id="airtel" />
-                    <Label htmlFor="airtel" className="flex-1 cursor-pointer">Airtel Money</Label>
-                  </div>
-                </RadioGroup>
-
-                <div className="bg-muted p-4 rounded-lg space-y-3">
-                  <p className="text-sm font-medium">Send payment of {formatPrice(total)} to:</p>
-                  <div className="flex items-center justify-between bg-background p-3 rounded border">
-                    <div>
-                      <p className="font-semibold">{selectedPayment.name}</p>
-                      <p className="text-lg font-mono">{selectedPayment.number}</p>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleCopyNumber(selectedPayment.number)}
-                    >
-                      {copiedNumber ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                    </Button>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    After sending payment, upload the screenshot below for faster processing
-                  </p>
-                </div>
-
-                <div>
-                  <Label htmlFor="proof">Payment Proof (Screenshot)</Label>
-                  <div className="mt-2 border-2 border-dashed rounded-lg p-4 text-center">
-                    <input
-                      type="file"
-                      id="proof"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      className="hidden"
-                    />
-                    <label htmlFor="proof" className="cursor-pointer">
-                      {paymentProof ? (
-                        <div className="flex items-center justify-center gap-2 text-primary">
-                          <Check className="h-5 w-5" />
-                          <span>{paymentProof.name}</span>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                          <Upload className="h-8 w-8" />
-                          <span>Click to upload payment screenshot</span>
-                        </div>
-                      )}
-                    </label>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Order Summary */}
-          <div>
-            <Card className="sticky top-4">
-              <CardHeader>
-                <CardTitle>Order Summary</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {cartItems.map((item) => (
-                  <div key={item.id} className="flex gap-3">
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-16 h-16 object-cover rounded"
-                    />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium line-clamp-2">{item.name}</p>
-                      <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
-                      <p className="text-sm font-semibold text-primary">
-                        {formatPrice(item.price * item.quantity)}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-
-                <div className="border-t pt-4 space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Subtotal</span>
-                    <span>{formatPrice(subtotal)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Delivery</span>
-                    <span>{deliveryFee === 0 ? <span className="text-primary">Free</span> : formatPrice(deliveryFee)}</span>
-                  </div>
-                  <div className="flex justify-between text-lg font-bold pt-2 border-t">
-                    <span>Total</span>
-                    <span className="text-primary">{formatPrice(total)}</span>
-                  </div>
-                </div>
-
-                <Button
-                  type="submit"
-                  className="w-full"
-                  size="lg"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    "Place Order"
-                  )}
-                </Button>
-
-                <p className="text-xs text-center text-muted-foreground">
-                  By placing this order, you agree to our terms and conditions
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+          <Button
+            type="submit"
+            className="w-full h-12"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              "Place Order"
+            )}
+          </Button>
         </form>
       </main>
 
-      <Footer />
+      <BottomNavigation cartCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)} onCartClick={() => {}} />
     </div>
   );
 };

@@ -1,86 +1,67 @@
-import { Smartphone, Battery, Cable, ShieldCheck, Wrench, Headphones } from "lucide-react";
+import { Laptop, Gamepad2, Briefcase, GraduationCap, Recycle, Wrench } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const categories = [
   {
     id: 1,
-    name: "Phone Screens",
-    icon: Smartphone,
-    count: 150,
-    description: "LCD & OLED displays",
+    name: "All Laptops",
+    icon: Laptop,
+    query: "All Laptops",
   },
   {
     id: 2,
-    name: "Batteries",
-    icon: Battery,
-    count: 80,
-    description: "Original & compatible",
+    name: "Gaming",
+    icon: Gamepad2,
+    query: "Gaming Laptops",
   },
   {
     id: 3,
-    name: "Chargers & Cables",
-    icon: Cable,
-    count: 120,
-    description: "Fast charging solutions",
+    name: "Business",
+    icon: Briefcase,
+    query: "Business Laptops",
   },
   {
     id: 4,
-    name: "Phone Cases",
-    icon: ShieldCheck,
-    count: 200,
-    description: "Protection & style",
+    name: "Student",
+    icon: GraduationCap,
+    query: "Student Laptops",
   },
   {
     id: 5,
-    name: "Spare Parts",
-    icon: Wrench,
-    count: 300,
-    description: "Repair components",
+    name: "Refurbished",
+    icon: Recycle,
+    query: "Refurbished",
   },
   {
     id: 6,
-    name: "Accessories",
-    icon: Headphones,
-    count: 90,
-    description: "Enhance your device",
+    name: "Repairs",
+    icon: Wrench,
+    path: "/technicians",
   },
 ];
 
 const CategorySection = () => {
   return (
-    <section className="py-12 md:py-16 bg-muted/50">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-10">
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-            Shop by Category
-          </h2>
-          <p className="text-muted-foreground">
-            Find exactly what you need for your device
-          </p>
-        </div>
+    <section className="py-6 px-4">
+      <h2 className="text-base font-bold text-foreground mb-4">
+        Categories
+      </h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {categories.map((category, index) => (
-            <a
-              key={category.id}
-              href={`#${category.name.toLowerCase().replace(' ', '-')}`}
-              className="group card-product bg-card p-6 text-center cursor-pointer"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <div className="w-16 h-16 mx-auto mb-4 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
-                <category.icon className="h-8 w-8 text-primary group-hover:text-primary-foreground transition-colors duration-300" />
-              </div>
-              <h3 className="font-semibold text-foreground mb-1 text-sm">
-                {category.name}
-              </h3>
-              <p className="text-xs text-muted-foreground mb-2">
-                {category.description}
-              </p>
-              <span className="text-xs text-primary font-medium">
-                {category.count}+ items
-              </span>
-            </a>
-          ))}
-        </div>
+      <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+        {categories.map((category) => (
+          <Link
+            key={category.id}
+            to={category.path || `/search?q=${encodeURIComponent(category.query || '')}`}
+            className="flex flex-col items-center min-w-[70px] group"
+          >
+            <div className="w-14 h-14 mb-2 bg-muted rounded-2xl flex items-center justify-center group-hover:bg-primary transition-colors duration-200">
+              <category.icon className="h-6 w-6 text-muted-foreground group-hover:text-primary-foreground transition-colors duration-200" />
+            </div>
+            <span className="text-xs font-medium text-foreground text-center">
+              {category.name}
+            </span>
+          </Link>
+        ))}
       </div>
     </section>
   );

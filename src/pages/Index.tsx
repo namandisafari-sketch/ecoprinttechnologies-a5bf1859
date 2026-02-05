@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+import MobileHeader from "@/components/layout/MobileHeader";
+import BottomNavigation from "@/components/layout/BottomNavigation";
 import HeroSection from "@/components/home/HeroSection";
 import CategorySection from "@/components/home/CategorySection";
 import FeaturedProducts from "@/components/home/FeaturedProducts";
@@ -65,17 +65,21 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Header cartCount={cartCount} onCartClick={() => setIsCartOpen(true)} />
+      <MobileHeader />
       
-      <main className="flex-1">
+      {/* Main content with bottom padding for nav */}
+      <main className="flex-1 pb-20">
         <HeroSection />
         <CategorySection />
         <FeaturedProducts onAddToCart={handleAddToCart} />
         <PromoSection />
         <BrandsSection />
       </main>
-      
-      <Footer />
+
+      <BottomNavigation 
+        cartCount={cartCount} 
+        onCartClick={() => setIsCartOpen(true)} 
+      />
 
       <CartDrawer
         isOpen={isCartOpen}
