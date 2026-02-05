@@ -1,72 +1,60 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Percent, Truck, Clock } from "lucide-react";
+import { ArrowRight, Truck, Clock } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const PromoSection = () => {
   return (
-    <section className="py-12 md:py-16">
-      <div className="container mx-auto px-4">
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Big promo card */}
-          <div className="relative overflow-hidden rounded-2xl bg-secondary p-8 md:p-10 group">
+    <section className="py-6 px-4">
+      <div className="space-y-3">
+        {/* Main promo */}
+        <Link to="/search?q=Sale" className="block">
+          <div className="relative overflow-hidden rounded-xl bg-secondary p-5">
             <div className="relative z-10">
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary rounded-full text-primary-foreground text-sm font-medium mb-4">
-                <Percent className="h-4 w-4" />
-                Limited Time Offer
+              <span className="inline-block px-2 py-0.5 bg-primary rounded-full text-primary-foreground text-[10px] font-medium mb-2">
+                LIMITED TIME
               </span>
-              <h3 className="text-2xl md:text-3xl font-bold text-secondary-foreground mb-3">
-                Up to 30% Off on
-                <br />
-                Phone Screens
+              <h3 className="text-lg font-bold text-secondary-foreground mb-1">
+                Up to 30% Off
               </h3>
-              <p className="text-secondary-foreground/70 mb-6 max-w-sm">
-                Get premium quality OLED and LCD screens at unbeatable prices. 
-                Valid while stocks last!
+              <p className="text-xs text-secondary-foreground/70 mb-3">
+                On refurbished laptops
               </p>
-              <Button variant="hero" size="lg">
-                Shop Screens
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
+              <div className="inline-flex items-center text-xs font-medium text-primary">
+                Shop Now
+                <ArrowRight className="ml-1 h-3 w-3" />
+              </div>
             </div>
-            {/* Decorative element */}
-            <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-primary/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
+            <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-primary/20 rounded-full blur-2xl" />
+          </div>
+        </Link>
+
+        {/* Feature cards */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-xl bg-primary p-4">
+            <div className="p-1.5 bg-primary-foreground/20 rounded-lg inline-block mb-2">
+              <Truck className="h-4 w-4 text-primary-foreground" />
+            </div>
+            <h4 className="text-sm font-semibold text-primary-foreground mb-0.5">
+              Free Delivery
+            </h4>
+            <p className="text-[10px] text-primary-foreground/80">
+              On orders above UGX 500k
+            </p>
           </div>
 
-          {/* Smaller promo cards */}
-          <div className="grid gap-6">
-            <div className="relative overflow-hidden rounded-2xl bg-primary p-6 md:p-8 group">
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="p-2 bg-primary-foreground/20 rounded-lg inline-block mb-3">
-                    <Truck className="h-6 w-6 text-primary-foreground" />
-                  </div>
-                  <h4 className="text-xl font-bold text-primary-foreground mb-2">
-                    Free Delivery
-                  </h4>
-                  <p className="text-primary-foreground/80 text-sm">
-                    On orders above UGX 100,000 within Kampala
-                  </p>
-                </div>
+          <Link to="/technicians" className="block">
+            <div className="rounded-xl bg-muted p-4 border border-border h-full">
+              <div className="p-1.5 bg-primary/10 rounded-lg inline-block mb-2">
+                <Clock className="h-4 w-4 text-primary" />
               </div>
-              <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-primary-foreground/10 rounded-full group-hover:scale-150 transition-transform duration-500" />
+              <h4 className="text-sm font-semibold text-foreground mb-0.5">
+                Same Day Repair
+              </h4>
+              <p className="text-[10px] text-muted-foreground">
+                Quick turnaround
+              </p>
             </div>
-
-            <div className="relative overflow-hidden rounded-2xl bg-muted p-6 md:p-8 group border border-border">
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="p-2 bg-primary/10 rounded-lg inline-block mb-3">
-                    <Clock className="h-6 w-6 text-primary" />
-                  </div>
-                  <h4 className="text-xl font-bold text-foreground mb-2">
-                    Same Day Repair
-                  </h4>
-                  <p className="text-muted-foreground text-sm">
-                    Drop off your device and pick it up the same day
-                  </p>
-                </div>
-              </div>
-              <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-primary/5 rounded-full group-hover:scale-150 transition-transform duration-500" />
-            </div>
-          </div>
+          </Link>
         </div>
       </div>
     </section>

@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
-import { Search as SearchIcon, Filter, X } from "lucide-react";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+import { Search as SearchIcon, Filter, X, ChevronLeft } from "lucide-react";
+import MobileHeader from "@/components/layout/MobileHeader";
+import MobileFooter from "@/components/layout/MobileFooter";
+import BottomNavigation from "@/components/layout/BottomNavigation";
 import ProductCard from "@/components/home/ProductCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProducts, useCategories, useBrands } from "@/hooks/useProducts";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import CartDrawer, { CartItem } from "@/components/cart/CartDrawer";
 import { Product } from "@/components/home/ProductCard";
@@ -121,134 +122,126 @@ const Search = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Header cartCount={cartCount} onCartClick={() => setIsCartOpen(true)} />
-
-      <main className="flex-1 py-8">
-        <div className="container mx-auto px-4">
-          {/* Search Header */}
-          <div className="mb-8">
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
-              Search Products
-            </h1>
-
-            {/* Search Form */}
-            <form onSubmit={handleSearch} className="space-y-4">
-              <div className="relative">
-                <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input
-                  placeholder="Search by name, model, brand, or color..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 h-12 text-lg"
-                />
-              </div>
-
-              {/* Filter Toggle for Mobile */}
-              <div className="flex gap-2 md:hidden">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="flex-1"
-                >
-                  <Filter className="h-4 w-4 mr-2" />
-                  Filters
-                </Button>
-                <Button type="submit">Search</Button>
-              </div>
-
-              {/* Filters */}
-              <div
-                className={`grid grid-cols-1 md:grid-cols-4 gap-4 ${
-                  showFilters ? "block" : "hidden md:grid"
-                }`}
-              >
-                <Select
-                  value={selectedCategory}
-                  onValueChange={setSelectedCategory}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="All Categories" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">All Categories</SelectItem>
-                    {categories?.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                <Select value={selectedBrand} onValueChange={setSelectedBrand}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="All Brands" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">All Brands</SelectItem>
-                    {brands?.map((brand) => (
-                      <SelectItem key={brand.id} value={brand.id}>
-                        {brand.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                <Button type="submit" className="hidden md:flex">
-                  <SearchIcon className="h-4 w-4 mr-2" />
-                  Search
-                </Button>
-
-                {hasActiveFilters && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={clearFilters}
-                    className="text-muted-foreground"
-                  >
-                    <X className="h-4 w-4 mr-2" />
-                    Clear Filters
-                  </Button>
-                )}
-              </div>
-            </form>
-
-            {/* Active Filters */}
+      {/* Page Header */}
+      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-border">
+        <div className="flex items-center h-14 px-4 gap-3">
+          <Link to="/" className="p-1">
+            <ChevronLeft className="h-5 w-5" />
+          </Link>
+          <form onSubmit={handleSearch} className="flex-1">
+            <div className="relative">
+              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search laptops..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 h-10 bg-muted border-0"
+              />
+            </div>
+          </form>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowFilters(!showFilters)}
+            className="relative"
+          >
+            <Filter className="h-5 w-5" />
             {hasActiveFilters && (
-              <div className="flex flex-wrap gap-2 mt-4">
-                {searchQuery && (
-                  <Badge variant="secondary" className="gap-1">
-                    Search: {searchQuery}
-                    <button onClick={() => setSearchQuery("")}>
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                )}
-                {selectedCategory && (
-                  <Badge variant="secondary" className="gap-1">
-                    Category: {categories?.find((c) => c.id === selectedCategory)?.name}
-                    <button onClick={() => setSelectedCategory("")}>
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                )}
-                {selectedBrand && (
-                  <Badge variant="secondary" className="gap-1">
-                    Brand: {brands?.find((b) => b.id === selectedBrand)?.name}
-                    <button onClick={() => setSelectedBrand("")}>
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                )}
-              </div>
+              <span className="absolute -top-1 -right-1 h-2 w-2 bg-primary rounded-full" />
+            )}
+          </Button>
+        </div>
+
+        {/* Filters */}
+        {showFilters && (
+          <div className="px-4 pb-4 pt-2 space-y-3 animate-fade-in border-t border-border">
+            <div className="flex gap-2">
+              <Select
+                value={selectedCategory}
+                onValueChange={setSelectedCategory}
+              >
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All Categories</SelectItem>
+                  {categories?.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={selectedBrand} onValueChange={setSelectedBrand}>
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="Brand" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All Brands</SelectItem>
+                  {brands?.map((brand) => (
+                    <SelectItem key={brand.id} value={brand.id}>
+                      {brand.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {hasActiveFilters && (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={clearFilters}
+                className="w-full text-muted-foreground"
+                size="sm"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Clear Filters
+              </Button>
             )}
           </div>
+        )}
 
+        {/* Active Filters Pills */}
+        {hasActiveFilters && !showFilters && (
+          <div className="flex gap-2 px-4 pb-3 overflow-x-auto">
+            {searchQuery && (
+              <Badge variant="secondary" className="gap-1 shrink-0">
+                {searchQuery}
+                <button onClick={() => setSearchQuery("")}>
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+            {selectedCategory && (
+              <Badge variant="secondary" className="gap-1 shrink-0">
+                {categories?.find((c) => c.id === selectedCategory)?.name}
+                <button onClick={() => setSelectedCategory("")}>
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+            {selectedBrand && (
+              <Badge variant="secondary" className="gap-1 shrink-0">
+                {brands?.find((b) => b.id === selectedBrand)?.name}
+                <button onClick={() => setSelectedBrand("")}>
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+          </div>
+        )}
+      </header>
+
+      <main className="flex-1 pb-20">
+        <div className="px-4 py-4">
           {/* Results */}
           {isLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="space-y-2">
                   <Skeleton className="aspect-square rounded-xl" />
                   <Skeleton className="h-4 w-3/4" />
                   <Skeleton className="h-4 w-1/2" />
@@ -257,10 +250,10 @@ const Search = () => {
             </div>
           ) : displayProducts.length > 0 ? (
             <>
-              <p className="text-muted-foreground mb-6">
+              <p className="text-sm text-muted-foreground mb-4">
                 {displayProducts.length} product{displayProducts.length !== 1 ? "s" : ""} found
               </p>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+              <div className="grid grid-cols-2 gap-3">
                 {displayProducts.map((product) => (
                   <ProductCard
                     key={product.id}
@@ -272,14 +265,14 @@ const Search = () => {
             </>
           ) : (
             <div className="text-center py-16">
-              <SearchIcon className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-              <h2 className="text-xl font-semibold text-foreground mb-2">
+              <SearchIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <h2 className="text-lg font-semibold text-foreground mb-2">
                 No products found
               </h2>
-              <p className="text-muted-foreground mb-6">
+              <p className="text-sm text-muted-foreground mb-4">
                 Try adjusting your search or filters
               </p>
-              <Button onClick={clearFilters} variant="outline">
+              <Button onClick={clearFilters} variant="outline" size="sm">
                 Clear all filters
               </Button>
             </div>
@@ -287,7 +280,7 @@ const Search = () => {
         </div>
       </main>
 
-      <Footer />
+      <BottomNavigation cartCount={cartCount} onCartClick={() => setIsCartOpen(true)} />
 
       <CartDrawer
         isOpen={isCartOpen}

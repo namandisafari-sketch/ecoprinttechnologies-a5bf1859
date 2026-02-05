@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Shield, Truck, Wrench } from "lucide-react";
+import { Link } from "react-router-dom";
 import heroBanner from "@/assets/hero-banner.jpg";
 
 const HeroSection = () => {
@@ -12,55 +13,58 @@ const HeroSection = () => {
           alt="Laptop marketplace"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-secondary/95 via-secondary/80 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-secondary/90 via-secondary/70 to-secondary/90" />
       </div>
 
-      {/* Content */}
-      <div className="relative container mx-auto px-4 py-16 md:py-24 lg:py-32">
-        <div className="max-w-2xl animate-fade-in">
-          <span className="inline-block px-4 py-1.5 bg-primary/20 text-primary rounded-full text-sm font-medium mb-4">
-            Suncity Mall's Premier Laptop Hub
+      {/* Content - Mobile Optimized */}
+      <div className="relative px-4 py-10">
+        <div className="max-w-md mx-auto text-center animate-fade-in">
+          <span className="inline-block px-3 py-1 bg-primary/20 text-primary rounded-full text-xs font-medium mb-3">
+            Suncity Mall, Kampala
           </span>
           
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-secondary-foreground mb-4 leading-tight">
+          <h1 className="text-2xl font-bold text-secondary-foreground mb-3 leading-tight">
             Find Your Dream 
-            <span className="text-primary"> Laptop</span> Today
+            <span className="text-primary"> Laptop</span>
           </h1>
           
-          <p className="text-lg text-secondary-foreground/80 mb-8 max-w-lg">
-            Affordable laptops from top brands, expert technicians for repairs, 
-            and unbeatable prices at Suncity Mall. Delivery across Kampala and nationwide.
+          <p className="text-sm text-secondary-foreground/80 mb-6">
+            Top brands, expert repairs, unbeatable prices. Free delivery in Kampala.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 mb-12">
-            <Button variant="hero" size="xl">
-              Browse Laptops
-              <ArrowRight className="ml-2 h-5 w-5" />
+          <div className="flex gap-3 justify-center mb-8">
+            <Button size="default" className="h-10 px-5" asChild>
+              <Link to="/search">
+                Browse
+                <ArrowRight className="ml-1.5 h-4 w-4" />
+              </Link>
             </Button>
-            <Button variant="heroDark" size="xl">
-              Repair Services
+            <Button variant="outline" size="default" className="h-10 px-5 border-secondary-foreground/30 text-secondary-foreground hover:bg-secondary-foreground/10" asChild>
+              <Link to="/technicians">
+                Repairs
+              </Link>
             </Button>
           </div>
 
-          {/* Trust badges */}
-          <div className="grid grid-cols-3 gap-4 max-w-lg">
-            <div className="flex items-center gap-2 text-secondary-foreground/80">
-              <div className="p-2 bg-primary/20 rounded-lg">
-                <Shield className="h-5 w-5 text-primary" />
+          {/* Trust badges - Compact */}
+          <div className="flex justify-center gap-4">
+            <div className="flex flex-col items-center">
+              <div className="p-2 bg-primary/20 rounded-full mb-1">
+                <Shield className="h-4 w-4 text-primary" />
               </div>
-              <span className="text-xs font-medium">Warranty Included</span>
+              <span className="text-[10px] text-secondary-foreground/70">Warranty</span>
             </div>
-            <div className="flex items-center gap-2 text-secondary-foreground/80">
-              <div className="p-2 bg-primary/20 rounded-lg">
-                <Truck className="h-5 w-5 text-primary" />
+            <div className="flex flex-col items-center">
+              <div className="p-2 bg-primary/20 rounded-full mb-1">
+                <Truck className="h-4 w-4 text-primary" />
               </div>
-              <span className="text-xs font-medium">Free Delivery</span>
+              <span className="text-[10px] text-secondary-foreground/70">Delivery</span>
             </div>
-            <div className="flex items-center gap-2 text-secondary-foreground/80">
-              <div className="p-2 bg-primary/20 rounded-lg">
-                <Wrench className="h-5 w-5 text-primary" />
+            <div className="flex flex-col items-center">
+              <div className="p-2 bg-primary/20 rounded-full mb-1">
+                <Wrench className="h-4 w-4 text-primary" />
               </div>
-              <span className="text-xs font-medium">Expert Repairs</span>
+              <span className="text-[10px] text-secondary-foreground/70">Repairs</span>
             </div>
           </div>
         </div>

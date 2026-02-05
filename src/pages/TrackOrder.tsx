@@ -1,13 +1,12 @@
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { Search, Package, Truck, CheckCircle, Clock, AlertCircle, Loader2 } from "lucide-react";
+import { useSearchParams, Link } from "react-router-dom";
+import { Search, Package, Truck, CheckCircle, Clock, AlertCircle, Loader2, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+import BottomNavigation from "@/components/layout/BottomNavigation";
 
 interface OrderData {
   id: string;
@@ -102,79 +101,88 @@ const TrackOrder = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Header cartCount={0} onCartClick={() => {}} />
+      {/* Page Header */}
+      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-border">
+        <div className="flex items-center h-14 px-4 gap-3">
+          <Link to="/" className="p-1">
+            <ChevronLeft className="h-5 w-5" />
+          </Link>
+          <h1 className="font-semibold text-lg">Track Order</h1>
+        </div>
+      </header>
       
-      <main className="flex-1 container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold mb-2">Track Your Order</h1>
-            <p className="text-muted-foreground">
-              Enter your order number to check the status of your order
+      <main className="flex-1 px-4 py-6 pb-24">
+        <div className="max-w-md mx-auto">
+          <div className="text-center mb-6">
+            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Package className="h-8 w-8 text-primary" />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Enter your order number to check status
             </p>
           </div>
 
-          <form onSubmit={handleSearch} className="flex gap-2 mb-8">
+          <form onSubmit={handleSearch} className="flex gap-2 mb-6">
             <Input
               value={orderNumber}
               onChange={(e) => setOrderNumber(e.target.value)}
-              placeholder="Enter order number (e.g., SWXXX123)"
-              className="flex-1"
+              placeholder="e.g., SWXXX123"
+              className="flex-1 h-12"
             />
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" disabled={isLoading} className="h-12 px-6">
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <Search className="h-4 w-4" />
               )}
-              <span className="ml-2 hidden sm:inline">Track</span>
             </Button>
           </form>
 
           {error && (
-            <Card className="border-destructive/50 bg-destructive/10 mb-8">
+            <Card className="border-destructive/50 bg-destructive/10 mb-6">
               <CardContent className="pt-6 text-center">
-                <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
-                <p className="text-destructive font-medium">{error}</p>
+                <AlertCircle className="h-10 w-10 text-destructive mx-auto mb-3" />
+                <p className="text-sm text-destructive font-medium">{error}</p>
               </CardContent>
             </Card>
           )}
 
           {orderData && statusConfig && (
-            <div className="space-y-6">
+            <div className="space-y-4">
               {/* Order Status Card */}
               <Card>
-                <CardHeader className="text-center">
-                  <div className={`w-16 h-16 ${statusConfig.color} rounded-full flex items-center justify-center mx-auto mb-4`}>
-                    <statusConfig.icon className="h-8 w-8 text-white" />
+                <CardHeader className="text-center pb-4">
+                  <div className={`w-14 h-14 ${statusConfig.color} rounded-full flex items-center justify-center mx-auto mb-3`}>
+                    <statusConfig.icon className="h-7 w-7 text-white" />
                   </div>
-                  <CardTitle className="text-2xl">{statusConfig.label}</CardTitle>
-                  <p className="text-muted-foreground">Order #{orderData.order_number}</p>
+                  <CardTitle className="text-xl">{statusConfig.label}</CardTitle>
+                  <p className="text-sm text-muted-foreground">#{orderData.order_number}</p>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-0">
                   {/* Progress Steps */}
                   {statusConfig.step > 0 && (
-                    <div className="flex justify-between mb-8 relative">
-                      <div className="absolute top-4 left-0 right-0 h-1 bg-muted -z-10" />
+                    <div className="flex justify-between mb-6 relative px-2">
+                      <div className="absolute top-3 left-4 right-4 h-0.5 bg-muted -z-10" />
                       <div 
-                        className="absolute top-4 left-0 h-1 bg-primary -z-10 transition-all"
+                        className="absolute top-3 left-4 h-0.5 bg-primary -z-10 transition-all"
                         style={{ width: `${((statusConfig.step - 1) / 4) * 100}%` }}
                       />
-                      {steps.map((step, index) => (
+                      {steps.map((step) => (
                         <div key={step.step} className="flex flex-col items-center">
                           <div
-                            className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                            className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
                               step.step <= statusConfig.step
                                 ? "bg-primary text-primary-foreground"
                                 : "bg-muted text-muted-foreground"
                             }`}
                           >
                             {step.step <= statusConfig.step ? (
-                              <CheckCircle className="h-5 w-5" />
+                              <CheckCircle className="h-4 w-4" />
                             ) : (
                               step.step
                             )}
                           </div>
-                          <span className={`text-xs mt-2 ${
+                          <span className={`text-[10px] mt-1 ${
                             step.step <= statusConfig.step ? "font-medium" : "text-muted-foreground"
                           }`}>
                             {step.label}
@@ -185,34 +193,30 @@ const TrackOrder = () => {
                   )}
 
                   {/* Order Details */}
-                  <div className="grid sm:grid-cols-2 gap-4 text-sm">
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Customer:</span>
-                        <span className="font-medium">{orderData.customer_name}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Order Date:</span>
-                        <span className="font-medium">
-                          {new Date(orderData.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Total:</span>
-                        <span className="font-bold text-primary">{formatPrice(orderData.total)}</span>
-                      </div>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Customer</span>
+                      <span className="font-medium">{orderData.customer_name}</span>
                     </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">City:</span>
-                        <span className="font-medium">{orderData.city}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Payment:</span>
-                        <Badge variant={orderData.payment_status === "paid" ? "default" : "secondary"}>
-                          {orderData.payment_status}
-                        </Badge>
-                      </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Date</span>
+                      <span className="font-medium">
+                        {new Date(orderData.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">City</span>
+                      <span className="font-medium">{orderData.city}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Payment</span>
+                      <Badge variant={orderData.payment_status === "paid" ? "default" : "secondary"} className="text-xs">
+                        {orderData.payment_status}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between pt-2 border-t border-border">
+                      <span className="font-medium">Total</span>
+                      <span className="font-bold text-primary">{formatPrice(orderData.total)}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -220,9 +224,9 @@ const TrackOrder = () => {
 
               {/* Contact Info */}
               <Card className="bg-muted/50">
-                <CardContent className="pt-6 text-center">
-                  <p className="text-sm text-muted-foreground mb-2">Need help with your order?</p>
-                  <p className="font-medium">Contact us on WhatsApp: +256 772 123 456</p>
+                <CardContent className="py-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">Need help?</p>
+                  <p className="text-sm font-medium">WhatsApp: +256 772 123 456</p>
                 </CardContent>
               </Card>
             </div>
@@ -230,10 +234,10 @@ const TrackOrder = () => {
 
           {!hasSearched && !orderData && (
             <Card className="bg-muted/50">
-              <CardContent className="pt-6 text-center">
-                <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">
-                  Enter your order number above to see the current status
+              <CardContent className="py-8 text-center">
+                <Package className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">
+                  Enter your order number above
                 </p>
               </CardContent>
             </Card>
@@ -241,7 +245,7 @@ const TrackOrder = () => {
         </div>
       </main>
 
-      <Footer />
+      <BottomNavigation cartCount={0} onCartClick={() => {}} />
     </div>
   );
 };

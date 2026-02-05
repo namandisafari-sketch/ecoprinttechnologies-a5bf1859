@@ -1,6 +1,6 @@
 import ProductCard, { Product } from "./ProductCard";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useProducts } from "@/hooks/useProducts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMemo } from "react";
@@ -17,7 +17,7 @@ const FeaturedProducts = ({ onAddToCart }: FeaturedProductsProps) => {
   const displayProducts = useMemo(() => {
     if (!products) return [];
     return products.map((p) => ({
-      id: parseInt(p.id.slice(0, 8), 16), // Convert UUID to number for cart
+      id: parseInt(p.id.slice(0, 8), 16),
       name: p.name,
       brand: p.brands?.name || "Unknown",
       price: Number(p.price),
@@ -32,54 +32,45 @@ const FeaturedProducts = ({ onAddToCart }: FeaturedProductsProps) => {
   }, [products]);
 
   return (
-    <section className="py-12 md:py-16">
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
-          <div>
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-              Featured Laptops
-            </h2>
-            <p className="text-muted-foreground">
-              Top picks for every budget
-            </p>
-          </div>
-          <Link to="/search">
-            <Button variant="outlinePrimary">
-              View All Laptops
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+    <section className="py-6 px-4">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-base font-bold text-foreground">
+          Featured Laptops
+        </h2>
+        <Link to="/search" className="text-xs text-primary font-medium flex items-center gap-1">
+          View All
+          <ArrowRight className="h-3 w-3" />
+        </Link>
+      </div>
+
+      {isLoading ? (
+        <div className="grid grid-cols-2 gap-3">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="space-y-2">
+              <Skeleton className="aspect-square rounded-xl" />
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-4 w-1/2" />
+            </div>
+          ))}
+        </div>
+      ) : displayProducts.length > 0 ? (
+        <div className="grid grid-cols-2 gap-3">
+          {displayProducts.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              onAddToCart={onAddToCart}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-8">
+          <p className="text-sm text-muted-foreground">No featured laptops</p>
+          <Link to="/search" className="text-xs text-primary hover:underline mt-1 inline-block">
+            Browse all
           </Link>
         </div>
-
-        {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="space-y-3">
-                <Skeleton className="aspect-square rounded-xl" />
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
-              </div>
-            ))}
-          </div>
-        ) : displayProducts.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            {displayProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onAddToCart={onAddToCart}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">No featured laptops available</p>
-            <Link to="/search" className="text-primary hover:underline mt-2 inline-block">
-              Browse all laptops
-            </Link>
-          </div>
-        )}
-      </div>
+      )}
     </section>
   );
 };

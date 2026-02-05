@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, ShoppingCart, Heart, Share2, Minus, Plus, Phone, MessageCircle, Truck, Shield, RotateCcw } from "lucide-react";
+import { ChevronLeft, ShoppingCart, Heart, Share2, Minus, Plus, Phone, MessageCircle, Truck, Shield, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+import BottomNavigation from "@/components/layout/BottomNavigation";
 import ImageGallery from "@/components/product/ImageGallery";
 import ProductCard, { Product } from "@/components/home/ProductCard";
 import CartDrawer from "@/components/cart/CartDrawer";
@@ -115,21 +114,21 @@ const ProductDetail = () => {
     slug: p.slug,
   })) || [];
 
+  const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <Header cartCount={cartItems.reduce((acc, item) => acc + item.quantity, 0)} onCartClick={() => setIsCartOpen(true)} />
-        <main className="container mx-auto px-4 py-8">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
-            <Skeleton className="aspect-square rounded-2xl" />
-            <div className="space-y-4">
-              <Skeleton className="h-8 w-32" />
-              <Skeleton className="h-10 w-3/4" />
-              <Skeleton className="h-6 w-1/2" />
-              <Skeleton className="h-24 w-full" />
-              <Skeleton className="h-12 w-full" />
-            </div>
-          </div>
+        <header className="sticky top-0 z-50 bg-background/95 backdrop-blur h-14 flex items-center px-4 border-b border-border">
+          <Link to="/search" className="p-1"><ChevronLeft className="h-5 w-5" /></Link>
+          <span className="ml-3 font-medium">Loading...</span>
+        </header>
+        <main className="px-4 py-4 pb-20">
+          <Skeleton className="aspect-square rounded-xl mb-4" />
+          <Skeleton className="h-6 w-24 mb-2" />
+          <Skeleton className="h-8 w-3/4 mb-2" />
+          <Skeleton className="h-6 w-1/3 mb-4" />
+          <Skeleton className="h-20 w-full" />
         </main>
       </div>
     );
@@ -138,224 +137,150 @@ const ProductDetail = () => {
   if (!product) {
     return (
       <div className="min-h-screen bg-background">
-        <Header cartCount={cartItems.reduce((acc, item) => acc + item.quantity, 0)} onCartClick={() => setIsCartOpen(true)} />
-        <main className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
-          <p className="text-muted-foreground mb-6">The product you're looking for doesn't exist.</p>
+        <header className="sticky top-0 z-50 bg-background/95 backdrop-blur h-14 flex items-center px-4 border-b border-border">
+          <Link to="/search" className="p-1"><ChevronLeft className="h-5 w-5" /></Link>
+          <span className="ml-3 font-medium">Not Found</span>
+        </header>
+        <main className="px-4 py-16 text-center pb-20">
+          <h1 className="text-xl font-bold mb-2">Product Not Found</h1>
+          <p className="text-sm text-muted-foreground mb-4">This product doesn't exist.</p>
           <Link to="/search">
-            <Button>Browse Products</Button>
+            <Button size="sm">Browse Products</Button>
           </Link>
         </main>
+        <BottomNavigation cartCount={0} onCartClick={() => {}} />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-background">
-      <Header 
-        cartCount={cartItems.reduce((acc, item) => acc + item.quantity, 0)} 
-        onCartClick={() => setIsCartOpen(true)} 
-      />
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-border">
+        <div className="flex items-center justify-between h-14 px-4">
+          <Link to="/search" className="p-1">
+            <ChevronLeft className="h-5 w-5" />
+          </Link>
+          <span className="font-medium text-sm truncate max-w-[200px]">{product.name}</span>
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" className="h-9 w-9">
+              <Heart className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-9 w-9">
+              <Share2 className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+      </header>
 
-      <main className="container mx-auto px-4 py-6">
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-          <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
-          <span>/</span>
-          <Link to="/search" className="hover:text-foreground transition-colors">Products</Link>
-          <span>/</span>
-          {product.categories?.name && (
-            <>
-              <Link 
-                to={`/search?category=${product.category_id}`} 
-                className="hover:text-foreground transition-colors"
-              >
-                {product.categories.name}
-              </Link>
-              <span>/</span>
-            </>
-          )}
-          <span className="text-foreground">{product.name}</span>
-        </nav>
-
-        {/* Back button - mobile */}
-        <Link to="/search" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4 lg:hidden">
-          <ArrowLeft className="h-4 w-4" />
-          Back to Products
-        </Link>
-
-        {/* Product Grid */}
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
-          {/* Image Gallery */}
+      <main className="pb-32">
+        {/* Image Gallery */}
+        <div className="px-4 pt-4">
           <ImageGallery images={productImages} productName={product.name} />
+        </div>
 
-          {/* Product Info */}
-          <div className="space-y-6">
-            {/* Brand & Badges */}
-            <div className="flex items-center gap-3 flex-wrap">
-              {product.brands?.name && (
-                <Badge variant="secondary" className="text-xs">
-                  {product.brands.name}
-                </Badge>
-              )}
-              {product.is_new && (
-                <Badge className="bg-secondary text-secondary-foreground">New Arrival</Badge>
-              )}
-              {product.is_on_sale && discount > 0 && (
-                <Badge className="bg-primary text-primary-foreground">-{discount}% OFF</Badge>
-              )}
-            </div>
-
-            {/* Title */}
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-              {product.name}
-            </h1>
-
-            {/* Model & Color */}
-            {(product.model || product.color) && (
-              <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                {product.model && <span>Model: <strong className="text-foreground">{product.model}</strong></span>}
-                {product.color && <span>Color: <strong className="text-foreground">{product.color}</strong></span>}
-                {product.sku && <span>SKU: <strong className="text-foreground">{product.sku}</strong></span>}
-              </div>
+        {/* Product Info */}
+        <div className="px-4 py-4 space-y-4">
+          {/* Brand & Badges */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {product.brands?.name && (
+              <Badge variant="secondary" className="text-xs">
+                {product.brands.name}
+              </Badge>
             )}
-
-            {/* Price */}
-            <div className="flex items-baseline gap-3">
-              <span className="text-3xl font-bold text-primary">
-                {formatPrice(Number(product.price))}
-              </span>
-              {product.original_price && (
-                <span className="text-lg text-muted-foreground line-through">
-                  {formatPrice(Number(product.original_price))}
-                </span>
-              )}
-            </div>
-
-            {/* Stock Status */}
-            <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${inStock ? 'bg-green-500' : 'bg-destructive'}`} />
-              <span className={inStock ? 'text-green-600' : 'text-destructive'}>
-                {inStock ? `In Stock (${product.stock_quantity} available)` : 'Out of Stock'}
-              </span>
-            </div>
-
-            <Separator />
-
-            {/* Description */}
-            {product.description && (
-              <div>
-                <h3 className="font-semibold mb-2">Description</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  {product.description}
-                </p>
-              </div>
+            {product.is_new && (
+              <Badge className="bg-secondary text-secondary-foreground text-xs">New</Badge>
             )}
+            {product.is_on_sale && discount > 0 && (
+              <Badge className="bg-primary text-primary-foreground text-xs">-{discount}%</Badge>
+            )}
+          </div>
 
-            <Separator />
+          {/* Title */}
+          <h1 className="text-xl font-bold text-foreground">
+            {product.name}
+          </h1>
 
-            {/* Quantity & Add to Cart */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <span className="text-sm font-medium">Quantity:</span>
-                <div className="flex items-center gap-2 border rounded-lg">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-10 w-10"
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    disabled={!inStock}
-                  >
-                    <Minus className="h-4 w-4" />
-                  </Button>
-                  <span className="w-12 text-center font-medium">{quantity}</span>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-10 w-10"
-                    onClick={() => setQuantity(Math.min(product.stock_quantity || 1, quantity + 1))}
-                    disabled={!inStock}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-
-              <div className="flex gap-3">
-                <Button
-                  size="lg"
-                  className="flex-1"
-                  onClick={() => handleAddToCart()}
-                  disabled={!inStock}
-                >
-                  <ShoppingCart className="h-5 w-5 mr-2" />
-                  Add to Cart
-                </Button>
-                <Button variant="outline" size="lg">
-                  <Heart className="h-5 w-5" />
-                </Button>
-                <Button variant="outline" size="lg">
-                  <Share2 className="h-5 w-5" />
-                </Button>
-              </div>
+          {/* Model & Color */}
+          {(product.model || product.color) && (
+            <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+              {product.model && <span>Model: <strong className="text-foreground">{product.model}</strong></span>}
+              {product.color && <span>Color: <strong className="text-foreground">{product.color}</strong></span>}
             </div>
+          )}
 
-            {/* Contact */}
-            <div className="flex gap-3">
-              <Button variant="outlinePrimary" className="flex-1" asChild>
-                <a href="tel:0705154828">
-                  <Phone className="h-4 w-4 mr-2" />
-                  Call to Order
-                </a>
-              </Button>
-              <Button variant="outlinePrimary" className="flex-1" asChild>
-                <a href="https://wa.me/256705154828" target="_blank" rel="noopener noreferrer">
-                  <MessageCircle className="h-4 w-4 mr-2" />
-                  WhatsApp
-                </a>
-              </Button>
+          {/* Price */}
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-primary">
+              {formatPrice(Number(product.price))}
+            </span>
+            {product.original_price && (
+              <span className="text-sm text-muted-foreground line-through">
+                {formatPrice(Number(product.original_price))}
+              </span>
+            )}
+          </div>
+
+          {/* Stock Status */}
+          <div className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${inStock ? 'bg-green-500' : 'bg-destructive'}`} />
+            <span className={`text-sm ${inStock ? 'text-green-600' : 'text-destructive'}`}>
+              {inStock ? `In Stock (${product.stock_quantity})` : 'Out of Stock'}
+            </span>
+          </div>
+
+          <Separator />
+
+          {/* Description */}
+          {product.description && (
+            <div>
+              <h3 className="font-semibold text-sm mb-2">Description</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {product.description}
+              </p>
             </div>
+          )}
 
-            <Separator />
+          <Separator />
 
-            {/* Features */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="flex items-center gap-3 text-sm">
-                <div className="p-2 bg-muted rounded-lg">
-                  <Truck className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="font-medium">Fast Delivery</p>
-                  <p className="text-muted-foreground text-xs">Kampala & Wakiso</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 text-sm">
-                <div className="p-2 bg-muted rounded-lg">
-                  <Shield className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="font-medium">Warranty</p>
-                  <p className="text-muted-foreground text-xs">Quality guaranteed</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 text-sm">
-                <div className="p-2 bg-muted rounded-lg">
-                  <RotateCcw className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="font-medium">Returns</p>
-                  <p className="text-muted-foreground text-xs">Easy returns</p>
-                </div>
-              </div>
+          {/* Features */}
+          <div className="grid grid-cols-3 gap-3">
+            <div className="flex flex-col items-center text-center p-3 bg-muted rounded-lg">
+              <Truck className="h-5 w-5 text-primary mb-1" />
+              <p className="text-xs font-medium">Fast Delivery</p>
             </div>
+            <div className="flex flex-col items-center text-center p-3 bg-muted rounded-lg">
+              <Shield className="h-5 w-5 text-primary mb-1" />
+              <p className="text-xs font-medium">Warranty</p>
+            </div>
+            <div className="flex flex-col items-center text-center p-3 bg-muted rounded-lg">
+              <RotateCcw className="h-5 w-5 text-primary mb-1" />
+              <p className="text-xs font-medium">Returns</p>
+            </div>
+          </div>
+
+          {/* Contact */}
+          <div className="flex gap-2">
+            <Button variant="outline" className="flex-1 h-10 text-sm" asChild>
+              <a href="tel:0705154828">
+                <Phone className="h-4 w-4 mr-2" />
+                Call
+              </a>
+            </Button>
+            <Button variant="outline" className="flex-1 h-10 text-sm" asChild>
+              <a href="https://wa.me/256705154828" target="_blank" rel="noopener noreferrer">
+                <MessageCircle className="h-4 w-4 mr-2" />
+                WhatsApp
+              </a>
+            </Button>
           </div>
         </div>
 
         {/* Related Products */}
         {relatedDisplayProducts.length > 0 && (
-          <section className="mt-16">
-            <h2 className="text-2xl font-bold mb-6">Related Products</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          <section className="px-4 py-4">
+            <h2 className="text-lg font-bold mb-4">Related Products</h2>
+            <div className="grid grid-cols-2 gap-3">
               {relatedDisplayProducts.map((relatedProduct) => (
                 <ProductCard
                   key={relatedProduct.id}
@@ -368,7 +293,45 @@ const ProductDetail = () => {
         )}
       </main>
 
-      <Footer />
+      {/* Fixed Bottom Action Bar */}
+      <div className="fixed bottom-16 left-0 right-0 bg-background border-t border-border p-3 safe-area-bottom z-40">
+        <div className="flex items-center gap-3">
+          {/* Quantity */}
+          <div className="flex items-center border rounded-lg">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10"
+              onClick={() => setQuantity(Math.max(1, quantity - 1))}
+              disabled={!inStock}
+            >
+              <Minus className="h-4 w-4" />
+            </Button>
+            <span className="w-8 text-center font-medium text-sm">{quantity}</span>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10"
+              onClick={() => setQuantity(Math.min(product.stock_quantity || 1, quantity + 1))}
+              disabled={!inStock}
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+
+          {/* Add to Cart */}
+          <Button
+            className="flex-1 h-10"
+            onClick={() => handleAddToCart()}
+            disabled={!inStock}
+          >
+            <ShoppingCart className="h-4 w-4 mr-2" />
+            Add to Cart
+          </Button>
+        </div>
+      </div>
+
+      <BottomNavigation cartCount={cartCount} onCartClick={() => setIsCartOpen(true)} />
       
       <CartDrawer
         isOpen={isCartOpen}
