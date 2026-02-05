@@ -29,6 +29,7 @@ import AdminCustomers from "./pages/admin/Customers";
 import AdminInventory from "./pages/admin/Inventory";
 import AdminChat from "./pages/admin/Chat";
 import AdminSettings from "./pages/admin/Settings";
+import AdminMore from "./pages/admin/More";
 
 // Seller pages
 import SellerOverview from "./pages/seller/Overview";
@@ -92,6 +93,7 @@ const App = () => (
               <Route path="customers" element={<AdminCustomers />} />
               <Route path="chat" element={<AdminChat />} />
               <Route path="settings" element={<AdminSettings />} />
+              <Route path="more" element={<AdminMore />} />
             </Route>
             
             {/* Catch-all */}
