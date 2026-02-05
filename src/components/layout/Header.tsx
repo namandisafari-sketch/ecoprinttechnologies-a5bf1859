@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Search, ShoppingCart, Menu, X, Phone, MapPin, PackageSearch, Laptop } from "lucide-react";
+import { Search, ShoppingCart, Menu, X, Phone, MapPin, PackageSearch, Laptop, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import AccessCodeDialog from "@/components/auth/AccessCodeDialog";
 
 interface HeaderProps {
@@ -15,6 +16,7 @@ const Header = ({ cartCount, onCartClick }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+  const { isAdmin, isSeller } = useAuth();
 
   const categories = [
     "All Laptops",
@@ -89,8 +91,34 @@ const Header = ({ cartCount, onCartClick }: HeaderProps) => {
               {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
 
-            {/* Admin Access */}
-            <AccessCodeDialog />
+            {/* Admin Dashboard Link */}
+            {isAdmin && (
+              <Link to="/admin">
+                <Button variant="outline" size="sm" className="hidden sm:flex items-center gap-1.5">
+                  <Settings className="h-4 w-4" />
+                  <span>Admin</span>
+                </Button>
+                <Button variant="outline" size="icon" className="sm:hidden">
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </Link>
+            )}
+
+            {/* Seller Dashboard Link */}
+            {isSeller && !isAdmin && (
+              <Link to="/seller">
+                <Button variant="outline" size="sm" className="hidden sm:flex items-center gap-1.5">
+                  <Settings className="h-4 w-4" />
+                  <span>Seller</span>
+                </Button>
+                <Button variant="outline" size="icon" className="sm:hidden">
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </Link>
+            )}
+
+            {/* Admin Access (for non-logged in users) */}
+            {!isAdmin && !isSeller && <AccessCodeDialog />}
 
             <Button
               variant="ghost"
