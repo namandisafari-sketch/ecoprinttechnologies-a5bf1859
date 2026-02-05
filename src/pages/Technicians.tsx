@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { Search, MapPin, Phone, Star, Wrench, MessageSquare, Loader2, ChevronLeft, Plus } from "lucide-react";
+import { Search, MapPin, Phone, Star, Wrench, MessageSquare, Loader2, ChevronLeft, Plus, Store } from "lucide-react";
 import { Link } from "react-router-dom";
 import BottomNavigation from "@/components/layout/BottomNavigation";
 
@@ -21,6 +21,7 @@ interface SellerProfile {
   phone: string;
   whatsapp: string | null;
   location: string | null;
+  shop_number: string | null;
   specializations: string[] | null;
   is_verified: boolean | null;
   rating: number | null;
@@ -191,6 +192,12 @@ const Technicians = () => {
                                 <Badge variant="secondary" className="text-[10px] px-1 py-0">✓</Badge>
                               )}
                             </h3>
+                            {seller.shop_number && (
+                              <p className="text-xs font-medium text-primary flex items-center gap-1 mt-0.5">
+                                <Store className="h-3 w-3" />
+                                Shop {seller.shop_number}
+                              </p>
+                            )}
                             {seller.location && (
                               <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                                 <MapPin className="h-3 w-3" />
