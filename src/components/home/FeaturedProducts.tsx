@@ -37,15 +37,15 @@ const FeaturedProducts = ({ onAddToCart }: FeaturedProductsProps) => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
           <div>
             <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-              Featured Products
+              Featured Laptops
             </h2>
             <p className="text-muted-foreground">
-              Top picks from our collection
+              Top picks for every budget
             </p>
           </div>
           <Link to="/search">
             <Button variant="outlinePrimary">
-              View All Products
+              View All Laptops
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
@@ -73,9 +73,9 @@ const FeaturedProducts = ({ onAddToCart }: FeaturedProductsProps) => {
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">No featured products available</p>
+            <p className="text-muted-foreground">No featured laptops available</p>
             <Link to="/search" className="text-primary hover:underline mt-2 inline-block">
-              Browse all products
+              Browse all laptops
             </Link>
           </div>
         )}

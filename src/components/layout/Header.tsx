@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, ShoppingCart, Menu, X, Phone, MapPin, PackageSearch } from "lucide-react";
+import { Search, ShoppingCart, Menu, X, Phone, MapPin, PackageSearch, Laptop } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -17,12 +17,12 @@ const Header = ({ cartCount, onCartClick }: HeaderProps) => {
   const navigate = useNavigate();
 
   const categories = [
-    "Phone Screens",
-    "Batteries",
-    "Chargers",
-    "Cases",
-    "Spare Parts",
-    "Accessories",
+    "All Laptops",
+    "Gaming Laptops",
+    "Business Laptops",
+    "Student Laptops",
+    "Refurbished",
+    "Repair Services",
   ];
 
   const handleSearch = (e: React.FormEvent) => {
@@ -44,11 +44,11 @@ const Header = ({ cartCount, onCartClick }: HeaderProps) => {
             </a>
             <span className="hidden sm:flex items-center gap-1">
               <MapPin className="h-3 w-3" />
-              <span>Gayaza, opp Extra Care Pharmacy</span>
+              <span>Suncity Mall, Kampala</span>
             </span>
           </div>
           <div className="text-xs sm:text-sm">
-            Free delivery on orders over UGX 100,000
+            Free delivery in Kampala on orders over UGX 500,000
           </div>
         </div>
       </div>
@@ -58,12 +58,10 @@ const Header = ({ cartCount, onCartClick }: HeaderProps) => {
         <div className="flex items-center justify-between gap-4">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">SW</span>
-            </div>
+            <img src="/logo.jpeg" alt="Eco Hub" className="w-10 h-10 rounded-lg object-cover" />
             <div className="hidden sm:block">
-              <h1 className="font-bold text-lg leading-tight text-foreground">Sir Wanda</h1>
-              <p className="text-xs text-muted-foreground">Phone Care</p>
+              <h1 className="font-bold text-lg leading-tight text-foreground">Eco Hub</h1>
+              <p className="text-xs text-muted-foreground">Laptops & Tech</p>
             </div>
           </Link>
 
@@ -73,7 +71,7 @@ const Header = ({ cartCount, onCartClick }: HeaderProps) => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Search for phone screens, batteries, parts..."
+                placeholder="Search laptops by brand, model, specs..."
                 className="pl-10 pr-4 h-11 w-full border-2 border-muted focus:border-primary"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -117,7 +115,7 @@ const Header = ({ cartCount, onCartClick }: HeaderProps) => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search products..."
+              placeholder="Search laptops..."
               className="pl-10 pr-4 h-10 w-full"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
