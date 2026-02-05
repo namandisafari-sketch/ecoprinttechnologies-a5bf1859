@@ -16,6 +16,7 @@ import TrackOrder from "./pages/TrackOrder";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import SellerSignup from "./pages/SellerSignup";
 import Technicians from "./pages/Technicians";
 
 // Admin pages
@@ -54,6 +55,7 @@ const App = () => (
             <Route path="/track-order" element={<TrackOrder />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/seller-signup" element={<SellerSignup />} />
             <Route path="/technicians" element={<Technicians />} />
             
             {/* Seller routes */}
