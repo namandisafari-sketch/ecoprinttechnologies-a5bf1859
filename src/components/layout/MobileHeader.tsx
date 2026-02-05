@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Search, Bell, Menu, X } from "lucide-react";
+import { Search, Bell, Menu, X, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import AccessCodeDialog from "@/components/auth/AccessCodeDialog";
 import {
   Sheet,
@@ -16,6 +17,7 @@ const MobileHeader = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const navigate = useNavigate();
+  const { isAdmin, isSeller } = useAuth();
 
   const menuItems = [
     { label: "All Laptops", path: "/search?q=All Laptops" },
@@ -61,8 +63,26 @@ const MobileHeader = () => {
                   {item.label}
                 </Link>
               ))}
-              <div className="mt-4 pt-4 border-t border-border">
-                <AccessCodeDialog />
+              <div className="mt-4 pt-4 border-t border-border flex flex-col gap-2">
+                {isAdmin && (
+                  <Link
+                    to="/admin"
+                    className="flex items-center gap-2 px-3 py-3 text-sm font-medium rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                  >
+                    <Settings className="h-4 w-4" />
+                    Admin Dashboard
+                  </Link>
+                )}
+                {isSeller && !isAdmin && (
+                  <Link
+                    to="/seller"
+                    className="flex items-center gap-2 px-3 py-3 text-sm font-medium rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                  >
+                    <Settings className="h-4 w-4" />
+                    Seller Dashboard
+                  </Link>
+                )}
+                {!isAdmin && !isSeller && <AccessCodeDialog />}
               </div>
             </nav>
           </SheetContent>
