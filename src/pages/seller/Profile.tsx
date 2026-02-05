@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, CheckCircle, MapPin, Phone } from "lucide-react";
+import { Loader2, CheckCircle, MapPin, Phone, Store } from "lucide-react";
 
 const SellerProfile = () => {
   const { user } = useAuth();
@@ -36,7 +36,8 @@ const SellerProfile = () => {
       description: string; 
       phone: string; 
       whatsapp: string; 
-      location: string; 
+      location: string;
+      shop_number: string;
       specializations: string[] 
     }) => {
       if (sellerProfile) {
@@ -70,6 +71,7 @@ const SellerProfile = () => {
       phone: formData.get("phone") as string,
       whatsapp: formData.get("whatsapp") as string,
       location: formData.get("location") as string,
+      shop_number: formData.get("shop_number") as string,
       specializations: (formData.get("specializations") as string)
         .split(",")
         .map(s => s.trim())
@@ -112,6 +114,12 @@ const SellerProfile = () => {
                   )}
                 </div>
                 <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mt-1">
+                  {sellerProfile.shop_number && (
+                    <span className="flex items-center gap-1 font-semibold text-primary">
+                      <Store className="h-3 w-3" />
+                      Shop {sellerProfile.shop_number}
+                    </span>
+                  )}
                   {sellerProfile.location && (
                     <span className="flex items-center gap-1">
                       <MapPin className="h-3 w-3" />
@@ -156,14 +164,26 @@ const SellerProfile = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="location">Location</Label>
+                <Label htmlFor="shop_number">Shop Number *</Label>
                 <Input 
-                  id="location" 
-                  name="location" 
-                  defaultValue={sellerProfile?.location || ""} 
-                  placeholder="Suncity Mall, Kampala"
+                  id="shop_number" 
+                  name="shop_number" 
+                  defaultValue={sellerProfile?.shop_number || ""} 
+                  placeholder="e.g. 12, G-05"
+                  required
                 />
+                <p className="text-xs text-muted-foreground">Your shop/stall number at Suncity Mall</p>
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="location">Location</Label>
+              <Input 
+                id="location" 
+                name="location" 
+                defaultValue={sellerProfile?.location || ""} 
+                placeholder="Suncity Mall, Kampala"
+              />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

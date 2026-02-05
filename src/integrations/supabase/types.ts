@@ -422,6 +422,7 @@ export type Database = {
           location: string | null
           phone: string
           rating: number | null
+          shop_number: string | null
           specializations: string[] | null
           total_reviews: number | null
           updated_at: string
@@ -439,6 +440,7 @@ export type Database = {
           location?: string | null
           phone: string
           rating?: number | null
+          shop_number?: string | null
           specializations?: string[] | null
           total_reviews?: number | null
           updated_at?: string
@@ -456,6 +458,7 @@ export type Database = {
           location?: string | null
           phone?: string
           rating?: number | null
+          shop_number?: string | null
           specializations?: string[] | null
           total_reviews?: number | null
           updated_at?: string
