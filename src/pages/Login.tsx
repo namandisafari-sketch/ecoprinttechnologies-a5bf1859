@@ -12,22 +12,9 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn } = useAuth();
+  const { signIn, userRole, isAdmin, isSeller } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  // Check if access was verified
-  useEffect(() => {
-    const isVerified = sessionStorage.getItem('admin_access_verified');
-    if (!isVerified) {
-      toast({
-        title: "Access Required",
-        description: "Please use the profile icon to enter the access code first.",
-        variant: "destructive",
-      });
-      navigate("/");
-    }
-  }, [navigate, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,29 +28,50 @@ const Login = () => {
         description: error.message,
         variant: "destructive",
       });
+      setIsLoading(false);
     } else {
       toast({
         title: "Welcome back!",
         description: "You have successfully logged in.",
       });
-      navigate("/admin");
+      // Wait a bit for role to be fetched, then navigate
+      setTimeout(() => {
+        setIsLoading(false);
+        // Check if admin access was verified for admin login
+        const isAdminAccess = sessionStorage.getItem('admin_access_verified');
+        if (isAdminAccess) {
+          navigate("/admin");
+        } else {
+          // Redirect based on role - we'll check in the component after auth state updates
+          navigate("/");
+        }
+      }, 500);
+      return;
     }
-
-    setIsLoading(false);
   };
+
+  // Redirect authenticated users based on role
+  useEffect(() => {
+    if (!isLoading && userRole) {
+      const isAdminAccess = sessionStorage.getItem('admin_access_verified');
+      if (isAdmin && isAdminAccess) {
+        navigate("/admin");
+      } else if (isSeller) {
+        navigate("/seller");
+      }
+    }
+  }, [userRole, isAdmin, isSeller, navigate, isLoading]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/50 px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-xl">SW</span>
-            </div>
+            <img src="/logo.jpeg" alt="Eco Hub" className="w-12 h-12 rounded-lg object-cover" />
           </div>
-          <CardTitle className="text-2xl">Admin Login</CardTitle>
+          <CardTitle className="text-2xl">Welcome Back</CardTitle>
           <CardDescription>
-            Enter your credentials to access the admin panel
+            Sign in to your Eco Hub account
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
@@ -73,7 +81,7 @@ const Login = () => {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@sirwanda.com"
+                placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

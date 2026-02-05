@@ -22,6 +22,9 @@ import AdminCategories from "./pages/admin/Categories";
 import AdminCustomers from "./pages/admin/Customers";
 import AdminInventory from "./pages/admin/Inventory";
 import AdminChat from "./pages/admin/Chat";
+import SellerDashboard from "./pages/seller/Dashboard";
+import Technicians from "./pages/Technicians";
+import SellerProtectedRoute from "./components/auth/SellerProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -41,7 +44,18 @@ const App = () => (
             <Route path="/track-order" element={<TrackOrder />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/technicians" element={<Technicians />} />
             
+            {/* Seller routes */}
+            <Route
+              path="/seller"
+              element={
+                <SellerProtectedRoute>
+                  <SellerDashboard />
+                </SellerProtectedRoute>
+              }
+            />
+
             {/* Admin routes */}
             <Route
               path="/admin"
