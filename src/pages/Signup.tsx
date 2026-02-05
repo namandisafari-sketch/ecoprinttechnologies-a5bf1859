@@ -6,28 +6,25 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, User, Wrench } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [role, setRole] = useState<'customer' | 'seller'>('customer');
   const [isLoading, setIsLoading] = useState(false);
+  const [requiresAccessCode, setRequiresAccessCode] = useState(false);
   const { signUp } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   // Check if access was verified
   useEffect(() => {
-    const isVerified = sessionStorage.getItem('admin_access_verified');
-    if (!isVerified) {
-      toast({
-        title: "Access Required",
-        description: "Please use the profile icon to enter the access code first.",
-        variant: "destructive",
-      });
-      navigate("/");
-    }
+    // Only require access code for admin signup, not regular users
+    const isAdminSignup = sessionStorage.getItem('admin_access_verified');
+    setRequiresAccessCode(!!isAdminSignup);
   }, [navigate, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,7 +41,7 @@ const Signup = () => {
       return;
     }
 
-    const { error } = await signUp(email, password, fullName);
+    const { error } = await signUp(email, password, fullName, role);
 
     if (error) {
       toast({
@@ -68,17 +65,44 @@ const Signup = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-xl">SW</span>
-            </div>
+            <img src="/logo.jpeg" alt="Eco Hub" className="w-12 h-12 rounded-lg object-cover" />
           </div>
           <CardTitle className="text-2xl">Create Account</CardTitle>
           <CardDescription>
-            Sign up for an admin account
+            Join Eco Hub today
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
+            {/* Role Selection */}
+            <div className="space-y-3">
+              <Label>I want to</Label>
+              <RadioGroup value={role} onValueChange={(v) => setRole(v as 'customer' | 'seller')} className="grid grid-cols-2 gap-4">
+                <div>
+                  <RadioGroupItem value="customer" id="customer" className="peer sr-only" />
+                  <Label
+                    htmlFor="customer"
+                    className="flex flex-col items-center justify-center rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                  >
+                    <User className="mb-2 h-6 w-6" />
+                    <span className="text-sm font-medium">Buy Laptops</span>
+                    <span className="text-xs text-muted-foreground">Find your dream laptop</span>
+                  </Label>
+                </div>
+                <div>
+                  <RadioGroupItem value="seller" id="seller" className="peer sr-only" />
+                  <Label
+                    htmlFor="seller"
+                    className="flex flex-col items-center justify-center rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                  >
+                    <Wrench className="mb-2 h-6 w-6" />
+                    <span className="text-sm font-medium">Sell / Repair</span>
+                    <span className="text-xs text-muted-foreground">Offer services</span>
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="fullName">Full Name</Label>
               <Input
@@ -95,7 +119,7 @@ const Signup = () => {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@sirwanda.com"
+                placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
