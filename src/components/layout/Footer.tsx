@@ -8,14 +8,14 @@ const Footer = () => {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <img src="/logo.jpeg" alt="Eco Hub" className="w-10 h-10 rounded-lg object-cover" />
+              <img src="/logo.png" alt="Eco Print Technologies" className="w-10 h-10 rounded-lg object-contain" />
               <div>
-                <h3 className="font-bold text-lg">Eco Hub</h3>
-                <p className="text-xs text-secondary-foreground/70">Laptops & Tech</p>
+                <h3 className="font-bold text-lg">Eco Print</h3>
+                <p className="text-xs text-secondary-foreground/70">Technologies Ltd</p>
               </div>
             </div>
             <p className="text-secondary-foreground/70 text-sm mb-4">
-              Your trusted laptop marketplace at Suncity Mall, Kampala. 
+              Your trusted tech marketplace at Suncity Mall, Kampala. 
               Find your dream laptop at affordable prices with expert technician support.
             </p>
             <div className="flex gap-3">
@@ -77,7 +77,7 @@ const Footer = () => {
 
         <div className="border-t border-secondary-foreground/10 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-secondary-foreground/50">
-            © 2025 Eco Hub - Eco Print Technologies Ltd. All rights reserved.
+            © 2025 Eco Print Technologies Ltd. All rights reserved.
           </p>
           <div className="flex gap-6 text-sm text-secondary-foreground/50">
             <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>

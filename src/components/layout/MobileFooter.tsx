@@ -8,10 +8,10 @@ const MobileFooter = () => {
         {/* Brand */}
         <div className="text-center mb-6">
           <div className="flex items-center justify-center gap-2 mb-3">
-            <img src="/logo.jpeg" alt="Eco Hub" className="w-10 h-10 rounded-lg object-cover" />
+            <img src="/logo.png" alt="Eco Print Technologies" className="w-10 h-10 rounded-lg object-contain" />
             <div className="text-left">
-              <h3 className="font-bold text-lg">Eco Hub</h3>
-              <p className="text-xs text-secondary-foreground/70">Laptops & Tech</p>
+              <h3 className="font-bold text-lg">Eco Print</h3>
+              <p className="text-xs text-secondary-foreground/70">Technologies Ltd</p>
             </div>
           </div>
           <p className="text-secondary-foreground/70 text-sm max-w-xs mx-auto">
@@ -58,7 +58,7 @@ const MobileFooter = () => {
         {/* Copyright */}
         <div className="text-center">
           <p className="text-xs text-secondary-foreground/50">
-            © 2025 Eco Hub. All rights reserved.
+            © 2025 Eco Print Technologies Ltd. All rights reserved.
           </p>
         </div>
       </div>

@@ -43,7 +43,7 @@ const AdminSidebar = () => {
       <div className="flex flex-col h-full">
         {/* Logo */}
         <div className="flex items-center gap-3 px-6 py-5 border-b border-secondary-foreground/10">
-          <img src="/logo.png" alt="Co Print Technologies" className="h-10 w-auto object-contain brightness-0 invert" />
+          <img src="/logo.png" alt="Eco Print Technologies" className="h-10 w-auto object-contain brightness-0 invert" />
           <p className="text-xs text-secondary-foreground/60 font-medium whitespace-nowrap">Admin Portal</p>
         </div>
 

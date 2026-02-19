@@ -24,7 +24,7 @@ const HeroSection = () => {
           </span>
           
           <h1 className="text-2xl font-bold text-secondary-foreground mb-3 leading-tight">
-            Co Print
+            Eco Print
             <span className="text-primary"> Technologies</span>
           </h1>
           

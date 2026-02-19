@@ -62,9 +62,9 @@ const Signup = () => {
       <main className="flex-1 flex flex-col justify-center px-6 py-8">
         {/* Logo */}
         <div className="text-center mb-8">
-          <img src="/logo.png" alt="Co Print Technologies" className="h-16 w-auto object-contain mx-auto mb-4" />
+          <img src="/logo.png" alt="Eco Print Technologies" className="h-16 w-auto object-contain mx-auto mb-4" />
           <h1 className="text-2xl font-bold">Create Account</h1>
-          <p className="text-sm text-muted-foreground mt-1">Join Co Print Technologies</p>
+          <p className="text-sm text-muted-foreground mt-1">Join Eco Print Technologies</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 max-w-sm mx-auto w-full">
