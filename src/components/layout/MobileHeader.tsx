@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import AccessCodeDialog from "@/components/auth/AccessCodeDialog";
 import {
   Sheet,
   SheetContent,
@@ -72,7 +71,7 @@ const MobileHeader = () => {
                     Admin Dashboard
                   </Link>
                 )}
-                {!isAdmin && <AccessCodeDialog />}
+                
               </div>
             </nav>
           </SheetContent>

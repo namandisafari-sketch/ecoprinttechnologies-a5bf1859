@@ -33,23 +33,13 @@ const Login = () => {
         title: "Welcome back!",
         description: "You have successfully logged in.",
       });
-      setTimeout(() => {
-        setIsLoading(false);
-        const isAdminAccess = sessionStorage.getItem('admin_access_verified');
-        if (isAdminAccess) {
-          navigate("/admin");
-        } else {
-          navigate("/");
-        }
-      }, 500);
-      return;
     }
+    setIsLoading(false);
   };
 
   useEffect(() => {
     if (!isLoading && userRole) {
-      const isAdminAccess = sessionStorage.getItem('admin_access_verified');
-      if (isAdmin && isAdminAccess) {
+      if (isAdmin) {
         navigate("/admin");
       } else {
         navigate("/");
