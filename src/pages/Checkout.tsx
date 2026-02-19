@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { ChevronLeft, Upload, Copy, Check, Loader2, Smartphone } from "lucide-react";
+import { ChevronLeft, Loader2, Smartphone, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,12 +12,6 @@ import { supabase } from "@/integrations/supabase/client";
 import BottomNavigation from "@/components/layout/BottomNavigation";
 import { CartItem } from "@/components/cart/CartDrawer";
 import UgandaLocationSelector, { LocationData } from "@/components/checkout/UgandaLocationSelector";
-
-const MANUAL_PAYMENT_DETAILS = {
-  mtn: { name: "MTN Mobile Money", number: "0772123456" },
-  airtel: { name: "Airtel Money", number: "0702123456" },
-};
-
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -35,7 +29,7 @@ const Checkout = () => {
     phone: "",
     address: "",
     notes: "",
-    paymentMethod: "pesapal",
+    paymentMethod: "mobile_money",
   });
   const [ugandaLocation, setUgandaLocation] = useState<LocationData>({
     district: "",
@@ -43,9 +37,7 @@ const Checkout = () => {
     parish: "",
     village: "",
   });
-  const [paymentProof, setPaymentProof] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [copiedNumber, setCopiedNumber] = useState(false);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-UG", {
@@ -53,19 +45,6 @@ const Checkout = () => {
       currency: "UGX",
       minimumFractionDigits: 0,
     }).format(price);
-  };
-
-  const handleCopyNumber = (number: string) => {
-    navigator.clipboard.writeText(number);
-    setCopiedNumber(true);
-    setTimeout(() => setCopiedNumber(false), 2000);
-    toast({ title: "Copied!", description: "Payment number copied to clipboard" });
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setPaymentProof(e.target.files[0]);
-    }
   };
 
   const generateOrderNumber = () => {
@@ -92,11 +71,13 @@ const Checkout = () => {
 
     try {
       const orderNumber = generateOrderNumber();
+      const orderId = crypto.randomUUID();
 
-      // Create order in DB first
-      const { data: order, error: orderError } = await supabase
+      // Create order in DB (no .select() to avoid RLS SELECT issues for guests)
+      const { error: orderError } = await supabase
         .from('orders')
         .insert({
+          id: orderId,
           order_number: orderNumber,
           customer_name: formData.name,
           customer_email: formData.email,
@@ -104,21 +85,19 @@ const Checkout = () => {
           city: ugandaLocation.district,
           shipping_address: [ugandaLocation.subcounty, ugandaLocation.parish, ugandaLocation.village, formData.address].filter(Boolean).join(', '),
           notes: formData.notes,
-          payment_method: formData.paymentMethod,
+          payment_method: formData.paymentMethod === 'mobile_money' ? 'pesapal_momo' : 'pesapal_card',
           subtotal: subtotal,
           delivery_fee: deliveryFee,
           total: total,
           status: 'pending',
           payment_status: 'pending',
-        })
-        .select()
-        .single();
+        });
 
       if (orderError) throw orderError;
 
       // Create order items
       const orderItems = cartItems.map(item => ({
-        order_id: order.id,
+        order_id: orderId,
         product_id: typeof item.id === 'string' ? item.id : null,
         product_name: item.name,
         product_price: item.price,
@@ -132,55 +111,29 @@ const Checkout = () => {
 
       if (itemsError) throw itemsError;
 
-      if (formData.paymentMethod === 'pesapal') {
-        // Initiate Pesapal payment
-        const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
-        const { data: pesapalData, error: pesapalFnError } = await supabase.functions.invoke('pesapal-payment', {
-          body: {
-            action: 'initiate',
-            orderNumber,
-            amount: total,
-            currency: 'UGX',
-            description: `Order ${orderNumber} - Co Print Technologies`,
-            customerName: formData.name,
-            customerEmail: formData.email,
-            customerPhone: formData.phone,
-            callbackUrl: `${window.location.origin}/track-order?order=${orderNumber}`,
-            notificationUrl: `https://${projectId}.supabase.co/functions/v1/pesapal-payment`,
-          },
-        });
-
-        if (pesapalFnError || !pesapalData?.redirect_url) {
-          throw new Error(pesapalData?.error || 'Failed to initiate Pesapal payment');
-        }
-
-        // Redirect to Pesapal payment page
-        window.location.href = pesapalData.redirect_url;
-        return;
-      }
-
-      // Manual payment (MTN / Airtel) — upload proof if provided
-      if (paymentProof) {
-        const fileExt = paymentProof.name.split('.').pop();
-        const fileName = `${orderNumber}-${Date.now()}.${fileExt}`;
-        const { error: uploadError } = await supabase.storage
-          .from('payment-proofs')
-          .upload(fileName, paymentProof);
-
-        if (!uploadError) {
-          const { data: urlData } = supabase.storage.from('payment-proofs').getPublicUrl(fileName);
-          await supabase.from('orders').update({
-            notes: (formData.notes || '') + `\n\nPayment proof: ${urlData.publicUrl}`,
-          }).eq('id', order.id);
-        }
-      }
-
-      toast({
-        title: "Order placed!",
-        description: `Order #${orderNumber} submitted. We'll verify your payment shortly.`,
+      // Initiate Pesapal payment (both Mobile Money and Card go through Pesapal)
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const { data: pesapalData, error: pesapalFnError } = await supabase.functions.invoke('pesapal-payment', {
+        body: {
+          action: 'initiate',
+          orderNumber,
+          amount: total,
+          currency: 'UGX',
+          description: `Order ${orderNumber} - Co Print Technologies`,
+          customerName: formData.name,
+          customerEmail: formData.email,
+          customerPhone: formData.phone,
+          callbackUrl: `${window.location.origin}/track-order?order=${orderNumber}`,
+          notificationUrl: `https://${projectId}.supabase.co/functions/v1/pesapal-payment`,
+        },
       });
 
-      navigate(`/track-order?order=${orderNumber}`);
+      if (pesapalFnError || !pesapalData?.redirect_url) {
+        throw new Error(pesapalData?.error || 'Failed to initiate payment');
+      }
+
+      // Redirect to Pesapal payment page
+      window.location.href = pesapalData.redirect_url;
     } catch (error) {
       console.error("Checkout error:", error);
       toast({
@@ -214,11 +167,6 @@ const Checkout = () => {
     );
   }
 
-  const isManualPayment = formData.paymentMethod === 'mtn' || formData.paymentMethod === 'airtel';
-  const selectedManualPayment = isManualPayment
-    ? MANUAL_PAYMENT_DETAILS[formData.paymentMethod as keyof typeof MANUAL_PAYMENT_DETAILS]
-    : null;
-
   return (
     <div className="min-h-screen flex flex-col bg-background">
       {/* Header */}
@@ -233,7 +181,7 @@ const Checkout = () => {
       
       <main className="flex-1 px-4 py-4 pb-24">
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Order Summary - Compact */}
+          {/* Order Summary */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Order Summary</CardTitle>
@@ -241,17 +189,11 @@ const Checkout = () => {
             <CardContent className="space-y-3">
               {cartItems.map((item) => (
                 <div key={item.id} className="flex gap-3">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-14 h-14 object-cover rounded"
-                  />
+                  <img src={item.image} alt={item.name} className="w-14 h-14 object-cover rounded" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium line-clamp-1">{item.name}</p>
                     <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
-                    <p className="text-sm font-semibold text-primary">
-                      {formatPrice(item.price * item.quantity)}
-                    </p>
+                    <p className="text-sm font-semibold text-primary">{formatPrice(item.price * item.quantity)}</p>
                   </div>
                 </div>
               ))}
@@ -281,54 +223,26 @@ const Checkout = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label htmlFor="name" className="text-xs">Name *</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                    className="h-10"
-                  />
+                  <Input id="name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required className="h-10" />
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="phone" className="text-xs">Phone *</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="0772..."
-                    required
-                    className="h-10"
-                  />
+                  <Input id="phone" type="tel" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} placeholder="0772..." required className="h-10" />
                 </div>
               </div>
               <div className="space-y-1">
                 <Label htmlFor="email" className="text-xs">Email *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  required
-                  className="h-10"
-                />
+                <Input id="email" type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} required className="h-10" />
               </div>
               <UgandaLocationSelector value={ugandaLocation} onChange={setUgandaLocation} />
               <div className="space-y-1">
                 <Label htmlFor="address" className="text-xs">Address *</Label>
-                <Textarea
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  placeholder="Street, Building..."
-                  required
-                  className="min-h-[70px]"
-                />
+                <Textarea id="address" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} placeholder="Street, Building..." required className="min-h-[70px]" />
               </div>
             </CardContent>
           </Card>
 
-          {/* Payment Method */}
+          {/* Payment Method — 2 options, both via Pesapal */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Payment Method</CardTitle>
@@ -339,88 +253,41 @@ const Checkout = () => {
                 onValueChange={(value) => setFormData({ ...formData, paymentMethod: value })}
                 className="gap-2"
               >
-                {/* Pesapal — preferred */}
-                <div className={`flex items-center space-x-2 p-3 border-2 rounded-lg transition-colors ${formData.paymentMethod === 'pesapal' ? 'border-primary bg-primary/5' : 'border-border'}`}>
-                  <RadioGroupItem value="pesapal" id="pesapal" />
-                  <Label htmlFor="pesapal" className="flex-1 cursor-pointer">
+                {/* Mobile Money */}
+                <div className={`flex items-center space-x-2 p-3 border-2 rounded-lg transition-colors ${formData.paymentMethod === 'mobile_money' ? 'border-primary bg-primary/5' : 'border-border'}`}>
+                  <RadioGroupItem value="mobile_money" id="mobile_money" />
+                  <Label htmlFor="mobile_money" className="flex-1 cursor-pointer">
                     <div className="flex items-center gap-2">
                       <Smartphone className="h-4 w-4 text-primary" />
                       <div>
-                        <p className="text-sm font-medium">Mobile Money (Pesapal)</p>
-                        <p className="text-xs text-muted-foreground">MTN & Airtel — pay securely via Pesapal</p>
+                        <p className="text-sm font-medium">Mobile Money</p>
+                        <p className="text-xs text-muted-foreground">MTN & Airtel Mobile Money</p>
                       </div>
                     </div>
                   </Label>
                 </div>
-                {/* Manual MTN */}
-                <div className={`flex items-center space-x-2 p-3 border rounded-lg ${formData.paymentMethod === 'mtn' ? 'border-primary' : 'border-border'}`}>
-                  <RadioGroupItem value="mtn" id="mtn" />
-                  <Label htmlFor="mtn" className="flex-1 cursor-pointer text-sm">MTN Mobile Money (Manual)</Label>
-                </div>
-                {/* Manual Airtel */}
-                <div className={`flex items-center space-x-2 p-3 border rounded-lg ${formData.paymentMethod === 'airtel' ? 'border-primary' : 'border-border'}`}>
-                  <RadioGroupItem value="airtel" id="airtel" />
-                  <Label htmlFor="airtel" className="flex-1 cursor-pointer text-sm">Airtel Money (Manual)</Label>
+                {/* Card */}
+                <div className={`flex items-center space-x-2 p-3 border-2 rounded-lg transition-colors ${formData.paymentMethod === 'card' ? 'border-primary bg-primary/5' : 'border-border'}`}>
+                  <RadioGroupItem value="card" id="card" />
+                  <Label htmlFor="card" className="flex-1 cursor-pointer">
+                    <div className="flex items-center gap-2">
+                      <CreditCard className="h-4 w-4 text-primary" />
+                      <div>
+                        <p className="text-sm font-medium">Card Payment</p>
+                        <p className="text-xs text-muted-foreground">Visa, Mastercard & more</p>
+                      </div>
+                    </div>
+                  </Label>
                 </div>
               </RadioGroup>
 
-              {/* Pesapal info */}
-              {formData.paymentMethod === 'pesapal' && (
-                <div className="bg-primary/5 border border-primary/20 p-3 rounded-lg text-sm text-muted-foreground">
-                  You'll be redirected to the Pesapal secure payment page to complete your payment with MTN or Airtel Mobile Money.
-                </div>
-              )}
-
-              {/* Manual payment details */}
-              {isManualPayment && selectedManualPayment && (
-                <>
-                  <div className="bg-muted p-3 rounded-lg space-y-2">
-                    <p className="text-xs font-medium">Send {formatPrice(total)} to:</p>
-                    <div className="flex items-center justify-between bg-background p-2 rounded border">
-                      <div>
-                        <p className="text-xs text-muted-foreground">{selectedManualPayment.name}</p>
-                        <p className="font-mono font-semibold">{selectedManualPayment.number}</p>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="h-8 w-8 p-0"
-                        onClick={() => handleCopyNumber(selectedManualPayment.number)}
-                      >
-                        {copiedNumber ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                      </Button>
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="proof" className="text-xs">Payment Proof (Optional)</Label>
-                    <div className="mt-1.5 border-2 border-dashed rounded-lg p-3 text-center">
-                      <input type="file" id="proof" accept="image/*" onChange={handleFileChange} className="hidden" />
-                      <label htmlFor="proof" className="cursor-pointer">
-                        {paymentProof ? (
-                          <div className="flex items-center justify-center gap-2 text-primary text-sm">
-                            <Check className="h-4 w-4" />
-                            <span className="truncate max-w-[200px]">{paymentProof.name}</span>
-                          </div>
-                        ) : (
-                          <div className="flex flex-col items-center gap-1 text-muted-foreground">
-                            <Upload className="h-6 w-6" />
-                            <span className="text-xs">Upload screenshot</span>
-                          </div>
-                        )}
-                      </label>
-                    </div>
-                  </div>
-                </>
-              )}
+              <div className="bg-primary/5 border border-primary/20 p-3 rounded-lg text-sm text-muted-foreground">
+                You'll be redirected to a secure payment page to complete your {formData.paymentMethod === 'mobile_money' ? 'Mobile Money' : 'card'} payment.
+              </div>
             </CardContent>
           </Card>
 
-          <Button
-            type="submit"
-            className="w-full h-12"
-            disabled={isSubmitting}
-          >
+          <Button type="submit" className="w-full h-12" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

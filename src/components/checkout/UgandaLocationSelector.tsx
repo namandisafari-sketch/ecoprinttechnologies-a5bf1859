@@ -13,6 +13,7 @@ import {
   Subcounty,
   fetchDistricts,
   fetchSubcountiesForDistrict,
+  fetchParishesForSubcounty,
 } from "@/lib/ugandaLocations";
 import { Loader2 } from "lucide-react";
 
@@ -31,11 +32,10 @@ interface Props {
 const UgandaLocationSelector = ({ value, onChange }: Props) => {
   const [districts, setDistricts] = useState<District[]>([]);
   const [subcounties, setSubcounties] = useState<Subcounty[]>([]);
+  const [parishes, setParishes] = useState<string[]>([]);
   const [loadingDistricts, setLoadingDistricts] = useState(true);
   const [loadingSubcounties, setLoadingSubcounties] = useState(false);
-  const [selectedDistrictCode, setSelectedDistrictCode] = useState<
-    number | null
-  >(null);
+  const [loadingParishes, setLoadingParishes] = useState(false);
 
   useEffect(() => {
     fetchDistricts()
@@ -47,9 +47,9 @@ const UgandaLocationSelector = ({ value, onChange }: Props) => {
     const district = districts.find((d) => d.district_name === districtName);
     onChange({ district: districtName, subcounty: "", parish: "", village: "" });
     setSubcounties([]);
+    setParishes([]);
 
     if (district) {
-      setSelectedDistrictCode(district.district_code);
       setLoadingSubcounties(true);
       const subs = await fetchSubcountiesForDistrict(district.district_code);
       setSubcounties(subs);
@@ -57,8 +57,20 @@ const UgandaLocationSelector = ({ value, onChange }: Props) => {
     }
   };
 
-  const handleSubcountyChange = (subcounty: string) => {
-    onChange({ ...value, subcounty, parish: "", village: "" });
+  const handleSubcountyChange = async (subcountyName: string) => {
+    onChange({ ...value, subcounty: subcountyName, parish: "", village: "" });
+    setParishes([]);
+
+    if (value.district && subcountyName) {
+      setLoadingParishes(true);
+      const p = await fetchParishesForSubcounty(value.district, subcountyName);
+      setParishes(p);
+      setLoadingParishes(false);
+    }
+  };
+
+  const handleParishChange = (parish: string) => {
+    onChange({ ...value, parish, village: "" });
   };
 
   return (
@@ -123,15 +135,36 @@ const UgandaLocationSelector = ({ value, onChange }: Props) => {
         )}
       </div>
 
-      {/* Parish — free text */}
+      {/* Parish — auto-populated dropdown */}
       <div className="space-y-1">
         <Label className="text-xs">Parish</Label>
-        <Input
-          value={value.parish}
-          onChange={(e) => onChange({ ...value, parish: e.target.value })}
-          placeholder="Parish name"
-          className="h-10"
-        />
+        {loadingParishes ? (
+          <div className="flex items-center gap-2 text-xs text-muted-foreground h-10">
+            <Loader2 className="h-3 w-3 animate-spin" />
+            Loading parishes…
+          </div>
+        ) : parishes.length > 0 ? (
+          <Select value={value.parish} onValueChange={handleParishChange}>
+            <SelectTrigger className="h-10">
+              <SelectValue placeholder="Select parish" />
+            </SelectTrigger>
+            <SelectContent className="max-h-60">
+              {parishes.map((p) => (
+                <SelectItem key={p} value={p}>
+                  {p}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          <Input
+            value={value.parish}
+            onChange={(e) => onChange({ ...value, parish: e.target.value })}
+            placeholder={value.subcounty ? "No parishes found — type manually" : "Select sub-county first"}
+            className="h-10"
+            disabled={!value.subcounty}
+          />
+        )}
       </div>
 
       {/* Village — free text */}
