@@ -2,7 +2,8 @@ import {
   LayoutDashboard, 
   Receipt, 
   Package, 
-  ShoppingCart, 
+  ShoppingCart,
+  MessageCircle,
   MoreHorizontal 
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
@@ -16,6 +17,7 @@ const AdminBottomNavigation = () => {
     { icon: Receipt, label: "POS", path: "/admin/pos" },
     { icon: Package, label: "Products", path: "/admin/products" },
     { icon: ShoppingCart, label: "Orders", path: "/admin/orders" },
+    { icon: MessageCircle, label: "Chat", path: "/admin/chat" },
     { icon: MoreHorizontal, label: "More", path: "/admin/more" },
   ];
 
@@ -53,3 +55,4 @@ const AdminBottomNavigation = () => {
 };
 
 export default AdminBottomNavigation;
+

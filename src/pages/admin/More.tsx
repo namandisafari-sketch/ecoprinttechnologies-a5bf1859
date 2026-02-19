@@ -4,7 +4,6 @@ import {
   Boxes,
   Tags,
   Users,
-  MessageCircle,
   Settings,
   LogOut,
   Home,
@@ -13,12 +12,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
+
 const moreItems = [
-  { label: "Inventory", href: "/admin/inventory", icon: Boxes, description: "Manage stock levels" },
-  { label: "Categories", href: "/admin/categories", icon: Tags, description: "Product categories" },
-  { label: "Customers", href: "/admin/customers", icon: Users, description: "Customer management" },
-  { label: "Chat", href: "/admin/chat", icon: MessageCircle, description: "Customer messages" },
-  { label: "Settings", href: "/admin/settings", icon: Settings, description: "App configuration" },
+  { label: "Inventory", href: "/admin/inventory", icon: Boxes, description: "Track stock levels & low-stock alerts" },
+  { label: "Categories", href: "/admin/categories", icon: Tags, description: "Manage product categories" },
+  { label: "Customers", href: "/admin/customers", icon: Users, description: "View & manage customers" },
+  { label: "Settings", href: "/admin/settings", icon: Settings, description: "App configuration & preferences" },
 ];
 
 const AdminMore = () => {
