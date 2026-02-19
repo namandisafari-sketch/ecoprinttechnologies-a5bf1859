@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import BottomNavigation from "@/components/layout/BottomNavigation";
 import { CartItem } from "@/components/cart/CartDrawer";
+import UgandaLocationSelector, { LocationData } from "@/components/checkout/UgandaLocationSelector";
 
 const MANUAL_PAYMENT_DETAILS = {
   mtn: { name: "MTN Mobile Money", number: "0772123456" },
@@ -20,10 +21,10 @@ const MANUAL_PAYMENT_DETAILS = {
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const location = useLocation();
+  const locationState = useLocation();
   const { toast } = useToast();
   
-  const cartItems: CartItem[] = location.state?.cartItems || [];
+  const cartItems: CartItem[] = locationState.state?.cartItems || [];
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const deliveryFee = subtotal >= 100000 ? 0 : 10000;
   const total = subtotal + deliveryFee;
@@ -32,10 +33,15 @@ const Checkout = () => {
     name: "",
     email: "",
     phone: "",
-    city: "",
     address: "",
     notes: "",
     paymentMethod: "pesapal",
+  });
+  const [ugandaLocation, setUgandaLocation] = useState<LocationData>({
+    district: "",
+    subcounty: "",
+    parish: "",
+    village: "",
   });
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -77,8 +83,8 @@ const Checkout = () => {
       return;
     }
 
-    if (!formData.name || !formData.email || !formData.phone || !formData.city || !formData.address) {
-      toast({ title: "Missing information", description: "Please fill in all required fields", variant: "destructive" });
+    if (!formData.name || !formData.email || !formData.phone || !ugandaLocation.district || !ugandaLocation.subcounty || !formData.address) {
+      toast({ title: "Missing information", description: "Please fill in all required fields including district and sub-county", variant: "destructive" });
       return;
     }
 
@@ -95,8 +101,8 @@ const Checkout = () => {
           customer_name: formData.name,
           customer_email: formData.email,
           customer_phone: formData.phone,
-          city: formData.city,
-          shipping_address: formData.address,
+          city: ugandaLocation.district,
+          shipping_address: [ugandaLocation.subcounty, ugandaLocation.parish, ugandaLocation.village, formData.address].filter(Boolean).join(', '),
           notes: formData.notes,
           payment_method: formData.paymentMethod,
           subtotal: subtotal,
@@ -307,17 +313,7 @@ const Checkout = () => {
                   className="h-10"
                 />
               </div>
-              <div className="space-y-1">
-                <Label htmlFor="city" className="text-xs">City *</Label>
-                <Input
-                  id="city"
-                  value={formData.city}
-                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  placeholder="Kampala"
-                  required
-                  className="h-10"
-                />
-              </div>
+              <UgandaLocationSelector value={ugandaLocation} onChange={setUgandaLocation} />
               <div className="space-y-1">
                 <Label htmlFor="address" className="text-xs">Address *</Label>
                 <Textarea
