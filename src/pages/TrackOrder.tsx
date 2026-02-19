@@ -20,6 +20,7 @@ interface OrderData {
   city: string;
   shipping_address: string;
   payment_method: string | null;
+  delivery_code: string | null;
 }
 
 const STATUS_CONFIG: Record<string, { icon: any; label: string; color: string }> = {
@@ -67,7 +68,7 @@ const TrackOrder = () => {
     try {
       const { data, error } = await supabase
         .from("orders")
-        .select("id, order_number, customer_name, status, payment_status, total, created_at, city, shipping_address, payment_method")
+        .select("id, order_number, customer_name, status, payment_status, total, created_at, city, shipping_address, payment_method, delivery_code")
         .eq("device_id", deviceId!)
         .order("created_at", { ascending: false });
 
@@ -86,7 +87,7 @@ const TrackOrder = () => {
     try {
       const { data } = await supabase
         .from("orders")
-        .select("id, order_number, customer_name, status, payment_status, total, created_at, city, shipping_address, payment_method")
+        .select("id, order_number, customer_name, status, payment_status, total, created_at, city, shipping_address, payment_method, delivery_code")
         .eq("order_number", searchQuery.trim())
         .maybeSingle();
       if (data) {
@@ -142,6 +143,19 @@ const TrackOrder = () => {
                       <span className={`text-[10px] mt-1 ${step.step <= currentStep ? "font-medium" : "text-muted-foreground"}`}>{step.label}</span>
                     </div>
                   ))}
+                </div>
+              )}
+
+              {/* Delivery Confirmation Code */}
+              {(selectedOrder as any).delivery_code && (
+                <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mt-6 text-center">
+                  <h4 className="font-medium text-xs text-muted-foreground mb-1">Your Delivery Code</h4>
+                  <p className="text-2xl font-mono font-bold tracking-widest text-primary">
+                    {(selectedOrder as any).delivery_code}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Share this code with the delivery person to confirm receipt
+                  </p>
                 </div>
               )}
 

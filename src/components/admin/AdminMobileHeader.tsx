@@ -1,11 +1,15 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Home, Bell } from "lucide-react";
+import { Home, Bell, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import AdminMobileSidebar from "@/components/admin/AdminMobileSidebar";
+import { useState } from "react";
 
 const AdminMobileHeader = () => {
   const location = useLocation();
   const { user } = useAuth();
+  const [open, setOpen] = useState(false);
 
   const getPageTitle = () => {
     const path = location.pathname;
@@ -25,11 +29,17 @@ const AdminMobileHeader = () => {
   return (
     <header className="lg:hidden sticky top-0 z-50 bg-secondary/95 backdrop-blur supports-[backdrop-filter]:bg-secondary/80">
       <div className="flex items-center justify-between px-4 h-14">
-        {/* Logo */}
-        <Link to="/admin" className="flex items-center gap-2">
-          <img src="/logo.png" alt="Co Print Technologies" className="h-8 w-auto object-contain brightness-0 invert" />
-          <p className="text-[10px] text-secondary-foreground/60 font-medium">Admin</p>
-        </Link>
+        {/* Menu trigger */}
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-9 w-9 text-secondary-foreground/70 hover:text-secondary-foreground hover:bg-secondary-foreground/10">
+              <Menu className="h-5 w-5" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="p-0 w-72 bg-secondary border-secondary-foreground/10">
+            <AdminMobileSidebar onNavigate={() => setOpen(false)} />
+          </SheetContent>
+        </Sheet>
 
         {/* Page Title - Center */}
         <h2 className="font-semibold text-secondary-foreground absolute left-1/2 -translate-x-1/2">
