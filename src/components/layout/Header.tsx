@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { Search, ShoppingCart, Menu, X, Phone, MapPin, PackageSearch, Laptop, Settings } from "lucide-react";
+import { Search, ShoppingCart, Menu, X, Phone, MapPin, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import AccessCodeDialog from "@/components/auth/AccessCodeDialog";
 
 interface HeaderProps {
   cartCount: number;
@@ -100,8 +99,8 @@ const Header = ({ cartCount, onCartClick }: HeaderProps) => {
               </Link>
             )}
 
-            {/* Admin Access */}
-            {!isAdmin && <AccessCodeDialog />}
+
+
 
             <Button
               variant="ghost"
