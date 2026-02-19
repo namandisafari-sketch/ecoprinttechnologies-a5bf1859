@@ -13,11 +13,13 @@ import { supabase } from "@/integrations/supabase/client";
 import BottomNavigation from "@/components/layout/BottomNavigation";
 import { CartItem } from "@/components/cart/CartDrawer";
 import UgandaLocationSelector, { LocationData } from "@/components/checkout/UgandaLocationSelector";
+import { useDeviceContext } from "@/contexts/DeviceContext";
 
 const Checkout = () => {
   const navigate = useNavigate();
   const locationState = useLocation();
   const { toast } = useToast();
+  const { deviceId, deviceName } = useDeviceContext();
   
   const cartItems: CartItem[] = locationState.state?.cartItems || [];
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -25,7 +27,7 @@ const Checkout = () => {
   const total = subtotal + deliveryFee;
 
   const [formData, setFormData] = useState({
-    name: "",
+    name: deviceName || "",
     email: "",
     phone: "",
     address: "",
@@ -92,6 +94,7 @@ const Checkout = () => {
           total: total,
           status: 'pending',
           payment_status: formData.paymentMethod === 'pay_on_delivery' ? 'pending' : 'pending',
+          device_id: deviceId || null,
         });
 
       if (orderError) throw orderError;
