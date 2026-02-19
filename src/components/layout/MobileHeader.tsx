@@ -89,7 +89,7 @@ const MobileHeader = () => {
 
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <img src="/logo.png" alt="Co Print Technologies" className="h-8 w-auto object-contain" />
+          <img src="/logo.png" alt="Co Print Technologies" className="h-14 w-auto object-contain" />
         </Link>
 
         {/* Actions */}
