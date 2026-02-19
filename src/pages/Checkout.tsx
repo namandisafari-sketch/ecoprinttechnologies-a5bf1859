@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { ChevronLeft, Upload, Copy, Check, Loader2 } from "lucide-react";
+import { ChevronLeft, Upload, Copy, Check, Loader2, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,10 +12,11 @@ import { supabase } from "@/integrations/supabase/client";
 import BottomNavigation from "@/components/layout/BottomNavigation";
 import { CartItem } from "@/components/cart/CartDrawer";
 
-const PAYMENT_DETAILS = {
+const MANUAL_PAYMENT_DETAILS = {
   mtn: { name: "MTN Mobile Money", number: "0772123456" },
   airtel: { name: "Airtel Money", number: "0702123456" },
 };
+
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ const Checkout = () => {
     city: "",
     address: "",
     notes: "",
-    paymentMethod: "mtn",
+    paymentMethod: "pesapal",
   });
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -85,28 +86,8 @@ const Checkout = () => {
 
     try {
       const orderNumber = generateOrderNumber();
-      let paymentProofUrl = null;
 
-      // Upload payment proof if provided
-      if (paymentProof) {
-        const fileExt = paymentProof.name.split('.').pop();
-        const fileName = `${orderNumber}-${Date.now()}.${fileExt}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from('payment-proofs')
-          .upload(fileName, paymentProof);
-
-        if (uploadError) {
-          console.error("Upload error:", uploadError);
-        } else {
-          const { data: urlData } = supabase.storage
-            .from('payment-proofs')
-            .getPublicUrl(fileName);
-          paymentProofUrl = urlData.publicUrl;
-        }
-      }
-
-      // Create order
+      // Create order in DB first
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
@@ -116,7 +97,7 @@ const Checkout = () => {
           customer_phone: formData.phone,
           city: formData.city,
           shipping_address: formData.address,
-          notes: formData.notes + (paymentProofUrl ? `\n\nPayment proof: ${paymentProofUrl}` : '\n\nPayment proof pending'),
+          notes: formData.notes,
           payment_method: formData.paymentMethod,
           subtotal: subtotal,
           delivery_fee: deliveryFee,
@@ -145,9 +126,52 @@ const Checkout = () => {
 
       if (itemsError) throw itemsError;
 
+      if (formData.paymentMethod === 'pesapal') {
+        // Initiate Pesapal payment
+        const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+        const { data: pesapalData, error: pesapalFnError } = await supabase.functions.invoke('pesapal-payment', {
+          body: {
+            action: 'initiate',
+            orderNumber,
+            amount: total,
+            currency: 'UGX',
+            description: `Order ${orderNumber} - Co Print Technologies`,
+            customerName: formData.name,
+            customerEmail: formData.email,
+            customerPhone: formData.phone,
+            callbackUrl: `${window.location.origin}/track-order?order=${orderNumber}`,
+            notificationUrl: `https://${projectId}.supabase.co/functions/v1/pesapal-payment`,
+          },
+        });
+
+        if (pesapalFnError || !pesapalData?.redirect_url) {
+          throw new Error(pesapalData?.error || 'Failed to initiate Pesapal payment');
+        }
+
+        // Redirect to Pesapal payment page
+        window.location.href = pesapalData.redirect_url;
+        return;
+      }
+
+      // Manual payment (MTN / Airtel) — upload proof if provided
+      if (paymentProof) {
+        const fileExt = paymentProof.name.split('.').pop();
+        const fileName = `${orderNumber}-${Date.now()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from('payment-proofs')
+          .upload(fileName, paymentProof);
+
+        if (!uploadError) {
+          const { data: urlData } = supabase.storage.from('payment-proofs').getPublicUrl(fileName);
+          await supabase.from('orders').update({
+            notes: (formData.notes || '') + `\n\nPayment proof: ${urlData.publicUrl}`,
+          }).eq('id', order.id);
+        }
+      }
+
       toast({
         title: "Order placed!",
-        description: `Order #${orderNumber} submitted successfully.`,
+        description: `Order #${orderNumber} submitted. We'll verify your payment shortly.`,
       });
 
       navigate(`/track-order?order=${orderNumber}`);
@@ -155,7 +179,7 @@ const Checkout = () => {
       console.error("Checkout error:", error);
       toast({
         title: "Order failed",
-        description: "Please try again.",
+        description: (error as Error).message || "Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -184,7 +208,10 @@ const Checkout = () => {
     );
   }
 
-  const selectedPayment = PAYMENT_DETAILS[formData.paymentMethod as keyof typeof PAYMENT_DETAILS];
+  const isManualPayment = formData.paymentMethod === 'mtn' || formData.paymentMethod === 'airtel';
+  const selectedManualPayment = isManualPayment
+    ? MANUAL_PAYMENT_DETAILS[formData.paymentMethod as keyof typeof MANUAL_PAYMENT_DETAILS]
+    : null;
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -308,7 +335,7 @@ const Checkout = () => {
           {/* Payment Method */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Payment</CardTitle>
+              <CardTitle className="text-base">Payment Method</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <RadioGroup
@@ -316,60 +343,80 @@ const Checkout = () => {
                 onValueChange={(value) => setFormData({ ...formData, paymentMethod: value })}
                 className="gap-2"
               >
-                <div className="flex items-center space-x-2 p-3 border rounded-lg">
-                  <RadioGroupItem value="mtn" id="mtn" />
-                  <Label htmlFor="mtn" className="flex-1 cursor-pointer text-sm">MTN Mobile Money</Label>
+                {/* Pesapal — preferred */}
+                <div className={`flex items-center space-x-2 p-3 border-2 rounded-lg transition-colors ${formData.paymentMethod === 'pesapal' ? 'border-primary bg-primary/5' : 'border-border'}`}>
+                  <RadioGroupItem value="pesapal" id="pesapal" />
+                  <Label htmlFor="pesapal" className="flex-1 cursor-pointer">
+                    <div className="flex items-center gap-2">
+                      <Smartphone className="h-4 w-4 text-primary" />
+                      <div>
+                        <p className="text-sm font-medium">Mobile Money (Pesapal)</p>
+                        <p className="text-xs text-muted-foreground">MTN & Airtel — pay securely via Pesapal</p>
+                      </div>
+                    </div>
+                  </Label>
                 </div>
-                <div className="flex items-center space-x-2 p-3 border rounded-lg">
+                {/* Manual MTN */}
+                <div className={`flex items-center space-x-2 p-3 border rounded-lg ${formData.paymentMethod === 'mtn' ? 'border-primary' : 'border-border'}`}>
+                  <RadioGroupItem value="mtn" id="mtn" />
+                  <Label htmlFor="mtn" className="flex-1 cursor-pointer text-sm">MTN Mobile Money (Manual)</Label>
+                </div>
+                {/* Manual Airtel */}
+                <div className={`flex items-center space-x-2 p-3 border rounded-lg ${formData.paymentMethod === 'airtel' ? 'border-primary' : 'border-border'}`}>
                   <RadioGroupItem value="airtel" id="airtel" />
-                  <Label htmlFor="airtel" className="flex-1 cursor-pointer text-sm">Airtel Money</Label>
+                  <Label htmlFor="airtel" className="flex-1 cursor-pointer text-sm">Airtel Money (Manual)</Label>
                 </div>
               </RadioGroup>
 
-              <div className="bg-muted p-3 rounded-lg space-y-2">
-                <p className="text-xs font-medium">Send {formatPrice(total)} to:</p>
-                <div className="flex items-center justify-between bg-background p-2 rounded border">
-                  <div>
-                    <p className="text-xs text-muted-foreground">{selectedPayment.name}</p>
-                    <p className="font-mono font-semibold">{selectedPayment.number}</p>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="h-8 w-8 p-0"
-                    onClick={() => handleCopyNumber(selectedPayment.number)}
-                  >
-                    {copiedNumber ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                  </Button>
+              {/* Pesapal info */}
+              {formData.paymentMethod === 'pesapal' && (
+                <div className="bg-primary/5 border border-primary/20 p-3 rounded-lg text-sm text-muted-foreground">
+                  You'll be redirected to the Pesapal secure payment page to complete your payment with MTN or Airtel Mobile Money.
                 </div>
-              </div>
+              )}
 
-              <div>
-                <Label htmlFor="proof" className="text-xs">Payment Proof (Optional)</Label>
-                <div className="mt-1.5 border-2 border-dashed rounded-lg p-3 text-center">
-                  <input
-                    type="file"
-                    id="proof"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                  <label htmlFor="proof" className="cursor-pointer">
-                    {paymentProof ? (
-                      <div className="flex items-center justify-center gap-2 text-primary text-sm">
-                        <Check className="h-4 w-4" />
-                        <span className="truncate max-w-[200px]">{paymentProof.name}</span>
+              {/* Manual payment details */}
+              {isManualPayment && selectedManualPayment && (
+                <>
+                  <div className="bg-muted p-3 rounded-lg space-y-2">
+                    <p className="text-xs font-medium">Send {formatPrice(total)} to:</p>
+                    <div className="flex items-center justify-between bg-background p-2 rounded border">
+                      <div>
+                        <p className="text-xs text-muted-foreground">{selectedManualPayment.name}</p>
+                        <p className="font-mono font-semibold">{selectedManualPayment.number}</p>
                       </div>
-                    ) : (
-                      <div className="flex flex-col items-center gap-1 text-muted-foreground">
-                        <Upload className="h-6 w-6" />
-                        <span className="text-xs">Upload screenshot</span>
-                      </div>
-                    )}
-                  </label>
-                </div>
-              </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        onClick={() => handleCopyNumber(selectedManualPayment.number)}
+                      >
+                        {copiedNumber ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="proof" className="text-xs">Payment Proof (Optional)</Label>
+                    <div className="mt-1.5 border-2 border-dashed rounded-lg p-3 text-center">
+                      <input type="file" id="proof" accept="image/*" onChange={handleFileChange} className="hidden" />
+                      <label htmlFor="proof" className="cursor-pointer">
+                        {paymentProof ? (
+                          <div className="flex items-center justify-center gap-2 text-primary text-sm">
+                            <Check className="h-4 w-4" />
+                            <span className="truncate max-w-[200px]">{paymentProof.name}</span>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center gap-1 text-muted-foreground">
+                            <Upload className="h-6 w-6" />
+                            <span className="text-xs">Upload screenshot</span>
+                          </div>
+                        )}
+                      </label>
+                    </div>
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
 
