@@ -140,6 +140,33 @@ export type Database = {
         }
         Relationships: []
       }
+      devices: {
+        Row: {
+          created_at: string
+          device_fingerprint: string
+          full_name: string
+          id: string
+          recovery_code: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          device_fingerprint: string
+          full_name: string
+          id?: string
+          recovery_code: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          device_fingerprint?: string
+          full_name?: string
+          id?: string
+          recovery_code?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
@@ -244,6 +271,7 @@ export type Database = {
           customer_name: string
           customer_phone: string
           delivery_fee: number | null
+          device_id: string | null
           id: string
           notes: string | null
           order_number: string
@@ -263,6 +291,7 @@ export type Database = {
           customer_name: string
           customer_phone: string
           delivery_fee?: number | null
+          device_id?: string | null
           id?: string
           notes?: string | null
           order_number: string
@@ -282,6 +311,7 @@ export type Database = {
           customer_name?: string
           customer_phone?: string
           delivery_fee?: number | null
+          device_id?: string | null
           id?: string
           notes?: string | null
           order_number?: string
@@ -294,7 +324,15 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "orders_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       products: {
         Row: {
