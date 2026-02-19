@@ -16,7 +16,7 @@ const Header = ({ cartCount, onCartClick }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
-  const { isAdmin, isSeller } = useAuth();
+  const { isAdmin } = useAuth();
 
   const categories = [
     "All Laptops",
@@ -100,21 +100,8 @@ const Header = ({ cartCount, onCartClick }: HeaderProps) => {
               </Link>
             )}
 
-            {/* Seller Dashboard Link */}
-            {isSeller && !isAdmin && (
-              <Link to="/seller">
-                <Button variant="outline" size="sm" className="hidden sm:flex items-center gap-1.5">
-                  <Settings className="h-4 w-4" />
-                  <span>Seller</span>
-                </Button>
-                <Button variant="outline" size="icon" className="sm:hidden">
-                  <Settings className="h-4 w-4" />
-                </Button>
-              </Link>
-            )}
-
-            {/* Admin Access (for non-logged in users) */}
-            {!isAdmin && !isSeller && <AccessCodeDialog />}
+            {/* Admin Access */}
+            {!isAdmin && <AccessCodeDialog />}
 
             <Button
               variant="ghost"
