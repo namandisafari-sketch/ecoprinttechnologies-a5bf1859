@@ -8,7 +8,6 @@ const corsHeaders = {
 const PESAPAL_CONSUMER_KEY = Deno.env.get('PESAPAL_CONSUMER_KEY')!;
 const PESAPAL_CONSUMER_SECRET = Deno.env.get('PESAPAL_CONSUMER_SECRET')!;
 
-// Use sandbox for testing, change to live URL for production
 const PESAPAL_BASE_URL = 'https://pay.pesapal.com/v3';
 
 async function getAuthToken(): Promise<string> {
