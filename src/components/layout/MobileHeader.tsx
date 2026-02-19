@@ -49,8 +49,7 @@ const MobileHeader = () => {
           <SheetContent side="left" className="w-[280px]">
             <SheetHeader>
               <SheetTitle className="flex items-center gap-2">
-                <img src="/logo.jpeg" alt="Eco Hub" className="w-8 h-8 rounded-lg object-cover" />
-                <span>Eco Hub</span>
+                <img src="/logo.png" alt="Co Print Technologies" className="h-8 w-auto object-contain" />
               </SheetTitle>
             </SheetHeader>
             <nav className="mt-6 flex flex-col gap-1">
@@ -90,10 +89,7 @@ const MobileHeader = () => {
 
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <img src="/logo.jpeg" alt="Eco Hub" className="w-8 h-8 rounded-lg object-cover" />
-          <div>
-            <h1 className="font-bold text-base leading-tight text-foreground">Eco Hub</h1>
-          </div>
+          <img src="/logo.png" alt="Co Print Technologies" className="h-8 w-auto object-contain" />
         </Link>
 
         {/* Actions */}

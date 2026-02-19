@@ -19,13 +19,13 @@ const HeroSection = () => {
       {/* Content - Mobile Optimized */}
       <div className="relative px-4 py-10">
         <div className="max-w-md mx-auto text-center animate-fade-in">
-          <span className="inline-block px-3 py-1 bg-primary/20 text-primary rounded-full text-xs font-medium mb-3">
+          <span className="inline-block px-3 py-1 bg-accent/20 text-accent rounded-full text-xs font-medium mb-3">
             Suncity Mall, Kampala
           </span>
           
           <h1 className="text-2xl font-bold text-secondary-foreground mb-3 leading-tight">
-            Find Your Dream 
-            <span className="text-primary"> Laptop</span>
+            Co Print
+            <span className="text-primary"> Technologies</span>
           </h1>
           
           <p className="text-sm text-secondary-foreground/80 mb-6">

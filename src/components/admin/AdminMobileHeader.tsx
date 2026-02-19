@@ -27,11 +27,8 @@ const AdminMobileHeader = () => {
       <div className="flex items-center justify-between px-4 h-14">
         {/* Logo */}
         <Link to="/admin" className="flex items-center gap-2">
-          <img src="/logo.jpeg" alt="Eco Hub" className="w-8 h-8 rounded-lg object-cover" />
-          <div>
-            <h1 className="font-bold text-sm leading-tight text-secondary-foreground">Eco Hub</h1>
-            <p className="text-[10px] text-secondary-foreground/60">Admin</p>
-          </div>
+          <img src="/logo.png" alt="Co Print Technologies" className="h-8 w-auto object-contain brightness-0 invert" />
+          <p className="text-[10px] text-secondary-foreground/60 font-medium">Admin</p>
         </Link>
 
         {/* Page Title - Center */}
