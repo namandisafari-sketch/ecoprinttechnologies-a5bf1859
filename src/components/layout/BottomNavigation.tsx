@@ -1,6 +1,7 @@
-import { Home, Search, ShoppingCart, Package, User } from "lucide-react";
+import { Home, Search, ShoppingCart, Package, LogIn } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface BottomNavigationProps {
   cartCount: number;
@@ -9,13 +10,18 @@ interface BottomNavigationProps {
 
 const BottomNavigation = ({ cartCount, onCartClick }: BottomNavigationProps) => {
   const location = useLocation();
-  
+  const { user, isAdmin } = useAuth();
+
   const navItems = [
     { icon: Home, label: "Home", path: "/" },
     { icon: Search, label: "Search", path: "/search" },
     { icon: ShoppingCart, label: "Cart", path: "#cart", isCart: true },
     { icon: Package, label: "Orders", path: "/track-order" },
-    { icon: User, label: "Services", path: "/technicians" },
+    {
+      icon: LogIn,
+      label: isAdmin ? "Admin" : user ? "Account" : "Login",
+      path: isAdmin ? "/admin" : user ? "/track-order" : "/login",
+    },
   ];
 
   return (
@@ -53,7 +59,8 @@ const BottomNavigation = ({ cartCount, onCartClick }: BottomNavigationProps) => 
               to={item.path}
               className={cn(
                 "flex flex-col items-center justify-center flex-1 h-full transition-colors",
-                isActive ? "text-primary" : "text-muted-foreground"
+                isActive ? "text-primary" : "text-muted-foreground",
+                item.label === "Admin" && "text-primary"
               )}
             >
               <Icon className={cn("h-5 w-5", isActive && "scale-110")} />
