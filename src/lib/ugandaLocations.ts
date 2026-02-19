@@ -1,5 +1,6 @@
-// Uganda location data sourced from https://github.com/Uganda-Open-Data/kalulu
-// Fetched dynamically from GitHub raw URLs
+// Uganda location data sourced from:
+// Districts & Subcounties: https://github.com/Uganda-Open-Data/kalulu
+// Parishes: https://github.com/emugabi/ug-district-data
 
 export interface District {
   district_code: number;
@@ -17,13 +18,23 @@ export interface Subcounty {
   constituency_name: string;
 }
 
+export interface ParishEntry {
+  DISTRICT: string;
+  CONSTITUENCY: string;
+  SUBCOUNTY: string;
+  PARISH: string;
+}
+
 const DISTRICTS_URL =
   'https://raw.githubusercontent.com/Uganda-Open-Data/kalulu/master/district_lookup/uganda_districts_2020.json';
 const SUBCOUNTIES_URL =
   'https://raw.githubusercontent.com/Uganda-Open-Data/kalulu/master/subcounty_lookup/uganda_subcounties_2020.json';
+const PARISHES_URL =
+  'https://raw.githubusercontent.com/emugabi/ug-district-data/master/data.json';
 
 let cachedDistricts: District[] | null = null;
 let cachedSubcounties: Subcounty[] | null = null;
+let cachedParishes: ParishEntry[] | null = null;
 
 export async function fetchDistricts(): Promise<District[]> {
   if (cachedDistricts) return cachedDistricts;
@@ -50,4 +61,26 @@ export async function fetchSubcountiesForDistrict(
   return all
     .filter((s) => s.district_code === districtCode)
     .sort((a, b) => a.subcounty_name.localeCompare(b.subcounty_name));
+}
+
+async function fetchAllParishes(): Promise<ParishEntry[]> {
+  if (cachedParishes) return cachedParishes;
+  const res = await fetch(PARISHES_URL);
+  const json = await res.json();
+  cachedParishes = json.data || json;
+  return cachedParishes!;
+}
+
+export async function fetchParishesForSubcounty(
+  districtName: string,
+  subcountyName: string
+): Promise<string[]> {
+  const all = await fetchAllParishes();
+  const dNorm = districtName.toUpperCase().trim();
+  const sNorm = subcountyName.toUpperCase().trim();
+  const parishes = all
+    .filter((p) => p.DISTRICT === dNorm && p.SUBCOUNTY === sNorm)
+    .map((p) => p.PARISH);
+  // deduplicate and sort
+  return [...new Set(parishes)].sort();
 }
