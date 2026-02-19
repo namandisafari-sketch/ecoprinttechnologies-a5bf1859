@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { ChevronLeft, Loader2, Smartphone, CreditCard, ShieldCheck, MapPin, User, Package } from "lucide-react";
+import { ChevronLeft, Loader2, Smartphone, CreditCard, ShieldCheck, MapPin, User, Package, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -86,12 +86,12 @@ const Checkout = () => {
           city: ugandaLocation.district,
           shipping_address: [ugandaLocation.subcounty, ugandaLocation.parish, ugandaLocation.village, formData.address].filter(Boolean).join(', '),
           notes: formData.notes,
-          payment_method: formData.paymentMethod === 'mobile_money' ? 'pesapal_momo' : 'pesapal_card',
+          payment_method: formData.paymentMethod === 'pay_on_delivery' ? 'pay_on_delivery' : formData.paymentMethod === 'mobile_money' ? 'pesapal_momo' : 'pesapal_card',
           subtotal: subtotal,
           delivery_fee: deliveryFee,
           total: total,
           status: 'pending',
-          payment_status: 'pending',
+          payment_status: formData.paymentMethod === 'pay_on_delivery' ? 'pending' : 'pending',
         });
 
       if (orderError) throw orderError;
@@ -111,6 +111,13 @@ const Checkout = () => {
         .insert(orderItems);
 
       if (itemsError) throw itemsError;
+
+      // Pay on Delivery — skip Pesapal, go straight to confirmation
+      if (formData.paymentMethod === 'pay_on_delivery') {
+        toast({ title: "Order placed!", description: `Order ${orderNumber} confirmed. Pay on delivery.` });
+        navigate(`/track-order?order=${orderNumber}`);
+        return;
+      }
 
       // Initiate Pesapal payment
       const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
@@ -135,9 +142,8 @@ const Checkout = () => {
       
       if (!pesapalData?.redirect_url) {
         const errorMsg = pesapalData?.error || 'Could not connect to payment gateway';
-        // Check for known Pesapal errors
         if (errorMsg.includes('amount_exceeds_default_limit')) {
-          throw new Error('Transaction amount exceeds limit. Please contact support or try a smaller order.');
+          throw new Error('Online payment temporarily unavailable for this amount. Please select "Pay on Delivery" instead.');
         }
         throw new Error(errorMsg);
       }
@@ -327,11 +333,32 @@ const Checkout = () => {
                     </div>
                   </div>
                 </label>
+
+                {/* Pay on Delivery */}
+                <label
+                  htmlFor="pay_on_delivery"
+                  className={`flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-all ${formData.paymentMethod === 'pay_on_delivery' ? 'border-primary bg-primary/5 shadow-sm' : 'border-border hover:border-primary/40'}`}
+                >
+                  <RadioGroupItem value="pay_on_delivery" id="pay_on_delivery" />
+                  <div className="flex items-center gap-2.5 flex-1">
+                    <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Truck className="h-4.5 w-4.5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">Pay on Delivery</p>
+                      <p className="text-xs text-muted-foreground">Cash or Mobile Money on arrival</p>
+                    </div>
+                  </div>
+                </label>
               </RadioGroup>
 
               <div className="flex items-start gap-2 bg-muted/60 p-3 rounded-lg text-xs text-muted-foreground">
-                <ShieldCheck className="h-3.5 w-3.5 mt-0.5 text-green-600 shrink-0" />
-                <span>You'll be securely redirected to Pesapal to complete your {formData.paymentMethod === 'mobile_money' ? 'Mobile Money' : 'card'} payment.</span>
+                <ShieldCheck className="h-3.5 w-3.5 mt-0.5 text-primary shrink-0" />
+                <span>
+                  {formData.paymentMethod === 'pay_on_delivery'
+                    ? 'Pay when your order is delivered. Cash or Mobile Money accepted.'
+                    : `You'll be securely redirected to Pesapal to complete your ${formData.paymentMethod === 'mobile_money' ? 'Mobile Money' : 'card'} payment.`}
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -344,7 +371,7 @@ const Checkout = () => {
                 Processing...
               </>
             ) : (
-              <>Pay {formatPrice(total)}</>
+              <>{formData.paymentMethod === 'pay_on_delivery' ? 'Place Order' : `Pay ${formatPrice(total)}`}</>
             )}
           </Button>
 
