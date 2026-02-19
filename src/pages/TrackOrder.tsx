@@ -64,8 +64,8 @@ const TrackOrder = () => {
       const { data, error: fetchError } = await supabase
         .from("orders")
         .select("id, order_number, customer_name, status, payment_status, total, created_at, city, shipping_address")
-        .eq("order_number", orderNumber.trim().toUpperCase())
-        .single();
+        .eq("order_number", orderNumber.trim())
+        .maybeSingle();
 
       if (fetchError || !data) {
         setOrderData(null);
