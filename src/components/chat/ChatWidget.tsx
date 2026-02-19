@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNotifications } from "@/hooks/useNotifications";
+import { useChatPresence } from "@/hooks/useChatPresence";
+import TypingIndicator from "@/components/chat/TypingIndicator";
 
 interface Message {
   id: string;
@@ -26,8 +28,12 @@ const ChatWidget = () => {
   const { toast } = useToast();
   const { permission, requestPermission, showNotification, isSupported } = useNotifications();
 
+  const { isRemoteOnline, isRemoteTyping, sendTyping, sendStopTyping } = useChatPresence({
+    conversationId,
+    role: "customer",
+  });
+
   useEffect(() => {
-    // Generate or retrieve session ID
     let sid = localStorage.getItem("chat_session_id");
     if (!sid) {
       sid = `session_${Date.now()}_${Math.random().toString(36).substring(7)}`;
@@ -35,7 +41,6 @@ const ChatWidget = () => {
     }
     setSessionId(sid);
 
-    // Check for existing conversation
     const savedConversation = localStorage.getItem("chat_conversation_id");
     const savedCustomer = localStorage.getItem("chat_customer_info");
     
@@ -49,7 +54,6 @@ const ChatWidget = () => {
 
   useEffect(() => {
     if (conversationId) {
-      // Subscribe to new messages
       const channel = supabase
         .channel(`messages:${conversationId}`)
         .on(
@@ -67,7 +71,6 @@ const ChatWidget = () => {
               return [...prev, newMsg];
             });
             
-            // Show notification for admin replies when chat is closed
             if (newMsg.sender_type === "admin" && !isOpen) {
               showNotification(
                 "New message from Eco Print Support",
@@ -87,7 +90,7 @@ const ChatWidget = () => {
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, isRemoteTyping]);
 
   const loadMessages = async (convId: string) => {
     const { data, error } = await supabase
@@ -124,7 +127,6 @@ const ChatWidget = () => {
       localStorage.setItem("chat_customer_info", JSON.stringify(customerInfo));
       setShowForm(false);
 
-      // Send welcome message
       await supabase.from("messages").insert({
         conversation_id: data.id,
         sender_type: "customer",
@@ -143,12 +145,13 @@ const ChatWidget = () => {
     }
   };
 
-  const sendMessage = async (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim() || !conversationId) return;
 
     const messageContent = newMessage.trim();
     setNewMessage("");
+    sendStopTyping();
 
     try {
       await supabase.from("messages").insert({
@@ -163,6 +166,15 @@ const ChatWidget = () => {
         variant: "destructive",
       });
       setNewMessage(messageContent);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewMessage(e.target.value);
+    if (e.target.value.trim()) {
+      sendTyping();
+    } else {
+      sendStopTyping();
     }
   };
 
@@ -197,7 +209,15 @@ const ChatWidget = () => {
         <div className="flex items-center justify-between p-4 border-b border-border bg-primary text-primary-foreground rounded-t-2xl">
           <div>
             <h3 className="font-bold">Eco Print Support</h3>
-            <p className="text-xs opacity-80">🔒 End-to-end encrypted</p>
+            <p className="text-xs opacity-80">
+              {!showForm && conversationId
+                ? isRemoteTyping
+                  ? "✍️ typing..."
+                  : isRemoteOnline
+                  ? "🟢 Online"
+                  : "⚫ Offline"
+                : "🔒 End-to-end encrypted"}
+            </p>
           </div>
           <div className="flex items-center gap-1">
             {isSupported && (
@@ -223,7 +243,7 @@ const ChatWidget = () => {
         </div>
 
         {/* Messages or Form */}
-        <div className="h-[400px] overflow-y-auto p-4 space-y-4">
+        <div className="h-[400px] overflow-y-auto scrollbar-hide p-4 space-y-3">
           {showForm ? (
             <form onSubmit={startConversation} className="space-y-4">
               <div className="text-center mb-6">
@@ -278,15 +298,15 @@ const ChatWidget = () => {
                     }`}
                   >
                     <div
-                      className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+                      className={`max-w-[80%] rounded-lg px-3 py-2 shadow-sm ${
                         msg.sender_type === "customer"
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-foreground"
+                          ? "bg-primary text-primary-foreground rounded-tr-none"
+                          : "bg-muted text-foreground rounded-tl-none"
                       }`}
                     >
                       <p className="text-sm">{msg.content}</p>
                       <p
-                        className={`text-xs mt-1 ${
+                        className={`text-[11px] mt-1 text-right ${
                           msg.sender_type === "customer"
                             ? "text-primary-foreground/70"
                             : "text-muted-foreground"
@@ -298,6 +318,7 @@ const ChatWidget = () => {
                   </div>
                 ))
               )}
+              {isRemoteTyping && <TypingIndicator />}
               <div ref={messagesEndRef} />
             </>
           )}
@@ -306,16 +327,16 @@ const ChatWidget = () => {
         {/* Input */}
         {!showForm && (
           <form
-            onSubmit={sendMessage}
-            className="p-4 border-t border-border flex gap-2"
+            onSubmit={handleSendMessage}
+            className="p-3 border-t border-border flex gap-2"
           >
             <Input
               placeholder="Type a message..."
               value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              className="flex-1"
+              onChange={handleInputChange}
+              className="flex-1 rounded-full bg-muted/50 border-0 h-10 px-4 text-sm"
             />
-            <Button type="submit" size="icon" disabled={!newMessage.trim()}>
+            <Button type="submit" size="icon" disabled={!newMessage.trim()} className="rounded-full h-10 w-10">
               <Send className="h-4 w-4" />
             </Button>
           </form>

@@ -6,13 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useNotifications } from "@/hooks/useNotifications";
+import { useChatPresence } from "@/hooks/useChatPresence";
+import TypingIndicator from "@/components/chat/TypingIndicator";
 import {
   MessageCircle,
   Send,
   Loader2,
-  User,
   Phone,
-  Clock,
   CheckCheck,
   Bell,
   BellOff,
@@ -48,6 +48,11 @@ const AdminChat = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { permission, requestPermission, showNotification, isSupported } = useNotifications();
+
+  const { isRemoteOnline, isRemoteTyping, sendTyping, sendStopTyping } = useChatPresence({
+    conversationId: selectedConversation?.id ?? null,
+    role: "admin",
+  });
 
   const { data: conversations, isLoading: loadingConversations } = useQuery({
     queryKey: ["admin-conversations"],
@@ -90,6 +95,7 @@ const AdminChat = () => {
       queryClient.invalidateQueries({ queryKey: ["admin-messages", selectedConversation?.id] });
       queryClient.invalidateQueries({ queryKey: ["admin-conversations"] });
       setNewMessage("");
+      sendStopTyping();
     },
     onError: (error) => {
       toast({ title: "Error sending message", description: error.message, variant: "destructive" });
@@ -120,12 +126,21 @@ const AdminChat = () => {
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, isRemoteTyping]);
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
     sendMessage.mutate(newMessage.trim());
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewMessage(e.target.value);
+    if (e.target.value.trim()) {
+      sendTyping();
+    } else {
+      sendStopTyping();
+    }
   };
 
   const formatTime = (dateString: string) => {
@@ -160,7 +175,6 @@ const AdminChat = () => {
     <div className="h-[calc(100vh-120px)] flex bg-background rounded-xl overflow-hidden border border-border shadow-lg">
       {/* Conversations Sidebar */}
       <div className={`${selectedConversation ? "hidden md:flex" : "flex"} w-full md:w-[340px] flex-col flex-shrink-0 border-r border-border bg-card`}>
-        {/* Header */}
         <div className="px-4 py-3 bg-primary text-primary-foreground flex items-center justify-between">
           <h2 className="font-bold text-lg">Eco Print Chats</h2>
           <div className="flex items-center gap-2">
@@ -172,7 +186,6 @@ const AdminChat = () => {
           </div>
         </div>
 
-        {/* Search */}
         <div className="p-2 bg-card">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -185,7 +198,6 @@ const AdminChat = () => {
           </div>
         </div>
 
-        {/* Conversation List */}
         <div className="flex-1 overflow-y-auto scrollbar-hide">
           {loadingConversations ? (
             <div className="flex items-center justify-center py-8">
@@ -201,8 +213,10 @@ const AdminChat = () => {
                     selectedConversation?.id === conv.id ? "bg-muted" : ""
                   }`}
                 >
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0 ${getAvatarColor(conv.customer_name)}`}>
-                    {getInitials(conv.customer_name)}
+                  <div className="relative flex-shrink-0">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold text-sm ${getAvatarColor(conv.customer_name)}`}>
+                      {getInitials(conv.customer_name)}
+                    </div>
                   </div>
                   <div className="flex-1 min-w-0 text-left">
                     <div className="flex items-center justify-between">
@@ -235,24 +249,31 @@ const AdminChat = () => {
       <div className={`${selectedConversation ? "flex" : "hidden md:flex"} flex-1 flex-col`}>
         {selectedConversation ? (
           <>
-            {/* Chat Header */}
+            {/* Chat Header with online status */}
             <div className="px-4 py-3 bg-primary text-primary-foreground flex items-center gap-3">
               <button onClick={() => setSelectedConversation(null)} className="md:hidden p-1 hover:bg-primary-foreground/20 rounded-full">
                 <ArrowLeft className="h-5 w-5" />
               </button>
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm ${getAvatarColor(selectedConversation.customer_name)}`}>
-                {getInitials(selectedConversation.customer_name)}
+              <div className="relative">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm ${getAvatarColor(selectedConversation.customer_name)}`}>
+                  {getInitials(selectedConversation.customer_name)}
+                </div>
+                {/* Online indicator dot */}
+                <span className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-primary ${isRemoteOnline ? "bg-green-400" : "bg-gray-400"}`} />
               </div>
               <div className="flex-1">
                 <p className="font-semibold">{selectedConversation.customer_name}</p>
-                <p className="text-xs opacity-80 flex items-center gap-1">
-                  <Phone className="h-3 w-3" />
-                  {selectedConversation.customer_phone}
+                <p className="text-xs opacity-80">
+                  {isRemoteTyping
+                    ? "typing..."
+                    : isRemoteOnline
+                    ? "online"
+                    : "offline"}
                 </p>
               </div>
             </div>
 
-            {/* Messages - WhatsApp wallpaper style */}
+            {/* Messages */}
             <div
               ref={messagesContainerRef}
               className="flex-1 overflow-y-auto scrollbar-hide p-4 space-y-2"
@@ -284,6 +305,7 @@ const AdminChat = () => {
                       </div>
                     </div>
                   ))}
+                  {isRemoteTyping && <TypingIndicator />}
                   <div ref={messagesEndRef} />
                 </>
               ) : (
@@ -298,7 +320,7 @@ const AdminChat = () => {
               <Input
                 placeholder="Type a message"
                 value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
+                onChange={handleInputChange}
                 className="flex-1 rounded-full bg-muted/50 border-0 h-10 px-4 text-sm"
               />
               <Button
