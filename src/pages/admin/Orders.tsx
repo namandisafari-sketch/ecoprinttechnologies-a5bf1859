@@ -1,33 +1,22 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+  Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Search, Loader2, Eye, ShoppingCart } from "lucide-react";
+import { Search, Loader2, Eye, ShoppingCart, Printer } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
+import ReceiptModal from "@/components/pos/ReceiptModal";
 
 type Order = Tables<"orders">;
 type OrderItem = Tables<"order_items">;
@@ -54,6 +43,7 @@ const AdminOrders = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+  const [receiptOrder, setReceiptOrder] = useState<any>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -79,6 +69,25 @@ const AdminOrders = () => {
     },
   });
 
+  const showReceiptForOrder = async (order: Order) => {
+    const { data: items } = await supabase
+      .from("order_items")
+      .select("*")
+      .eq("order_id", order.id);
+
+    setReceiptOrder({
+      ...order,
+      items: (items || []).map((item) => ({
+        product: { name: item.product_name, price: Number(item.product_price) },
+        quantity: item.quantity,
+      })),
+      subtotal: Number(order.subtotal),
+      total: Number(order.total),
+      discount: 0,
+      discountAmount: 0,
+    });
+  };
+
   const updateOrderStatus = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
       const { error } = await supabase
@@ -87,9 +96,17 @@ const AdminOrders = () => {
         .eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
       toast({ title: "Order status updated" });
+
+      // Auto-show receipt when status changes to shipped
+      if (variables.status === "shipped") {
+        const order = orders?.find((o) => o.id === variables.id);
+        if (order) {
+          showReceiptForOrder({ ...order, status: "shipped" as any });
+        }
+      }
     },
     onError: (error) => {
       toast({ title: "Error updating order", description: error.message, variant: "destructive" });
@@ -281,13 +298,23 @@ const AdminOrders = () => {
                         {formatDate(order.created_at)}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => viewOrderDetails(order)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => showReceiptForOrder(order)}
+                            title="Print Receipt"
+                          >
+                            <Printer className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => viewOrderDetails(order)}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -327,6 +354,19 @@ const AdminOrders = () => {
                   <p className="text-sm">{selectedOrder.city}</p>
                 </div>
               </div>
+
+              {/* Delivery Confirmation Code */}
+              {(selectedOrder as any).delivery_code && (
+                <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 text-center">
+                  <h4 className="font-medium text-sm text-muted-foreground mb-1">Delivery Confirmation Code</h4>
+                  <p className="text-2xl font-mono font-bold tracking-widest text-primary">
+                    {(selectedOrder as any).delivery_code}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Delivery person must verify this code with the recipient
+                  </p>
+                </div>
+              )}
 
               <div>
                 <h4 className="font-medium text-sm text-muted-foreground mb-2">Order Items</h4>
@@ -370,6 +410,14 @@ const AdminOrders = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Receipt Modal - auto-shown on shipped */}
+      {receiptOrder && (
+        <ReceiptModal
+          order={receiptOrder}
+          onClose={() => setReceiptOrder(null)}
+        />
+      )}
     </div>
   );
 };
