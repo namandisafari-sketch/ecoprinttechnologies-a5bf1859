@@ -40,7 +40,7 @@ const SellerSidebar = () => {
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-primary border-b border-primary-foreground/10 px-4 py-3 safe-area-top">
         <div className="flex items-center justify-between">
           <Link to="/seller" className="flex items-center gap-2">
-            <img src="/logo.jpeg" alt="Eco Hub" className="w-8 h-8 rounded-lg object-cover" />
+            <img src="/logo.png" alt="Eco Print Technologies" className="w-8 h-8 rounded-lg object-contain" />
             <span className="font-bold text-primary-foreground">Seller Portal</span>
           </Link>
           <Button
@@ -72,9 +72,9 @@ const SellerSidebar = () => {
         <div className="flex flex-col h-full">
           {/* Logo - Desktop */}
           <div className="hidden lg:flex items-center gap-3 px-6 py-5 border-b border-primary-foreground/10">
-            <img src="/logo.jpeg" alt="Eco Hub" className="w-10 h-10 rounded-lg object-cover" />
+             <img src="/logo.png" alt="Eco Print Technologies" className="w-10 h-10 rounded-lg object-contain" />
             <div>
-              <h2 className="font-bold text-primary-foreground">Eco Hub</h2>
+              <h2 className="font-bold text-primary-foreground">Eco Print</h2>
               <p className="text-xs text-primary-foreground/60">Seller Portal</p>
             </div>
           </div>

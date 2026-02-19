@@ -25,9 +25,9 @@ const ThermalReceipt = ({ order }: ThermalReceiptProps) => {
     <div className="receipt p-4 font-mono text-xs text-black" style={{ width: "80mm" }}>
       {/* Header */}
       <div className="text-center mb-4">
-        <h1 className="text-lg font-bold">SIR WANDA</h1>
-        <p className="text-[10px]">Phone Care Online Shop</p>
-        <p className="text-[10px]">Tel: +256 XXX XXX XXX</p>
+        <h1 className="text-lg font-bold">ECO PRINT TECHNOLOGIES</h1>
+        <p className="text-[10px]">Laptops & Tech Services</p>
+        <p className="text-[10px]">Tel: +256 705 154 828</p>
         <div className="border-t border-dashed border-black my-2" />
       </div>
 
@@ -86,8 +86,8 @@ const ThermalReceipt = ({ order }: ThermalReceiptProps) => {
       <div className="text-center text-[10px]">
         <p className="font-bold mb-1">PAID - THANK YOU!</p>
         <p>Keep this receipt for your records</p>
-        <p>Visit us again at Sir Wanda</p>
-        <p className="mt-2">www.sirwanda.com</p>
+        <p>Visit us again at Eco Print Technologies</p>
+        <p className="mt-2">Suncity Mall, Kampala</p>
       </div>
     </div>
   );

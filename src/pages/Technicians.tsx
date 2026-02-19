@@ -336,7 +336,7 @@ const Technicians = () => {
         <div className="mx-4 mb-4 bg-primary/10 rounded-xl p-4 text-center">
           <h3 className="font-semibold mb-1">Are You a Technician?</h3>
           <p className="text-xs text-muted-foreground mb-3">
-            Join Eco Hub and grow your business
+            Join Eco Print and grow your business
           </p>
           <Link to="/signup">
             <Button size="sm" variant="default">

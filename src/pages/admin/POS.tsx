@@ -181,7 +181,7 @@ const AdminPOS = () => {
           order_number: orderNumber,
           customer_name: customerInfo.name || "Walk-in Customer",
           customer_phone: customerInfo.phone || "N/A",
-          customer_email: "pos@sirwanda.com",
+          customer_email: "pos@ecoprint.ug",
           shipping_address: "In-Store Purchase",
           city: "In-Store",
           subtotal: subtotal,

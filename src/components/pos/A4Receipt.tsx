@@ -26,12 +26,12 @@ const A4Receipt = ({ order }: A4ReceiptProps) => {
       {/* Header */}
       <div className="flex justify-between items-start mb-8 pb-6 border-b-2 border-gray-300">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">SIR WANDA</h1>
-          <p className="text-gray-600">Phone Care Online Shop</p>
+          <h1 className="text-3xl font-bold text-gray-800">ECO PRINT TECHNOLOGIES</h1>
+          <p className="text-gray-600">Laptops & Tech Services</p>
           <p className="text-sm text-gray-500 mt-2">
-            Tel: +256 XXX XXX XXX<br />
-            Email: info@sirwanda.com<br />
-            www.sirwanda.com
+            Tel: +256 705 154 828<br />
+            Email: info@ecoprint.ug<br />
+            Suncity Mall, Kampala
           </p>
         </div>
         <div className="text-right">
@@ -114,7 +114,7 @@ const A4Receipt = ({ order }: A4ReceiptProps) => {
         <div className="text-center text-gray-600">
           <p className="font-medium mb-2">Thank you for your purchase!</p>
           <p className="text-sm">
-            For any inquiries regarding this receipt, please contact us at info@sirwanda.com
+            For any inquiries regarding this receipt, please contact us at info@ecoprint.ug
           </p>
           <p className="text-xs mt-4 text-gray-400">
             This is a computer-generated receipt and does not require a signature.
