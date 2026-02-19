@@ -49,7 +49,7 @@ const MobileHeader = () => {
           <SheetContent side="left" className="w-[280px]">
             <SheetHeader>
               <SheetTitle className="flex items-center gap-2">
-                <img src="/logo.png" alt="Co Print Technologies" className="h-8 w-auto object-contain" />
+          <img src="/logo.png" alt="Co Print Technologies" className="h-12 w-auto object-contain" />
               </SheetTitle>
             </SheetHeader>
             <nav className="mt-6 flex flex-col gap-1">
