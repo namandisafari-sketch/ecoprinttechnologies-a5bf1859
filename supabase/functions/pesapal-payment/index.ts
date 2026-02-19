@@ -3,12 +3,18 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 const PESAPAL_CONSUMER_KEY = Deno.env.get('PESAPAL_CONSUMER_KEY')!;
 const PESAPAL_CONSUMER_SECRET = Deno.env.get('PESAPAL_CONSUMER_SECRET')!;
-const PESAPAL_BASE_URL = 'https://pay.pesapal.com/v3';
+// Use PESAPAL_ENV secret to toggle: set to "sandbox" for testing, defaults to live
+const PESAPAL_ENV = Deno.env.get('PESAPAL_ENV') || 'live';
+const PESAPAL_BASE_URL = PESAPAL_ENV === 'live'
+  ? 'https://pay.pesapal.com/v3'
+  : 'https://cybqa.pesapal.com/pesapalv3';
+
+console.log(`Pesapal environment: ${PESAPAL_ENV}, URL: ${PESAPAL_BASE_URL}`);
 
 const supabaseAdmin = createClient(
   Deno.env.get('SUPABASE_URL')!,
@@ -25,6 +31,7 @@ async function getAuthToken(): Promise<string> {
     }),
   });
   const data = await response.json();
+  console.log('Auth response status:', response.status, 'has token:', !!data.token);
   if (!response.ok || !data.token) {
     throw new Error(`Pesapal auth failed: ${JSON.stringify(data)}`);
   }
@@ -45,12 +52,26 @@ async function registerIPN(token: string, notificationUrl: string): Promise<stri
     }),
   });
   const data = await response.json();
-  if (!response.ok) throw new Error(`IPN registration failed: ${JSON.stringify(data)}`);
+  console.log('IPN registration response:', JSON.stringify(data));
+  if (!response.ok || data.error) {
+    // Try to get existing IPN list
+    const listRes = await fetch(`${PESAPAL_BASE_URL}/api/URLSetup/GetIpnList`, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    const listData = await listRes.json();
+    console.log('IPN list:', JSON.stringify(listData));
+    if (Array.isArray(listData) && listData.length > 0) {
+      return listData[0].ipn_id;
+    }
+    throw new Error(`IPN registration failed: ${JSON.stringify(data)}`);
+  }
   return data.ipn_id;
 }
 
 serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -66,7 +87,6 @@ serve(async (req) => {
       try {
         console.log(`IPN callback: trackingId=${orderTrackingId}, orderNumber=${orderMerchantReference}`);
 
-        // Get transaction status from Pesapal
         const token = await getAuthToken();
         const statusRes = await fetch(
           `${PESAPAL_BASE_URL}/api/Transactions/GetTransactionStatus?orderTrackingId=${orderTrackingId}`,
@@ -80,8 +100,6 @@ serve(async (req) => {
         const statusData = await statusRes.json();
         console.log('Pesapal transaction status:', JSON.stringify(statusData));
 
-        // Map Pesapal status to our payment_status
-        // Pesapal status_code: 0=INVALID, 1=COMPLETED, 2=FAILED, 3=REVERSED
         let paymentStatus = 'pending';
         let orderStatus = 'pending';
         if (statusData.payment_status_description === 'Completed' || statusData.status_code === 1) {
@@ -94,7 +112,6 @@ serve(async (req) => {
           orderStatus = 'refunded';
         }
 
-        // Update order in database
         const { error: updateError } = await supabaseAdmin
           .from('orders')
           .update({
@@ -110,7 +127,6 @@ serve(async (req) => {
           console.log(`Order ${orderMerchantReference} updated: payment=${paymentStatus}, status=${orderStatus}`);
         }
 
-        // Pesapal expects a simple 200 response
         return new Response(JSON.stringify({ orderNotificationType: 'IPNCHANGE', orderTrackingId, orderMerchantReference, status: 200 }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -123,7 +139,6 @@ serve(async (req) => {
       }
     }
 
-    // Not an IPN call — return 400
     return new Response(JSON.stringify({ error: 'Missing IPN parameters' }), {
       status: 400,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -147,30 +162,35 @@ serve(async (req) => {
         notificationUrl,
       } = payload;
 
+      console.log(`Initiating payment: order=${orderNumber}, amount=${amount}, currency=${currency}`);
+
       const token = await getAuthToken();
 
       // Register IPN
       let ipnId = '';
       try {
         ipnId = await registerIPN(token, notificationUrl);
-      } catch {
-        // IPN may already be registered
+        console.log('IPN ID:', ipnId);
+      } catch (e) {
+        console.warn('IPN registration issue:', (e as Error).message);
       }
 
       const orderRequest = {
         id: orderNumber,
         currency,
         amount,
-        description,
+        description: description || `Order ${orderNumber}`,
         callback_url: callbackUrl,
         notification_id: ipnId,
         billing_address: {
           email_address: customerEmail,
           phone_number: customerPhone,
-          first_name: customerName.split(' ')[0] || customerName,
-          last_name: customerName.split(' ').slice(1).join(' ') || '',
+          first_name: customerName?.split(' ')[0] || customerName || 'Customer',
+          last_name: customerName?.split(' ').slice(1).join(' ') || '',
         },
       };
+
+      console.log('Submitting order to Pesapal:', JSON.stringify(orderRequest));
 
       const response = await fetch(`${PESAPAL_BASE_URL}/api/Transactions/SubmitOrderRequest`, {
         method: 'POST',
@@ -183,8 +203,14 @@ serve(async (req) => {
       });
 
       const data = await response.json();
-      if (!response.ok) {
-        throw new Error(`Order submission failed: ${JSON.stringify(data)}`);
+      console.log('Pesapal SubmitOrderRequest response:', response.status, JSON.stringify(data));
+
+      if (!response.ok || data.error) {
+        throw new Error(`Order submission failed (${response.status}): ${JSON.stringify(data)}`);
+      }
+
+      if (!data.redirect_url) {
+        throw new Error(`Pesapal did not return a redirect URL. Response: ${JSON.stringify(data)}`);
       }
 
       return new Response(JSON.stringify({
