@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { ChevronLeft, Loader2, Smartphone, CreditCard } from "lucide-react";
+import { ChevronLeft, Loader2, Smartphone, CreditCard, ShieldCheck, MapPin, User, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import BottomNavigation from "@/components/layout/BottomNavigation";
@@ -73,7 +74,7 @@ const Checkout = () => {
       const orderNumber = generateOrderNumber();
       const orderId = crypto.randomUUID();
 
-      // Create order in DB (no .select() to avoid RLS SELECT issues for guests)
+      // Create order in DB
       const { error: orderError } = await supabase
         .from('orders')
         .insert({
@@ -111,7 +112,7 @@ const Checkout = () => {
 
       if (itemsError) throw itemsError;
 
-      // Initiate Pesapal payment (both Mobile Money and Card go through Pesapal)
+      // Initiate Pesapal payment
       const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
       const { data: pesapalData, error: pesapalFnError } = await supabase.functions.invoke('pesapal-payment', {
         body: {
@@ -119,7 +120,7 @@ const Checkout = () => {
           orderNumber,
           amount: total,
           currency: 'UGX',
-          description: `Order ${orderNumber} - Co Print Technologies`,
+          description: `Order ${orderNumber} - Sir Wanda's Screen Shop`,
           customerName: formData.name,
           customerEmail: formData.email,
           customerPhone: formData.phone,
@@ -128,8 +129,17 @@ const Checkout = () => {
         },
       });
 
-      if (pesapalFnError || !pesapalData?.redirect_url) {
-        throw new Error(pesapalData?.error || 'Failed to initiate payment');
+      if (pesapalFnError) {
+        throw new Error('Payment service unavailable. Please try again.');
+      }
+      
+      if (!pesapalData?.redirect_url) {
+        const errorMsg = pesapalData?.error || 'Could not connect to payment gateway';
+        // Check for known Pesapal errors
+        if (errorMsg.includes('amount_exceeds_default_limit')) {
+          throw new Error('Transaction amount exceeds limit. Please contact support or try a smaller order.');
+        }
+        throw new Error(errorMsg);
       }
 
       // Redirect to Pesapal payment page
@@ -156,8 +166,9 @@ const Checkout = () => {
         <main className="flex-1 flex items-center justify-center p-4 pb-20">
           <Card className="w-full max-w-sm text-center">
             <CardContent className="pt-6">
-              <h2 className="text-lg font-semibold mb-2">Cart is empty</h2>
-              <p className="text-sm text-muted-foreground mb-4">Add products first</p>
+              <Package className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+              <h2 className="text-lg font-semibold mb-2">Your cart is empty</h2>
+              <p className="text-sm text-muted-foreground mb-4">Browse our products and add items to cart</p>
               <Button size="sm" onClick={() => navigate("/")}>Continue Shopping</Button>
             </CardContent>
           </Card>
@@ -168,45 +179,55 @@ const Checkout = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-muted/30">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-border">
+      <header className="sticky top-0 z-50 bg-primary text-primary-foreground">
         <div className="flex items-center h-14 px-4 gap-3">
           <button onClick={() => navigate(-1)} className="p-1">
             <ChevronLeft className="h-5 w-5" />
           </button>
           <h1 className="font-semibold text-lg">Checkout</h1>
+          <div className="ml-auto flex items-center gap-1 text-xs opacity-80">
+            <ShieldCheck className="h-3.5 w-3.5" />
+            Secure
+          </div>
         </div>
       </header>
       
-      <main className="flex-1 px-4 py-4 pb-24">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Order Summary */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Order Summary</CardTitle>
+      <main className="flex-1 px-4 py-4 pb-24 max-w-lg mx-auto w-full">
+        <form onSubmit={handleSubmit} className="space-y-3">
+          
+          {/* Order Summary — compact */}
+          <Card className="shadow-sm">
+            <CardHeader className="pb-2 pt-4 px-4">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Package className="h-4 w-4 text-primary" />
+                Order Summary ({cartItems.length} {cartItems.length === 1 ? 'item' : 'items'})
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="px-4 pb-4 space-y-2">
               {cartItems.map((item) => (
-                <div key={item.id} className="flex gap-3">
-                  <img src={item.image} alt={item.name} className="w-14 h-14 object-cover rounded" />
+                <div key={item.id} className="flex gap-3 items-center">
+                  <img src={item.image} alt={item.name} className="w-12 h-12 object-cover rounded-md border" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium line-clamp-1">{item.name}</p>
                     <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
-                    <p className="text-sm font-semibold text-primary">{formatPrice(item.price * item.quantity)}</p>
                   </div>
+                  <p className="text-sm font-semibold whitespace-nowrap">{formatPrice(item.price * item.quantity)}</p>
                 </div>
               ))}
-              <div className="border-t pt-3 space-y-1.5 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Subtotal</span>
+              <Separator />
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between text-muted-foreground">
+                  <span>Subtotal</span>
                   <span>{formatPrice(subtotal)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Delivery</span>
-                  <span>{deliveryFee === 0 ? <span className="text-primary">Free</span> : formatPrice(deliveryFee)}</span>
+                <div className="flex justify-between text-muted-foreground">
+                  <span>Delivery</span>
+                  <span>{deliveryFee === 0 ? <span className="text-green-600 font-medium">FREE</span> : formatPrice(deliveryFee)}</span>
                 </div>
-                <div className="flex justify-between font-bold text-base pt-1 border-t">
+                <Separator />
+                <div className="flex justify-between font-bold text-base">
                   <span>Total</span>
                   <span className="text-primary">{formatPrice(total)}</span>
                 </div>
@@ -215,15 +236,18 @@ const Checkout = () => {
           </Card>
 
           {/* Customer Details */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Your Details</CardTitle>
+          <Card className="shadow-sm">
+            <CardHeader className="pb-2 pt-4 px-4">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <User className="h-4 w-4 text-primary" />
+                Customer Details
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="px-4 pb-4 space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label htmlFor="name" className="text-xs">Name *</Label>
-                  <Input id="name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required className="h-10" />
+                  <Label htmlFor="name" className="text-xs">Full Name *</Label>
+                  <Input id="name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="John Doe" required className="h-10" />
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="phone" className="text-xs">Phone *</Label>
@@ -232,71 +256,101 @@ const Checkout = () => {
               </div>
               <div className="space-y-1">
                 <Label htmlFor="email" className="text-xs">Email *</Label>
-                <Input id="email" type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} required className="h-10" />
-              </div>
-              <UgandaLocationSelector value={ugandaLocation} onChange={setUgandaLocation} />
-              <div className="space-y-1">
-                <Label htmlFor="address" className="text-xs">Address *</Label>
-                <Textarea id="address" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} placeholder="Street, Building..." required className="min-h-[70px]" />
+                <Input id="email" type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} placeholder="john@example.com" required className="h-10" />
               </div>
             </CardContent>
           </Card>
 
-          {/* Payment Method — 2 options, both via Pesapal */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Payment Method</CardTitle>
+          {/* Delivery Address */}
+          <Card className="shadow-sm">
+            <CardHeader className="pb-2 pt-4 px-4">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-primary" />
+                Delivery Address
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="px-4 pb-4 space-y-3">
+              <UgandaLocationSelector value={ugandaLocation} onChange={setUgandaLocation} />
+              <div className="space-y-1">
+                <Label htmlFor="address" className="text-xs">Street / Building / Landmark *</Label>
+                <Textarea id="address" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} placeholder="e.g. Plot 12, Luwum Street, near Clock Tower" required className="min-h-[60px] resize-none" />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="notes" className="text-xs">Order Notes (optional)</Label>
+                <Input id="notes" value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} placeholder="Any special instructions..." className="h-10" />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Payment Method */}
+          <Card className="shadow-sm">
+            <CardHeader className="pb-2 pt-4 px-4">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-primary" />
+                Payment Method
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="px-4 pb-4 space-y-3">
               <RadioGroup
                 value={formData.paymentMethod}
                 onValueChange={(value) => setFormData({ ...formData, paymentMethod: value })}
                 className="gap-2"
               >
-                {/* Mobile Money */}
-                <div className={`flex items-center space-x-2 p-3 border-2 rounded-lg transition-colors ${formData.paymentMethod === 'mobile_money' ? 'border-primary bg-primary/5' : 'border-border'}`}>
+                <label
+                  htmlFor="mobile_money"
+                  className={`flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-all ${formData.paymentMethod === 'mobile_money' ? 'border-primary bg-primary/5 shadow-sm' : 'border-border hover:border-primary/40'}`}
+                >
                   <RadioGroupItem value="mobile_money" id="mobile_money" />
-                  <Label htmlFor="mobile_money" className="flex-1 cursor-pointer">
-                    <div className="flex items-center gap-2">
-                      <Smartphone className="h-4 w-4 text-primary" />
-                      <div>
-                        <p className="text-sm font-medium">Mobile Money</p>
-                        <p className="text-xs text-muted-foreground">MTN & Airtel Mobile Money</p>
-                      </div>
+                  <div className="flex items-center gap-2.5 flex-1">
+                    <div className="h-9 w-9 rounded-full bg-yellow-500/10 flex items-center justify-center">
+                      <Smartphone className="h-4.5 w-4.5 text-yellow-600" />
                     </div>
-                  </Label>
-                </div>
-                {/* Card */}
-                <div className={`flex items-center space-x-2 p-3 border-2 rounded-lg transition-colors ${formData.paymentMethod === 'card' ? 'border-primary bg-primary/5' : 'border-border'}`}>
+                    <div>
+                      <p className="text-sm font-semibold">Mobile Money</p>
+                      <p className="text-xs text-muted-foreground">MTN & Airtel Mobile Money</p>
+                    </div>
+                  </div>
+                </label>
+
+                <label
+                  htmlFor="card"
+                  className={`flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-all ${formData.paymentMethod === 'card' ? 'border-primary bg-primary/5 shadow-sm' : 'border-border hover:border-primary/40'}`}
+                >
                   <RadioGroupItem value="card" id="card" />
-                  <Label htmlFor="card" className="flex-1 cursor-pointer">
-                    <div className="flex items-center gap-2">
-                      <CreditCard className="h-4 w-4 text-primary" />
-                      <div>
-                        <p className="text-sm font-medium">Card Payment</p>
-                        <p className="text-xs text-muted-foreground">Visa, Mastercard & more</p>
-                      </div>
+                  <div className="flex items-center gap-2.5 flex-1">
+                    <div className="h-9 w-9 rounded-full bg-blue-500/10 flex items-center justify-center">
+                      <CreditCard className="h-4.5 w-4.5 text-blue-600" />
                     </div>
-                  </Label>
-                </div>
+                    <div>
+                      <p className="text-sm font-semibold">Card Payment</p>
+                      <p className="text-xs text-muted-foreground">Visa, Mastercard & more</p>
+                    </div>
+                  </div>
+                </label>
               </RadioGroup>
 
-              <div className="bg-primary/5 border border-primary/20 p-3 rounded-lg text-sm text-muted-foreground">
-                You'll be redirected to a secure payment page to complete your {formData.paymentMethod === 'mobile_money' ? 'Mobile Money' : 'card'} payment.
+              <div className="flex items-start gap-2 bg-muted/60 p-3 rounded-lg text-xs text-muted-foreground">
+                <ShieldCheck className="h-3.5 w-3.5 mt-0.5 text-green-600 shrink-0" />
+                <span>You'll be securely redirected to Pesapal to complete your {formData.paymentMethod === 'mobile_money' ? 'Mobile Money' : 'card'} payment.</span>
               </div>
             </CardContent>
           </Card>
 
-          <Button type="submit" className="w-full h-12" disabled={isSubmitting}>
+          {/* Submit */}
+          <Button type="submit" className="w-full h-12 text-base font-semibold shadow-lg" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Processing...
               </>
             ) : (
-              "Place Order"
+              <>Pay {formatPrice(total)}</>
             )}
           </Button>
+
+          <p className="text-center text-xs text-muted-foreground pb-2">
+            By placing this order, you agree to our terms of service
+          </p>
         </form>
       </main>
 
