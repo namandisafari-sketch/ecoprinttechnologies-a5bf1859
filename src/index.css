@@ -6,52 +6,54 @@
 
 @layer base {
   :root {
-    /* Core brand colors - Eco Hub */
+    /* Core brand colors - Co Print Technologies Ltd */
     --background: 0 0% 100%;
-    --foreground: 0 0% 4%;
+    --foreground: 0 0% 8%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 4%;
+    --card-foreground: 0 0% 8%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 4%;
+    --popover-foreground: 0 0% 8%;
 
-    /* Primary - Vibrant Green */
-    --primary: 142 76% 45%;
+    /* Primary - Co Print Green */
+    --primary: 105 65% 42%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary - Deep Black */
-    --secondary: 0 0% 6%;
+    /* Secondary - Deep Dark */
+    --secondary: 105 15% 12%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 96%;
+    --muted: 105 10% 95%;
     --muted-foreground: 0 0% 45%;
 
-    /* Accent - Bright Green */
-    --accent: 142 70% 50%;
+    /* Accent - Co Print Orange-Red */
+    --accent: 18 85% 52%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 142 76% 45%;
+    --border: 105 10% 88%;
+    --input: 105 10% 88%;
+    --ring: 105 65% 42%;
 
     --radius: 0.5rem;
 
     /* Custom brand tokens */
-    --brand-green: 142 76% 45%;
-    --brand-green-dark: 142 76% 35%;
-    --brand-green-light: 142 70% 55%;
-    --brand-black: 0 0% 4%;
+    --brand-green: 105 65% 42%;
+    --brand-green-dark: 105 65% 32%;
+    --brand-green-light: 105 60% 55%;
+    --brand-orange: 18 85% 52%;
+    --brand-orange-dark: 18 85% 42%;
+    --brand-black: 0 0% 8%;
     --brand-gray: 0 0% 20%;
-    --brand-gray-light: 0 0% 95%;
+    --brand-gray-light: 105 10% 95%;
     
     /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(142 76% 45%) 0%, hsl(0 0% 4%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(0 0% 98%) 100%);
-    --gradient-cta: linear-gradient(90deg, hsl(142 76% 45%) 0%, hsl(142 70% 50%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(105 65% 42%) 0%, hsl(105 15% 12%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(105 10% 98%) 100%);
+    --gradient-cta: linear-gradient(90deg, hsl(105 65% 42%) 0%, hsl(18 85% 52%) 100%);
     
     /* Shadows */
     --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.05);
@@ -59,7 +61,7 @@
     --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.1);
     --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.1);
     --shadow-product: 0 4px 20px hsl(0 0% 0% / 0.08);
-    --shadow-hover: 0 8px 30px hsl(142 76% 45% / 0.15);
+    --shadow-hover: 0 8px 30px hsl(105 65% 42% / 0.18);
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
