@@ -11,7 +11,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, userRole, isAdmin, isSeller } = useAuth();
+  const { signIn, userRole, isAdmin } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -51,11 +51,11 @@ const Login = () => {
       const isAdminAccess = sessionStorage.getItem('admin_access_verified');
       if (isAdmin && isAdminAccess) {
         navigate("/admin");
-      } else if (isSeller) {
-        navigate("/seller");
+      } else {
+        navigate("/");
       }
     }
-  }, [userRole, isAdmin, isSeller, navigate, isLoading]);
+  }, [userRole, isAdmin, navigate, isLoading]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -70,7 +70,7 @@ const Login = () => {
       <main className="flex-1 flex flex-col justify-center px-6 py-8">
         {/* Logo */}
         <div className="text-center mb-8">
-          <img src="/logo.jpeg" alt="Eco Hub" className="w-16 h-16 rounded-2xl object-cover mx-auto mb-4" />
+          <img src="/logo.png" alt="Co Print Technologies" className="h-16 w-auto object-contain mx-auto mb-4" />
           <h1 className="text-2xl font-bold">Welcome Back</h1>
           <p className="text-sm text-muted-foreground mt-1">Sign in to continue</p>
         </div>

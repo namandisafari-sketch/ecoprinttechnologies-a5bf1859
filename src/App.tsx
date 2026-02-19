@@ -5,9 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import SellerProtectedRoute from "./components/auth/SellerProtectedRoute";
 import AdminLayout from "@/components/admin/AdminLayout";
-import SellerLayout from "@/components/seller/SellerLayout";
 import Index from "./pages/Index";
 import Search from "./pages/Search";
 import ProductDetail from "./pages/ProductDetail";
@@ -16,8 +14,6 @@ import TrackOrder from "./pages/TrackOrder";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import SellerSignup from "./pages/SellerSignup";
-import Technicians from "./pages/Technicians";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/Dashboard";
@@ -30,13 +26,6 @@ import AdminInventory from "./pages/admin/Inventory";
 import AdminChat from "./pages/admin/Chat";
 import AdminSettings from "./pages/admin/Settings";
 import AdminMore from "./pages/admin/More";
-
-// Seller pages
-import SellerOverview from "./pages/seller/Overview";
-import SellerServices from "./pages/seller/Services";
-import SellerRequests from "./pages/seller/Requests";
-import SellerProfile from "./pages/seller/Profile";
-import SellerSettings from "./pages/seller/Settings";
 
 const queryClient = new QueryClient();
 
@@ -56,24 +45,6 @@ const App = () => (
             <Route path="/track-order" element={<TrackOrder />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
-            <Route path="/seller-signup" element={<SellerSignup />} />
-            <Route path="/technicians" element={<Technicians />} />
-            
-            {/* Seller routes */}
-            <Route
-              path="/seller"
-              element={
-                <SellerProtectedRoute>
-                  <SellerLayout />
-                </SellerProtectedRoute>
-              }
-            >
-              <Route index element={<SellerOverview />} />
-              <Route path="services" element={<SellerServices />} />
-              <Route path="requests" element={<SellerRequests />} />
-              <Route path="profile" element={<SellerProfile />} />
-              <Route path="settings" element={<SellerSettings />} />
-            </Route>
 
             {/* Admin routes */}
             <Route
@@ -95,7 +66,7 @@ const App = () => (
               <Route path="settings" element={<AdminSettings />} />
               <Route path="more" element={<AdminMore />} />
             </Route>
-            
+
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
           </Routes>
