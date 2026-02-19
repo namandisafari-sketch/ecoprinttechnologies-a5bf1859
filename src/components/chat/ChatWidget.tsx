@@ -70,7 +70,7 @@ const ChatWidget = () => {
             // Show notification for admin replies when chat is closed
             if (newMsg.sender_type === "admin" && !isOpen) {
               showNotification(
-                "New message from Sir Wanda Support",
+                "New message from Eco Print Support",
                 newMsg.content,
                 () => setIsOpen(true)
               );
@@ -196,7 +196,7 @@ const ChatWidget = () => {
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border bg-primary text-primary-foreground rounded-t-2xl">
           <div>
-            <h3 className="font-bold">Sir Wanda Support</h3>
+            <h3 className="font-bold">Eco Print Support</h3>
             <p className="text-xs opacity-80">🔒 End-to-end encrypted</p>
           </div>
           <div className="flex items-center gap-1">
@@ -232,7 +232,7 @@ const ChatWidget = () => {
                 </div>
                 <h4 className="font-semibold text-foreground">Start a conversation</h4>
                 <p className="text-sm text-muted-foreground">
-                  We're here to help with your phone parts needs!
+                  We're here to help with your tech needs!
                 </p>
               </div>
 
