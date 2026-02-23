@@ -183,9 +183,10 @@ Deno.serve(async (req) => {
       const referenceId = crypto.randomUUID();
       const token = await getAccessToken();
 
+      const currency = MTN_TARGET_ENVIRONMENT === 'sandbox' ? 'EUR' : 'UGX';
       const requestBody = {
         amount: String(amount),
-        currency: 'UGX',
+        currency,
         externalId: referenceId,
         payer: { partyIdType: 'MSISDN', partyId: validPhone },
         payerMessage: 'Payment for your order',
