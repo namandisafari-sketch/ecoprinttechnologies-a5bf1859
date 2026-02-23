@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { ChevronLeft, Loader2, Smartphone, CreditCard, ShieldCheck, MapPin, User, Package, Truck } from "lucide-react";
+import { ChevronLeft, Loader2, Smartphone, ShieldCheck, MapPin, User, Package, Truck, CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,6 +41,13 @@ const Checkout = () => {
     village: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [momoState, setMomoState] = useState<{
+    phase: 'idle' | 'approving' | 'success' | 'failed';
+    referenceId?: string;
+    message?: string;
+  }>({ phase: 'idle' });
+  const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pollCountRef = useRef(0);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-UG", {
@@ -57,6 +64,44 @@ const Checkout = () => {
     return `${prefix}${timestamp}${random}`;
   };
 
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+    };
+  }, []);
+
+  const pollPaymentStatus = useCallback((referenceId: string, orderNumber: string) => {
+    pollCountRef.current = 0;
+    pollTimerRef.current = setInterval(async () => {
+      pollCountRef.current++;
+      if (pollCountRef.current > 12) { // 60s max (12 x 5s)
+        if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+        setMomoState({ phase: 'failed', message: 'Payment timed out. Please try again.' });
+        setIsSubmitting(false);
+        return;
+      }
+      try {
+        const { data, error } = await supabase.functions.invoke('mtn-momo', {
+          body: { action: 'check-status', referenceId },
+        });
+        if (error) return;
+        if (data?.status === 'SUCCESSFUL') {
+          if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+          setMomoState({ phase: 'success', message: 'Payment successful!' });
+          setIsSubmitting(false);
+          setTimeout(() => navigate(`/track-order?order=${orderNumber}`), 2000);
+        } else if (data?.status === 'FAILED') {
+          if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+          setMomoState({ phase: 'failed', message: data.reason || 'Payment failed. Please try again.' });
+          setIsSubmitting(false);
+        }
+      } catch {
+        // Keep polling
+      }
+    }, 5000);
+  }, [navigate]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -71,6 +116,7 @@ const Checkout = () => {
     }
 
     setIsSubmitting(true);
+    setMomoState({ phase: 'idle' });
 
     try {
       const orderNumber = generateOrderNumber();
@@ -88,12 +134,12 @@ const Checkout = () => {
           city: ugandaLocation.district,
           shipping_address: [ugandaLocation.subcounty, ugandaLocation.parish, ugandaLocation.village, formData.address].filter(Boolean).join(', '),
           notes: formData.notes,
-          payment_method: formData.paymentMethod === 'pay_on_delivery' ? 'pay_on_delivery' : formData.paymentMethod === 'mobile_money' ? 'pesapal_momo' : 'pesapal_card',
+          payment_method: formData.paymentMethod === 'pay_on_delivery' ? 'pay_on_delivery' : 'mtn_momo',
           subtotal: subtotal,
           delivery_fee: deliveryFee,
           total: total,
           status: 'pending',
-          payment_status: formData.paymentMethod === 'pay_on_delivery' ? 'pending' : 'pending',
+          payment_status: 'pending',
           device_id: deviceId || null,
         });
 
@@ -115,52 +161,43 @@ const Checkout = () => {
 
       if (itemsError) throw itemsError;
 
-      // Pay on Delivery — skip Pesapal, go straight to confirmation
+      // Pay on Delivery
       if (formData.paymentMethod === 'pay_on_delivery') {
         toast({ title: "Order placed!", description: `Order ${orderNumber} confirmed. Pay on delivery.` });
         navigate(`/track-order?order=${orderNumber}`);
         return;
       }
 
-      // Initiate Pesapal payment
-      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
-      const { data: pesapalData, error: pesapalFnError } = await supabase.functions.invoke('pesapal-payment', {
+      // MTN MoMo Request to Pay
+      setMomoState({ phase: 'approving', message: 'Sending payment request to your phone...' });
+
+      const { data: momoData, error: momoError } = await supabase.functions.invoke('mtn-momo', {
         body: {
-          action: 'initiate',
-          orderNumber,
+          action: 'request-to-pay',
+          orderId,
+          phone: formData.phone,
           amount: total,
-          currency: 'UGX',
-          description: `Order ${orderNumber} - Sir Wanda's Screen Shop`,
-          customerName: formData.name,
-          customerEmail: formData.email,
-          customerPhone: formData.phone,
-          callbackUrl: `${window.location.origin}/track-order?order=${orderNumber}`,
-          notificationUrl: `https://${projectId}.supabase.co/functions/v1/pesapal-payment`,
         },
       });
 
-      if (pesapalFnError) {
+      if (momoError) {
         throw new Error('Payment service unavailable. Please try again.');
       }
-      
-      if (!pesapalData?.redirect_url) {
-        const errorMsg = pesapalData?.error || 'Could not connect to payment gateway';
-        if (errorMsg.includes('amount_exceeds_default_limit')) {
-          throw new Error('Online payment temporarily unavailable for this amount. Please select "Pay on Delivery" instead.');
-        }
-        throw new Error(errorMsg);
+
+      if (momoData?.error) {
+        throw new Error(momoData.error);
       }
 
-      // Redirect to Pesapal payment page
-      window.location.href = pesapalData.redirect_url;
+      setMomoState({ phase: 'approving', referenceId: momoData.referenceId, message: 'Approve the payment on your phone' });
+      pollPaymentStatus(momoData.referenceId, orderNumber);
     } catch (error) {
       console.error("Checkout error:", error);
+      setMomoState({ phase: 'idle' });
       toast({
         title: "Order failed",
         description: (error as Error).message || "Please try again.",
         variant: "destructive",
       });
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -311,40 +348,23 @@ const Checkout = () => {
                 >
                   <RadioGroupItem value="mobile_money" id="mobile_money" />
                   <div className="flex items-center gap-2.5 flex-1">
-                    <div className="h-9 w-9 rounded-full bg-yellow-500/10 flex items-center justify-center">
-                      <Smartphone className="h-4.5 w-4.5 text-yellow-600" />
+                    <div className="h-9 w-9 rounded-full bg-accent flex items-center justify-center">
+                      <Smartphone className="h-4.5 w-4.5 text-primary" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold">Mobile Money</p>
-                      <p className="text-xs text-muted-foreground">MTN & Airtel Mobile Money</p>
+                      <p className="text-sm font-semibold">MTN Mobile Money</p>
+                      <p className="text-xs text-muted-foreground">Pay directly from your phone</p>
                     </div>
                   </div>
                 </label>
 
-                <label
-                  htmlFor="card"
-                  className={`flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-all ${formData.paymentMethod === 'card' ? 'border-primary bg-primary/5 shadow-sm' : 'border-border hover:border-primary/40'}`}
-                >
-                  <RadioGroupItem value="card" id="card" />
-                  <div className="flex items-center gap-2.5 flex-1">
-                    <div className="h-9 w-9 rounded-full bg-blue-500/10 flex items-center justify-center">
-                      <CreditCard className="h-4.5 w-4.5 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold">Card Payment</p>
-                      <p className="text-xs text-muted-foreground">Visa, Mastercard & more</p>
-                    </div>
-                  </div>
-                </label>
-
-                {/* Pay on Delivery */}
                 <label
                   htmlFor="pay_on_delivery"
                   className={`flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-all ${formData.paymentMethod === 'pay_on_delivery' ? 'border-primary bg-primary/5 shadow-sm' : 'border-border hover:border-primary/40'}`}
                 >
                   <RadioGroupItem value="pay_on_delivery" id="pay_on_delivery" />
                   <div className="flex items-center gap-2.5 flex-1">
-                    <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
+                    <div className="h-9 w-9 rounded-full bg-accent flex items-center justify-center">
                       <Truck className="h-4.5 w-4.5 text-primary" />
                     </div>
                     <div>
@@ -360,21 +380,53 @@ const Checkout = () => {
                 <span>
                   {formData.paymentMethod === 'pay_on_delivery'
                     ? 'Pay when your order is delivered. Cash or Mobile Money accepted.'
-                    : `You'll be securely redirected to Pesapal to complete your ${formData.paymentMethod === 'mobile_money' ? 'Mobile Money' : 'card'} payment.`}
+                    : 'A payment prompt will be sent to your MTN Mobile Money phone. Approve it to complete your purchase.'}
                 </span>
               </div>
             </CardContent>
           </Card>
 
+          {/* MoMo Status Overlay */}
+          {momoState.phase !== 'idle' && (
+            <Card className="shadow-sm border-primary/20">
+              <CardContent className="py-6 flex flex-col items-center gap-3 text-center">
+                {momoState.phase === 'approving' && (
+                  <>
+                    <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                    <p className="font-semibold">Waiting for approval</p>
+                    <p className="text-sm text-muted-foreground">{momoState.message}</p>
+                  </>
+                )}
+                {momoState.phase === 'success' && (
+                  <>
+                    <CheckCircle2 className="h-10 w-10 text-green-600" />
+                    <p className="font-semibold text-green-700">Payment Successful!</p>
+                    <p className="text-sm text-muted-foreground">Redirecting to your order...</p>
+                  </>
+                )}
+                {momoState.phase === 'failed' && (
+                  <>
+                    <XCircle className="h-10 w-10 text-destructive" />
+                    <p className="font-semibold text-destructive">Payment Failed</p>
+                    <p className="text-sm text-muted-foreground">{momoState.message}</p>
+                    <Button variant="outline" size="sm" onClick={() => { setMomoState({ phase: 'idle' }); setIsSubmitting(false); }}>
+                      Try Again
+                    </Button>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           {/* Submit */}
-          <Button type="submit" className="w-full h-12 text-base font-semibold shadow-lg" disabled={isSubmitting}>
+          <Button type="submit" className="w-full h-12 text-base font-semibold shadow-lg" disabled={isSubmitting || momoState.phase === 'success'}>
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Processing...
+                {momoState.phase === 'approving' ? 'Waiting for approval...' : 'Processing...'}
               </>
             ) : (
-              <>{formData.paymentMethod === 'pay_on_delivery' ? 'Place Order' : `Pay ${formatPrice(total)}`}</>
+              <>{formData.paymentMethod === 'pay_on_delivery' ? 'Place Order' : `Pay ${formatPrice(total)} with MoMo`}</>
             )}
           </Button>
 
