@@ -212,7 +212,7 @@ Deno.serve(async (req) => {
           'X-Target-Environment': MTN_TARGET_ENVIRONMENT,
           'Ocp-Apim-Subscription-Key': MTN_SUBSCRIPTION_KEY,
           'Content-Type': 'application/json',
-          ...(MTN_CALLBACK_URL ? { 'X-Callback-Url': MTN_CALLBACK_URL } : {}),
+          // Callback URL omitted — status is resolved via polling
         },
         body: JSON.stringify(requestBody),
       });
