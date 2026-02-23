@@ -215,6 +215,56 @@ export type Database = {
           },
         ]
       }
+      momo_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          order_id: string
+          phone: string
+          raw_request_json: Json | null
+          raw_response_json: Json | null
+          reference_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          order_id: string
+          phone: string
+          raw_request_json?: Json | null
+          raw_response_json?: Json | null
+          reference_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          order_id?: string
+          phone?: string
+          raw_request_json?: Json | null
+          raw_response_json?: Json | null
+          reference_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "momo_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           created_at: string
