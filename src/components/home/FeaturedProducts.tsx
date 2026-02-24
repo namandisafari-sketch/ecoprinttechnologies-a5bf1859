@@ -1,5 +1,4 @@
 import ProductCard, { Product } from "./ProductCard";
-import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { useProducts } from "@/hooks/useProducts";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -13,7 +12,6 @@ interface FeaturedProductsProps {
 const FeaturedProducts = ({ onAddToCart }: FeaturedProductsProps) => {
   const { data: products, isLoading } = useProducts({ featured: true, limit: 8 });
 
-  // Transform database products to match ProductCard interface
   const displayProducts = useMemo(() => {
     if (!products) return [];
     return products.map((p) => ({
@@ -32,20 +30,20 @@ const FeaturedProducts = ({ onAddToCart }: FeaturedProductsProps) => {
   }, [products]);
 
   return (
-    <section className="py-6 px-4">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-base font-bold text-foreground">
+    <section className="py-6 md:py-10 px-4">
+      <div className="flex items-center justify-between mb-4 md:mb-6">
+        <h2 className="text-base md:text-xl lg:text-2xl font-bold text-foreground">
           Featured Laptops
         </h2>
-        <Link to="/search" className="text-xs text-primary font-medium flex items-center gap-1">
+        <Link to="/search" className="text-xs md:text-sm text-primary font-medium flex items-center gap-1 hover:underline">
           View All
-          <ArrowRight className="h-3 w-3" />
+          <ArrowRight className="h-3 w-3 md:h-4 md:w-4" />
         </Link>
       </div>
 
       {isLoading ? (
-        <div className="grid grid-cols-2 gap-3">
-          {[...Array(4)].map((_, i) => (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5 lg:gap-6">
+          {[...Array(8)].map((_, i) => (
             <div key={i} className="space-y-2">
               <Skeleton className="aspect-square rounded-xl" />
               <Skeleton className="h-4 w-3/4" />
@@ -54,7 +52,7 @@ const FeaturedProducts = ({ onAddToCart }: FeaturedProductsProps) => {
           ))}
         </div>
       ) : displayProducts.length > 0 ? (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5 lg:gap-6">
           {displayProducts.map((product) => (
             <ProductCard
               key={product.id}
@@ -64,9 +62,9 @@ const FeaturedProducts = ({ onAddToCart }: FeaturedProductsProps) => {
           ))}
         </div>
       ) : (
-        <div className="text-center py-8">
-          <p className="text-sm text-muted-foreground">No featured laptops</p>
-          <Link to="/search" className="text-xs text-primary hover:underline mt-1 inline-block">
+        <div className="text-center py-8 md:py-16">
+          <p className="text-sm md:text-base text-muted-foreground">No featured laptops</p>
+          <Link to="/search" className="text-xs md:text-sm text-primary hover:underline mt-1 inline-block">
             Browse all
           </Link>
         </div>
