@@ -27,6 +27,7 @@ import AdminInventory from "./pages/admin/Inventory";
 import AdminChat from "./pages/admin/Chat";
 import AdminSettings from "./pages/admin/Settings";
 import AdminMore from "./pages/admin/More";
+import AdminNewsletter from "./pages/admin/Newsletter";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +68,7 @@ const App = () => (
               <Route path="chat" element={<AdminChat />} />
               <Route path="settings" element={<AdminSettings />} />
               <Route path="more" element={<AdminMore />} />
+              <Route path="newsletter" element={<AdminNewsletter />} />
             </Route>
 
             {/* Catch-all */}

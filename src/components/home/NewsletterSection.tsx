@@ -3,23 +3,42 @@ import { Mail, ArrowRight, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const NewsletterSection = () => {
   const [email, setEmail] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
-    
-    setIsSubscribed(true);
-    toast({
-      title: "Subscribed!",
-      description: "You'll receive our latest deals and offers.",
-    });
-    setEmail("");
-    setTimeout(() => setIsSubscribed(false), 5000);
+    if (!email.trim() || isLoading) return;
+
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from("newsletter_subscribers")
+        .insert({ email: email.trim().toLowerCase() });
+
+      if (error) {
+        if (error.code === "23505") {
+          toast({ title: "Already subscribed!", description: "This email is already on our list." });
+        } else {
+          throw error;
+        }
+      } else {
+        toast({ title: "Subscribed!", description: "You'll receive our latest deals and offers." });
+      }
+
+      setIsSubscribed(true);
+      setEmail("");
+      setTimeout(() => setIsSubscribed(false), 5000);
+    } catch {
+      toast({ title: "Error", description: "Failed to subscribe. Please try again.", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -52,7 +71,7 @@ const NewsletterSection = () => {
             <Button
               type="submit"
               className="h-10 md:h-11 px-4 md:px-6"
-              disabled={isSubscribed}
+              disabled={isSubscribed || isLoading}
             >
               {isSubscribed ? (
                 <CheckCircle className="h-4 w-4" />
