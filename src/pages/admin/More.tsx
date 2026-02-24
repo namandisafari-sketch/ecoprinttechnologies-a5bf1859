@@ -8,6 +8,7 @@ import {
   LogOut,
   Home,
   ChevronRight,
+  Mail,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,6 +18,7 @@ const moreItems = [
   { label: "Inventory", href: "/admin/inventory", icon: Boxes, description: "Track stock levels & low-stock alerts" },
   { label: "Categories", href: "/admin/categories", icon: Tags, description: "Manage product categories" },
   { label: "Customers", href: "/admin/customers", icon: Users, description: "View & manage customers" },
+  { label: "Newsletter", href: "/admin/newsletter", icon: Mail, description: "Manage newsletter subscribers" },
   { label: "Settings", href: "/admin/settings", icon: Settings, description: "App configuration & preferences" },
 ];
 
