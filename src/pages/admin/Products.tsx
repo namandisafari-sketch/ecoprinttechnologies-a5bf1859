@@ -31,7 +31,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Search, Loader2, Package } from "lucide-react";
-import ImageUpload from "@/components/ImageUpload";
+import MultiImageUpload from "@/components/MultiImageUpload";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Product = Tables<"products">;
@@ -52,6 +52,7 @@ const AdminProducts = () => {
     category_id: "",
     brand_id: "",
     image_url: "",
+    images: [] as string[],
     sku: "",
     stock_quantity: "0",
     is_active: true,
@@ -171,6 +172,7 @@ const AdminProducts = () => {
       category_id: "",
       brand_id: "",
       image_url: "",
+      images: [],
       sku: "",
       stock_quantity: "0",
       is_active: true,
@@ -193,6 +195,7 @@ const AdminProducts = () => {
       category_id: product.category_id || "",
       brand_id: product.brand_id || "",
       image_url: product.image_url || "",
+      images: product.images || [],
       sku: product.sku || "",
       stock_quantity: String(product.stock_quantity || 0),
       is_active: product.is_active ?? true,
@@ -216,6 +219,7 @@ const AdminProducts = () => {
       category_id: formData.category_id || null,
       brand_id: formData.brand_id || null,
       image_url: formData.image_url || null,
+      images: formData.images.length > 0 ? formData.images : null,
       sku: formData.sku || null,
       stock_quantity: parseInt(formData.stock_quantity) || 0,
       is_active: formData.is_active,
@@ -365,9 +369,11 @@ const AdminProducts = () => {
                 </div>
               </div>
 
-              <ImageUpload
-                value={formData.image_url}
-                onChange={(url) => setFormData({ ...formData, image_url: url })}
+              <MultiImageUpload
+                mainImage={formData.image_url}
+                additionalImages={formData.images}
+                onMainImageChange={(url) => setFormData({ ...formData, image_url: url })}
+                onAdditionalImagesChange={(urls) => setFormData({ ...formData, images: urls })}
               />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
