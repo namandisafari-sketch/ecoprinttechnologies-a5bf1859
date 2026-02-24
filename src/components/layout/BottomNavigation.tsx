@@ -1,7 +1,8 @@
-import { Home, Search, ShoppingCart, Package, LogIn } from "lucide-react";
+import { Home, Search, ShoppingCart, Bell, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAppNotifications } from "@/hooks/useAppNotifications";
 
 interface BottomNavigationProps {
   cartCount: number;
@@ -10,17 +11,18 @@ interface BottomNavigationProps {
 
 const BottomNavigation = ({ cartCount, onCartClick }: BottomNavigationProps) => {
   const location = useLocation();
-  const { user, isAdmin } = useAuth();
+  const { isAdmin } = useAuth();
+  const { unreadCount } = useAppNotifications();
 
   const navItems = [
     { icon: Home, label: "Home", path: "/" },
     { icon: Search, label: "Search", path: "/search" },
     { icon: ShoppingCart, label: "Cart", path: "#cart", isCart: true },
-    { icon: Package, label: "Orders", path: "/track-order" },
+    { icon: Bell, label: "Alerts", path: "/notifications", badge: unreadCount },
     {
-      icon: LogIn,
-      label: isAdmin ? "Admin" : user ? "Account" : "Login",
-      path: isAdmin ? "/admin" : user ? "/track-order" : "/login",
+      icon: User,
+      label: isAdmin ? "Admin" : "Account",
+      path: isAdmin ? "/admin" : "/profile",
     },
   ];
 
@@ -58,12 +60,18 @@ const BottomNavigation = ({ cartCount, onCartClick }: BottomNavigationProps) => 
               key={item.label}
               to={item.path}
               className={cn(
-                "flex flex-col items-center justify-center flex-1 h-full transition-colors",
-                isActive ? "text-primary" : "text-muted-foreground",
-                item.label === "Admin" && "text-primary"
+                "flex flex-col items-center justify-center flex-1 h-full transition-colors relative",
+                isActive ? "text-primary" : "text-muted-foreground"
               )}
             >
-              <Icon className={cn("h-5 w-5", isActive && "scale-110")} />
+              <div className="relative">
+                <Icon className={cn("h-5 w-5", isActive && "scale-110")} />
+                {item.badge && item.badge > 0 && (
+                  <span className="absolute -top-1.5 -right-2 h-4 w-4 flex items-center justify-center text-[10px] font-bold bg-destructive text-destructive-foreground rounded-full">
+                    {item.badge > 9 ? "9+" : item.badge}
+                  </span>
+                )}
+              </div>
               <span className={cn(
                 "text-[10px] mt-1 font-medium",
                 isActive && "font-semibold"

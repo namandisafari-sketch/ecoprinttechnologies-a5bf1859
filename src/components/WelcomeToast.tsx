@@ -11,10 +11,13 @@ const WelcomeToast = () => {
     const hasSeenWelcome = localStorage.getItem(WELCOME_SHOWN_KEY);
     
     if (!hasSeenWelcome) {
-      // Show after a short delay
       const timer = setTimeout(() => {
         setIsVisible(true);
         localStorage.setItem(WELCOME_SHOWN_KEY, "true");
+        // Request notification permission
+        if ("Notification" in window && Notification.permission === "default") {
+          Notification.requestPermission();
+        }
       }, 1500);
 
       return () => clearTimeout(timer);

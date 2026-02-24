@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ChevronLeft, ShoppingCart, Heart, Share2, Minus, Plus, Phone, MessageCircle, Truck, Shield, RotateCcw } from "lucide-react";
+import { ChevronLeft, ShoppingCart, Heart, Share2, Minus, Plus, Phone, MessageCircle, Truck, Shield, RotateCcw, Star, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -13,6 +13,7 @@ import CartDrawer from "@/components/cart/CartDrawer";
 import ChatWidget from "@/components/chat/ChatWidget";
 import { useProduct, useRelatedProducts } from "@/hooks/useProduct";
 import { trackProductView } from "@/components/home/RecentlyViewed";
+import { useWishlist } from "@/hooks/useWishlist";
 
 interface CartItem extends Product {
   quantity: number;
@@ -24,6 +25,7 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const { isWishlisted, toggleWishlist } = useWishlist();
 
   const { data: product, isLoading } = useProduct(slug || "");
   const { data: relatedProducts } = useRelatedProducts(
@@ -38,6 +40,18 @@ const ProductDetail = () => {
       currency: "UGX",
       minimumFractionDigits: 0,
     }).format(price);
+  };
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: product?.name, text: product?.description || "", url });
+      } catch {}
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast({ title: "Link copied!" });
+    }
   };
 
   const handleAddToCart = (productToAdd?: Product) => {
@@ -89,14 +103,12 @@ const ProductDetail = () => {
     setCartItems((prev) => prev.filter((item) => item.id !== id));
   };
 
-  // Track product view for "recently viewed"
   useEffect(() => {
     if (product) {
       trackProductView(product);
     }
   }, [product]);
 
-  // Build images array
   const productImages = product
     ? [product.image_url, ...(product.images || [])].filter(Boolean) as string[]
     : [];
@@ -106,8 +118,8 @@ const ProductDetail = () => {
     : 0;
 
   const inStock = (product?.stock_quantity || 0) > 0;
+  const wishlisted = product ? isWishlisted(product.id) : false;
 
-  // Transform related products for ProductCard
   const relatedDisplayProducts = relatedProducts?.map((p) => ({
     id: parseInt(p.id.slice(0, 8), 16),
     name: p.name,
@@ -152,9 +164,7 @@ const ProductDetail = () => {
         <main className="px-4 py-16 text-center pb-20">
           <h1 className="text-xl font-bold mb-2">Product Not Found</h1>
           <p className="text-sm text-muted-foreground mb-4">This product doesn't exist.</p>
-          <Link to="/search">
-            <Button size="sm">Browse Products</Button>
-          </Link>
+          <Link to="/search"><Button size="sm">Browse Products</Button></Link>
         </main>
         <BottomNavigation cartCount={0} onCartClick={() => {}} />
       </div>
@@ -171,124 +181,193 @@ const ProductDetail = () => {
           </Link>
           <span className="font-medium text-sm truncate max-w-[200px]">{product.name}</span>
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="h-9 w-9">
-              <Heart className="h-5 w-5" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9"
+              onClick={() => toggleWishlist.mutate(product.id)}
+            >
+              <Heart className={`h-5 w-5 ${wishlisted ? "fill-destructive text-destructive" : ""}`} />
             </Button>
-            <Button variant="ghost" size="icon" className="h-9 w-9">
+            <Button variant="ghost" size="icon" className="h-9 w-9" onClick={handleShare}>
               <Share2 className="h-5 w-5" />
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="pb-32">
-        {/* Image Gallery */}
-        <div className="px-4 pt-4">
-          <ImageGallery images={productImages} productName={product.name} />
-        </div>
+      <main className="pb-32 md:max-w-6xl md:mx-auto">
+        {/* Desktop: two columns */}
+        <div className="md:grid md:grid-cols-2 md:gap-8 md:p-6">
+          {/* Image Gallery */}
+          <div className="px-4 pt-4 md:px-0">
+            <ImageGallery images={productImages} productName={product.name} />
+          </div>
 
-        {/* Product Info */}
-        <div className="px-4 py-4 space-y-4">
-          {/* Brand & Badges */}
-          <div className="flex items-center gap-2 flex-wrap">
+          {/* Product Info */}
+          <div className="px-4 py-4 space-y-4 md:px-0">
+            {/* Brand link */}
             {product.brands?.name && (
-              <Badge variant="secondary" className="text-xs">
-                {product.brands.name}
-              </Badge>
+              <div className="text-sm">
+                <span className="text-muted-foreground">Brand: </span>
+                <Link to={`/search?q=${product.brands.name}`} className="text-primary hover:underline font-medium">
+                  {product.brands.name}
+                </Link>
+                <span className="text-muted-foreground"> | </span>
+                <Link to={`/search?q=${product.brands.name}`} className="text-primary hover:underline text-xs">
+                  Similar products from {product.brands.name}
+                </Link>
+              </div>
             )}
-            {product.is_new && (
-              <Badge className="bg-secondary text-secondary-foreground text-xs">New</Badge>
-            )}
-            {product.is_on_sale && discount > 0 && (
-              <Badge className="bg-primary text-primary-foreground text-xs">-{discount}%</Badge>
-            )}
-          </div>
 
-          {/* Title */}
-          <h1 className="text-xl font-bold text-foreground">
-            {product.name}
-          </h1>
+            {/* Title */}
+            <h1 className="text-xl md:text-2xl font-bold text-foreground leading-tight">
+              {product.name}
+            </h1>
 
-          {/* Model & Color */}
-          {(product.model || product.color) && (
-            <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-              {product.model && <span>Model: <strong className="text-foreground">{product.model}</strong></span>}
-              {product.color && <span>Color: <strong className="text-foreground">{product.color}</strong></span>}
-            </div>
-          )}
+            {/* Price Section */}
+            <div className="space-y-1">
+              <div className="flex items-baseline gap-3">
+                <span className="text-2xl md:text-3xl font-bold text-foreground">
+                  {formatPrice(Number(product.price))}
+                </span>
+                {product.original_price && (
+                  <span className="text-base text-muted-foreground line-through">
+                    {formatPrice(Number(product.original_price))}
+                  </span>
+                )}
+                {discount > 0 && (
+                  <Badge className="bg-primary text-primary-foreground text-xs">-{discount}%</Badge>
+                )}
+              </div>
 
-          {/* Price */}
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-primary">
-              {formatPrice(Number(product.price))}
-            </span>
-            {product.original_price && (
-              <span className="text-sm text-muted-foreground line-through">
-                {formatPrice(Number(product.original_price))}
-              </span>
-            )}
-          </div>
+              {/* Stock Status */}
+              <div className="flex items-center gap-2">
+                <span className={`text-sm font-medium ${inStock ? "text-green-600" : "text-destructive"}`}>
+                  {inStock ? "In stock" : "Out of Stock"}
+                </span>
+              </div>
 
-          {/* Stock Status */}
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${inStock ? 'bg-green-500' : 'bg-destructive'}`} />
-            <span className={`text-sm ${inStock ? 'text-green-600' : 'text-destructive'}`}>
-              {inStock ? `In Stock (${product.stock_quantity})` : 'Out of Stock'}
-            </span>
-          </div>
-
-          <Separator />
-
-          {/* Description */}
-          {product.description && (
-            <div>
-              <h3 className="font-semibold text-sm mb-2">Description</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {product.description}
+              {/* Shipping info */}
+              <p className="text-xs text-primary">
+                + shipping from UGX 5,000 to Kampala
               </p>
             </div>
-          )}
 
-          <Separator />
+            {/* Model & Color & SKU */}
+            {(product.model || product.color || product.sku) && (
+              <>
+                <Separator />
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">Specifications</h3>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    {product.model && (
+                      <div><span className="text-muted-foreground">Model:</span> <strong>{product.model}</strong></div>
+                    )}
+                    {product.color && (
+                      <div><span className="text-muted-foreground">Color:</span> <strong>{product.color}</strong></div>
+                    )}
+                    {product.sku && (
+                      <div><span className="text-muted-foreground">SKU:</span> <strong>{product.sku}</strong></div>
+                    )}
+                    {product.categories?.name && (
+                      <div><span className="text-muted-foreground">Category:</span> <strong>{product.categories.name}</strong></div>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
 
-          {/* Features */}
-          <div className="grid grid-cols-3 gap-3">
-            <div className="flex flex-col items-center text-center p-3 bg-muted rounded-lg">
-              <Truck className="h-5 w-5 text-primary mb-1" />
-              <p className="text-xs font-medium">Fast Delivery</p>
-            </div>
-            <div className="flex flex-col items-center text-center p-3 bg-muted rounded-lg">
-              <Shield className="h-5 w-5 text-primary mb-1" />
-              <p className="text-xs font-medium">Warranty</p>
-            </div>
-            <div className="flex flex-col items-center text-center p-3 bg-muted rounded-lg">
-              <RotateCcw className="h-5 w-5 text-primary mb-1" />
-              <p className="text-xs font-medium">Returns</p>
-            </div>
-          </div>
+            {/* Brand badge */}
+            {product.brands?.name && (
+              <div>
+                <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground mb-2">Brand</h3>
+                <Badge variant="outline" className="text-sm px-3 py-1">{product.brands.name}</Badge>
+              </div>
+            )}
 
-          {/* Contact */}
-          <div className="flex gap-2">
-            <Button variant="outline" className="flex-1 h-10 text-sm" asChild>
-              <a href="tel:0705154828">
-                <Phone className="h-4 w-4 mr-2" />
-                Call
-              </a>
-            </Button>
-            <Button variant="outline" className="flex-1 h-10 text-sm" asChild>
-              <a href="https://wa.me/256705154828" target="_blank" rel="noopener noreferrer">
-                <MessageCircle className="h-4 w-4 mr-2" />
-                WhatsApp
-              </a>
-            </Button>
+            <Separator />
+
+            {/* Description */}
+            {product.description && (
+              <div>
+                <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground mb-2">Description</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+                  {product.description}
+                </p>
+              </div>
+            )}
+
+            <Separator />
+
+            {/* Delivery & Returns - Jumia style sidebar info */}
+            <div className="space-y-3">
+              <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">Delivery & Returns</h3>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3 p-3 bg-muted rounded-lg">
+                  <MapPin className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium">Pickup Station</p>
+                    <p className="text-xs text-primary">Delivery Fees UGX 5,000</p>
+                    <p className="text-xs text-muted-foreground">Ready within 1-3 business days</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-3 bg-muted rounded-lg">
+                  <Truck className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium">Door Delivery</p>
+                    <p className="text-xs text-primary">Delivery Fees UGX 8,000</p>
+                    <p className="text-xs text-muted-foreground">Ready within 2-5 business days</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-3 bg-muted rounded-lg">
+                  <RotateCcw className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium">Return Policy</p>
+                    <p className="text-xs text-muted-foreground">Free return within 7 days for eligible items</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Share */}
+            <div>
+              <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground mb-2">Share This Product</h3>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={handleShare}>
+                  <Share2 className="h-4 w-4 mr-1" /> Share
+                </Button>
+                <Button variant="outline" size="sm" asChild>
+                  <a href={`https://wa.me/?text=${encodeURIComponent(product.name + " " + window.location.href)}`} target="_blank" rel="noopener noreferrer">
+                    <MessageCircle className="h-4 w-4 mr-1" /> WhatsApp
+                  </a>
+                </Button>
+              </div>
+            </div>
+
+            {/* Contact */}
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1 h-10 text-sm" asChild>
+                <a href="tel:0705154828">
+                  <Phone className="h-4 w-4 mr-2" /> Call Us
+                </a>
+              </Button>
+              <Button variant="outline" className="flex-1 h-10 text-sm" asChild>
+                <a href="https://wa.me/256705154828" target="_blank" rel="noopener noreferrer">
+                  <MessageCircle className="h-4 w-4 mr-2" /> WhatsApp
+                </a>
+              </Button>
+            </div>
           </div>
         </div>
 
         {/* Related Products */}
         {relatedDisplayProducts.length > 0 && (
           <section className="px-4 py-4">
-            <h2 className="text-lg font-bold mb-4">Related Products</h2>
-            <div className="grid grid-cols-2 gap-3">
+            <h2 className="text-lg font-bold mb-4">You May Also Like</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {relatedDisplayProducts.map((relatedProduct) => (
                 <ProductCard
                   key={relatedProduct.id}
@@ -303,8 +382,7 @@ const ProductDetail = () => {
 
       {/* Fixed Bottom Action Bar */}
       <div className="fixed bottom-16 left-0 right-0 bg-background border-t border-border p-3 safe-area-bottom z-40">
-        <div className="flex items-center gap-3">
-          {/* Quantity */}
+        <div className="flex items-center gap-3 max-w-6xl mx-auto">
           <div className="flex items-center border rounded-lg">
             <Button
               variant="ghost"
@@ -326,8 +404,6 @@ const ProductDetail = () => {
               <Plus className="h-4 w-4" />
             </Button>
           </div>
-
-          {/* Add to Cart */}
           <Button
             className="flex-1 h-10"
             onClick={() => handleAddToCart()}
