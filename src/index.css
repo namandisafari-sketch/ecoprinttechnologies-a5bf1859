@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Devtools & source code protection */
+@layer base {
+  body.devtools-blocked::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: hsl(var(--background));
+  }
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 @layer base {
@@ -107,6 +118,12 @@
 @layer base {
   * {
     @apply border-border;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  *::-webkit-scrollbar {
+    display: none;
   }
 
   body {
