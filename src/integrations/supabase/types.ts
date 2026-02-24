@@ -331,6 +331,78 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_reads: {
+        Row: {
+          device_id: string | null
+          id: string
+          notification_id: string
+          read_at: string
+          user_id: string | null
+        }
+        Insert: {
+          device_id?: string | null
+          id?: string
+          notification_id: string
+          read_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          device_id?: string | null
+          id?: string
+          notification_id?: string
+          read_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_reads_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_reads_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          link: string | null
+          title: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          link?: string | null
+          title: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          link?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string
@@ -760,6 +832,45 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      wishlist: {
+        Row: {
+          created_at: string
+          device_id: string | null
+          id: string
+          product_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          device_id?: string | null
+          id?: string
+          product_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          device_id?: string | null
+          id?: string
+          product_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wishlist_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wishlist_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

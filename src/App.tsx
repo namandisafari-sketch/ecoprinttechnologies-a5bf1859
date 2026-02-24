@@ -15,6 +15,9 @@ import TrackOrder from "./pages/TrackOrder";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Profile from "./pages/Profile";
+import Wishlist from "./pages/Wishlist";
+import NotificationsPage from "./pages/Notifications";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/Dashboard";
@@ -29,6 +32,7 @@ import AdminSettings from "./pages/admin/Settings";
 import AdminMore from "./pages/admin/More";
 import AdminNewsletter from "./pages/admin/Newsletter";
 import AdminHeroSlides from "./pages/admin/HeroSlides";
+import AdminNotifications from "./pages/admin/Notifications";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +51,9 @@ const App = () => (
             <Route path="/product/:slug" element={<ProductDetail />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/track-order" element={<TrackOrder />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/wishlist" element={<Wishlist />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
 
@@ -71,6 +78,7 @@ const App = () => (
               <Route path="more" element={<AdminMore />} />
               <Route path="newsletter" element={<AdminNewsletter />} />
               <Route path="hero-slides" element={<AdminHeroSlides />} />
+              <Route path="notifications" element={<AdminNotifications />} />
             </Route>
 
             {/* Catch-all */}
