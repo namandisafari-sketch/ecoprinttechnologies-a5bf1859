@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ChevronLeft, ShoppingCart, Heart, Share2, Minus, Plus, Phone, MessageCircle, Truck, Shield, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import ProductCard, { Product } from "@/components/home/ProductCard";
 import CartDrawer from "@/components/cart/CartDrawer";
 import ChatWidget from "@/components/chat/ChatWidget";
 import { useProduct, useRelatedProducts } from "@/hooks/useProduct";
+import { trackProductView } from "@/components/home/RecentlyViewed";
 
 interface CartItem extends Product {
   quantity: number;
@@ -87,6 +88,13 @@ const ProductDetail = () => {
   const handleRemoveItem = (id: number) => {
     setCartItems((prev) => prev.filter((item) => item.id !== id));
   };
+
+  // Track product view for "recently viewed"
+  useEffect(() => {
+    if (product) {
+      trackProductView(product);
+    }
+  }, [product]);
 
   // Build images array
   const productImages = product

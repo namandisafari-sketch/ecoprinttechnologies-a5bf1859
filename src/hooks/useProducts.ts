@@ -28,6 +28,7 @@ export interface ProductWithRelations {
 
 export const useProducts = (options?: {
   featured?: boolean;
+  onSale?: boolean;
   categoryId?: string;
   brandId?: string;
   search?: string;
@@ -44,6 +45,10 @@ export const useProducts = (options?: {
 
       if (options?.featured) {
         query = query.eq("is_featured", true);
+      }
+
+      if (options?.onSale) {
+        query = query.eq("is_on_sale", true);
       }
 
       if (options?.categoryId) {
