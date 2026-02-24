@@ -16,6 +16,7 @@ const Profile = () => {
 
   const displayName = user?.user_metadata?.full_name || deviceName || "Guest";
   const email = user?.email;
+  const { recoveryCode } = useDeviceContext();
 
   const menuItems = [
     { icon: Package, label: "My Orders", path: "/track-order", description: "Track your orders" },
@@ -43,6 +44,11 @@ const Profile = () => {
               <div className="flex-1">
                 <h2 className="font-bold text-lg">{displayName}</h2>
                 {email && <p className="text-sm text-primary-foreground/80">{email}</p>}
+                {recoveryCode && (
+                  <p className="text-xs text-primary-foreground/70 mt-1 font-mono tracking-widest">
+                    Recovery: {recoveryCode}
+                  </p>
+                )}
                 {!user && (
                   <Link to="/login" className="text-sm underline text-primary-foreground/90 mt-1 inline-block">
                     Sign in for full access
