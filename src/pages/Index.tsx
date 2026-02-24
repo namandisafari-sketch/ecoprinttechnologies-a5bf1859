@@ -2,13 +2,16 @@ import { useState, useCallback } from "react";
 import Header from "@/components/layout/Header";
 import MobileHeader from "@/components/layout/MobileHeader";
 import Footer from "@/components/layout/Footer";
-import MobileFooter from "@/components/layout/MobileFooter";
 import BottomNavigation from "@/components/layout/BottomNavigation";
-import HeroSection from "@/components/home/HeroSection";
+import HeroCarousel from "@/components/home/HeroCarousel";
 import CategorySection from "@/components/home/CategorySection";
+import DealBanners from "@/components/home/DealBanners";
+import FlashSales from "@/components/home/FlashSales";
 import FeaturedProducts from "@/components/home/FeaturedProducts";
-import BrandsSection from "@/components/home/BrandsSection";
 import PromoSection from "@/components/home/PromoSection";
+import BrandsSection from "@/components/home/BrandsSection";
+import RecentlyViewed from "@/components/home/RecentlyViewed";
+import NewsletterSection from "@/components/home/NewsletterSection";
 import CartDrawer, { CartItem } from "@/components/cart/CartDrawer";
 import ChatWidget from "@/components/chat/ChatWidget";
 import WelcomeToast from "@/components/WelcomeToast";
@@ -68,34 +71,37 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {/* Desktop header - hidden on mobile */}
+      {/* Desktop header */}
       <div className="hidden md:block">
         <Header cartCount={cartCount} onCartClick={() => setIsCartOpen(true)} />
       </div>
       
-      {/* Mobile header - shown only on mobile */}
+      {/* Mobile header */}
       <div className="md:hidden">
         <MobileHeader />
       </div>
       
       {/* Main content */}
       <main className="flex-1 pb-20 md:pb-0">
-        <HeroSection />
+        <HeroCarousel />
         <div className="max-w-7xl mx-auto">
           <CategorySection />
+          <DealBanners />
+          <FlashSales onAddToCart={handleAddToCart} />
           <FeaturedProducts onAddToCart={handleAddToCart} />
           <PromoSection />
           <BrandsSection />
+          <RecentlyViewed />
+          <NewsletterSection />
         </div>
       </main>
 
-      {/* Desktop footer - hidden on mobile */}
+      {/* Desktop footer */}
       <div className="hidden md:block">
         <Footer />
       </div>
 
-
-      {/* Mobile bottom nav - only on mobile */}
+      {/* Mobile bottom nav */}
       <div className="md:hidden">
         <BottomNavigation 
           cartCount={cartCount} 
