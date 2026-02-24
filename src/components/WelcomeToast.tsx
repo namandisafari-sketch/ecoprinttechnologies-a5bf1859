@@ -59,10 +59,10 @@ const WelcomeToast = () => {
               </div>
               <div className="flex-1">
                 <h3 className="font-bold text-lg mb-1">
-                  Welcome to Sir Wanda Phone Care! 🎉
+                  Welcome to Eco Print Technologies! 🎉
                 </h3>
                 <p className="text-sm text-primary-foreground/90">
-                  Check out our quality phone screens, batteries & spare parts. Order now for fast delivery across Uganda!
+                  Top brands, expert repairs & unbeatable prices. Order now for fast delivery across Uganda!
                 </p>
               </div>
             </div>

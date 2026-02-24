@@ -1,85 +1,77 @@
 import { useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import heroBanner from "@/assets/hero-banner.jpg";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 interface Slide {
-  id: number;
+  id: string;
   title: string;
-  subtitle: string;
-  cta: string;
-  ctaLink: string;
-  bgClass: string;
-  image?: string;
+  subtitle: string | null;
+  cta_text: string;
+  cta_link: string;
+  bg_class: string;
+  image_url: string | null;
 }
 
-const slides: Slide[] = [
-  {
-    id: 1,
-    title: "Eco Print Technologies",
-    subtitle: "Top brands, expert repairs, unbeatable prices",
-    cta: "Shop Now",
-    ctaLink: "/search",
-    bgClass: "from-secondary/95 via-secondary/80 to-secondary/95",
-    image: heroBanner,
-  },
-  {
-    id: 2,
-    title: "Up to 30% Off",
-    subtitle: "Refurbished laptops — tested & certified quality",
-    cta: "View Deals",
-    ctaLink: "/search?q=Sale",
-    bgClass: "from-primary/90 via-primary/70 to-primary/90",
-  },
-  {
-    id: 3,
-    title: "Same-Day Repairs",
-    subtitle: "Expert technicians, genuine parts, fast turnaround",
-    cta: "Find Technicians",
-    ctaLink: "/technicians",
-    bgClass: "from-accent/90 via-accent/70 to-accent/90",
-  },
-  {
-    id: 4,
-    title: "Free Delivery",
-    subtitle: "On orders above UGX 500,000 within Kampala",
-    cta: "Start Shopping",
-    ctaLink: "/search",
-    bgClass: "from-secondary/95 via-secondary/80 to-secondary/95",
-  },
-];
+const fetchSlides = async (): Promise<Slide[]> => {
+  const { data, error } = await supabase
+    .from("hero_slides")
+    .select("*")
+    .eq("is_active", true)
+    .order("display_order", { ascending: true });
+
+  if (error) throw error;
+  return data || [];
+};
 
 const HeroCarousel = () => {
   const [current, setCurrent] = useState(0);
 
+  const { data: slides = [] } = useQuery({
+    queryKey: ["hero-slides"],
+    queryFn: fetchSlides,
+  });
+
   const next = useCallback(() => {
+    if (slides.length === 0) return;
     setCurrent((prev) => (prev + 1) % slides.length);
-  }, []);
+  }, [slides.length]);
 
   const prev = useCallback(() => {
+    if (slides.length === 0) return;
     setCurrent((prev) => (prev - 1 + slides.length) % slides.length);
-  }, []);
+  }, [slides.length]);
 
   useEffect(() => {
+    if (slides.length === 0) return;
     const interval = setInterval(next, 5000);
     return () => clearInterval(interval);
-  }, [next]);
+  }, [next, slides.length]);
 
-  const slide = slides[current];
+  if (slides.length === 0) {
+    return (
+      <section className="relative overflow-hidden bg-secondary">
+        <div className="px-4 py-10 md:py-16 lg:py-24 text-center">
+          <h1 className="text-2xl md:text-4xl font-bold text-secondary-foreground">Eco Print Technologies</h1>
+        </div>
+      </section>
+    );
+  }
+
+  const slide = slides[current % slides.length];
 
   return (
     <section className="relative overflow-hidden">
-      {/* Background */}
       <div className="absolute inset-0">
-        {slide.image ? (
-          <img src={slide.image} alt="" className="w-full h-full object-cover transition-opacity duration-500" />
+        {slide.image_url ? (
+          <img src={slide.image_url} alt="" className="w-full h-full object-cover transition-opacity duration-500" />
         ) : (
           <div className="w-full h-full bg-secondary" />
         )}
-        <div className={`absolute inset-0 bg-gradient-to-b ${slide.bgClass}`} />
+        <div className={`absolute inset-0 bg-gradient-to-b ${slide.bg_class}`} />
       </div>
 
-      {/* Content */}
       <div className="relative px-4 py-10 md:py-16 lg:py-24">
         <div className="max-w-md md:max-w-2xl lg:max-w-4xl mx-auto text-center md:text-left">
           <span className="inline-block px-3 py-1 md:px-4 md:py-1.5 bg-background/20 backdrop-blur-sm text-background rounded-full text-xs md:text-sm font-medium mb-3 md:mb-4">
@@ -101,16 +93,15 @@ const HeroCarousel = () => {
           </p>
 
           <Link
-            to={slide.ctaLink}
+            to={slide.cta_link}
             className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2.5 md:px-8 md:py-3 rounded-lg transition-colors text-sm md:text-base"
           >
-            {slide.cta}
+            {slide.cta_text}
             <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
       </div>
 
-      {/* Navigation arrows - desktop only */}
       <button
         onClick={prev}
         className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 bg-background/30 backdrop-blur-sm hover:bg-background/50 text-white p-2 rounded-full transition-colors"
@@ -124,7 +115,6 @@ const HeroCarousel = () => {
         <ChevronRight className="h-5 w-5" />
       </button>
 
-      {/* Dots */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
         {slides.map((_, i) => (
           <button

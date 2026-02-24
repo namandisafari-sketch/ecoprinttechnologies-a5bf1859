@@ -9,6 +9,7 @@ import {
   Home,
   ChevronRight,
   Mail,
+  Image as ImageIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -19,6 +20,7 @@ const moreItems = [
   { label: "Categories", href: "/admin/categories", icon: Tags, description: "Manage product categories" },
   { label: "Customers", href: "/admin/customers", icon: Users, description: "View & manage customers" },
   { label: "Newsletter", href: "/admin/newsletter", icon: Mail, description: "Manage newsletter subscribers" },
+  { label: "Hero Slides", href: "/admin/hero-slides", icon: ImageIcon, description: "Manage homepage carousel banners" },
   { label: "Settings", href: "/admin/settings", icon: Settings, description: "App configuration & preferences" },
 ];
 

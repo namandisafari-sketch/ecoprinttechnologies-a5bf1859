@@ -95,7 +95,7 @@ const DeviceRegistrationDialog = ({ open, onRegister, onRecover }: Props) => {
           <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2">
             <Smartphone className="h-7 w-7 text-primary" />
           </div>
-          <DialogTitle>Welcome to Sir Wanda's</DialogTitle>
+          <DialogTitle>Welcome to Eco Print Technologies</DialogTitle>
           <DialogDescription>
             {mode === "register"
               ? "Let's set up your device so you can track orders easily."
