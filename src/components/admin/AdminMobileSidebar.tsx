@@ -11,6 +11,8 @@ import {
   LogOut,
   Receipt,
   Settings,
+  Bell,
+  Mail,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -23,6 +25,8 @@ const navItems = [
   { label: "Inventory", href: "/admin/inventory", icon: Boxes },
   { label: "Categories", href: "/admin/categories", icon: Tags },
   { label: "Customers", href: "/admin/customers", icon: Users },
+  { label: "Notifications", href: "/admin/notifications", icon: Bell },
+  { label: "Newsletter", href: "/admin/newsletter", icon: Mail },
   { label: "Chat", href: "/admin/chat", icon: MessageCircle },
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
