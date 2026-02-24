@@ -28,6 +28,7 @@ import AdminChat from "./pages/admin/Chat";
 import AdminSettings from "./pages/admin/Settings";
 import AdminMore from "./pages/admin/More";
 import AdminNewsletter from "./pages/admin/Newsletter";
+import AdminHeroSlides from "./pages/admin/HeroSlides";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,7 @@ const App = () => (
               <Route path="settings" element={<AdminSettings />} />
               <Route path="more" element={<AdminMore />} />
               <Route path="newsletter" element={<AdminNewsletter />} />
+              <Route path="hero-slides" element={<AdminHeroSlides />} />
             </Route>
 
             {/* Catch-all */}

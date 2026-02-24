@@ -167,6 +167,48 @@ export type Database = {
         }
         Relationships: []
       }
+      hero_slides: {
+        Row: {
+          bg_class: string
+          created_at: string
+          cta_link: string
+          cta_text: string
+          display_order: number
+          id: string
+          image_url: string | null
+          is_active: boolean
+          subtitle: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          bg_class?: string
+          created_at?: string
+          cta_link?: string
+          cta_text?: string
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          subtitle?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          bg_class?: string
+          created_at?: string
+          cta_link?: string
+          cta_text?: string
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
