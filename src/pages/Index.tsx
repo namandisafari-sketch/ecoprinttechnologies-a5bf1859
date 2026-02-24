@@ -94,10 +94,6 @@ const Index = () => {
         <Footer />
       </div>
 
-      {/* Mobile footer - shown only on mobile */}
-      <div className="md:hidden">
-        <MobileFooter />
-      </div>
 
       {/* Mobile bottom nav - only on mobile */}
       <div className="md:hidden">
