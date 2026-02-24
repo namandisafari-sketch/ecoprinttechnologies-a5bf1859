@@ -33,6 +33,7 @@ import AdminMore from "./pages/admin/More";
 import AdminNewsletter from "./pages/admin/Newsletter";
 import AdminHeroSlides from "./pages/admin/HeroSlides";
 import AdminNotifications from "./pages/admin/Notifications";
+import AdminStoreLocation from "./pages/admin/StoreLocation";
 
 const queryClient = new QueryClient();
 
@@ -79,6 +80,7 @@ const App = () => (
               <Route path="newsletter" element={<AdminNewsletter />} />
               <Route path="hero-slides" element={<AdminHeroSlides />} />
               <Route path="notifications" element={<AdminNotifications />} />
+              <Route path="store-location" element={<AdminStoreLocation />} />
             </Route>
 
             {/* Catch-all */}

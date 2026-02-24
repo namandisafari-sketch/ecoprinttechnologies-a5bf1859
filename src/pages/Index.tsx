@@ -12,6 +12,7 @@ import PromoSection from "@/components/home/PromoSection";
 import BrandsSection from "@/components/home/BrandsSection";
 import RecentlyViewed from "@/components/home/RecentlyViewed";
 import NewsletterSection from "@/components/home/NewsletterSection";
+import StoreMapSection from "@/components/home/StoreMapSection";
 import CartDrawer, { CartItem } from "@/components/cart/CartDrawer";
 import ChatWidget from "@/components/chat/ChatWidget";
 import WelcomeToast from "@/components/WelcomeToast";
@@ -93,6 +94,7 @@ const Index = () => {
           <BrandsSection />
           <RecentlyViewed />
           <NewsletterSection />
+          <StoreMapSection />
         </div>
       </main>
 

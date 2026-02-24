@@ -11,6 +11,7 @@ import {
   Mail,
   Image as ImageIcon,
   Bell,
+  MapPin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,6 +24,7 @@ const moreItems = [
   { label: "Newsletter", href: "/admin/newsletter", icon: Mail, description: "Manage newsletter subscribers" },
   { label: "Hero Slides", href: "/admin/hero-slides", icon: ImageIcon, description: "Manage homepage carousel banners" },
   { label: "Notifications", href: "/admin/notifications", icon: Bell, description: "Send push notifications to users" },
+  { label: "Store Location", href: "/admin/store-location", icon: MapPin, description: "Set store location on the map" },
   { label: "Settings", href: "/admin/settings", icon: Settings, description: "App configuration & preferences" },
 ];
 
