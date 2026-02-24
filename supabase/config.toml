@@ -1,7 +1,1 @@
-project_id = "sopqoyxsxjvkcyrfwfqf"
-
-[functions.pesapal-payment]
-verify_jwt = false
-
-[functions.mtn-momo]
-verify_jwt = false
+project_id = "dqiaycjkkghgyeydpxbu"
