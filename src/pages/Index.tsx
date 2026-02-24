@@ -1,5 +1,8 @@
 import { useState, useCallback } from "react";
+import Header from "@/components/layout/Header";
 import MobileHeader from "@/components/layout/MobileHeader";
+import Footer from "@/components/layout/Footer";
+import MobileFooter from "@/components/layout/MobileFooter";
 import BottomNavigation from "@/components/layout/BottomNavigation";
 import HeroSection from "@/components/home/HeroSection";
 import CategorySection from "@/components/home/CategorySection";
@@ -65,21 +68,44 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <MobileHeader />
+      {/* Desktop header - hidden on mobile */}
+      <div className="hidden md:block">
+        <Header cartCount={cartCount} onCartClick={() => setIsCartOpen(true)} />
+      </div>
       
-      {/* Main content with bottom padding for nav */}
-      <main className="flex-1 pb-20">
+      {/* Mobile header - shown only on mobile */}
+      <div className="md:hidden">
+        <MobileHeader />
+      </div>
+      
+      {/* Main content */}
+      <main className="flex-1 pb-20 md:pb-0">
         <HeroSection />
-        <CategorySection />
-        <FeaturedProducts onAddToCart={handleAddToCart} />
-        <PromoSection />
-        <BrandsSection />
+        <div className="max-w-7xl mx-auto">
+          <CategorySection />
+          <FeaturedProducts onAddToCart={handleAddToCart} />
+          <PromoSection />
+          <BrandsSection />
+        </div>
       </main>
 
-      <BottomNavigation 
-        cartCount={cartCount} 
-        onCartClick={() => setIsCartOpen(true)} 
-      />
+      {/* Desktop footer - hidden on mobile */}
+      <div className="hidden md:block">
+        <Footer />
+      </div>
+
+      {/* Mobile footer - shown only on mobile */}
+      <div className="md:hidden">
+        <MobileFooter />
+      </div>
+
+      {/* Mobile bottom nav - only on mobile */}
+      <div className="md:hidden">
+        <BottomNavigation 
+          cartCount={cartCount} 
+          onCartClick={() => setIsCartOpen(true)} 
+        />
+      </div>
 
       <CartDrawer
         isOpen={isCartOpen}
