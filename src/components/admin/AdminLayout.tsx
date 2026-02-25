@@ -5,11 +5,11 @@ import AdminMobileHeader from "@/components/admin/AdminMobileHeader";
 const AdminLayout = () => {
   return (
     <div className="min-h-screen flex w-full bg-muted/30">
-      {/* Desktop Sidebar */}
+      {/* Desktop Sidebar - static in flow */}
       <AdminSidebar />
       
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col lg:ml-0">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile Header with hamburger menu */}
         <AdminMobileHeader />
         
