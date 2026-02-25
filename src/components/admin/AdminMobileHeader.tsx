@@ -53,8 +53,10 @@ const AdminMobileHeader = () => {
               <Home className="h-5 w-5" />
             </Link>
           </Button>
-          <Button variant="ghost" size="icon" className="h-9 w-9 text-secondary-foreground/70 hover:text-secondary-foreground hover:bg-secondary-foreground/10">
-            <Bell className="h-5 w-5" />
+          <Button variant="ghost" size="icon" className="h-9 w-9 text-secondary-foreground/70 hover:text-secondary-foreground hover:bg-secondary-foreground/10" asChild>
+            <Link to="/admin/notifications">
+              <Bell className="h-5 w-5" />
+            </Link>
           </Button>
         </div>
       </div>
