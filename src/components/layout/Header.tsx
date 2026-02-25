@@ -40,7 +40,7 @@ const Header = ({ cartCount, onCartClick }: HeaderProps) => {
           <div className="flex items-center gap-4">
             <a href="tel:+256705154828" className="flex items-center gap-1 hover:text-primary transition-colors">
               <Phone className="h-3 w-3" />
-              <span>+256 705 154 828</span>
+              <span>+256 752 793 244</span>
             </a>
             <span className="hidden sm:flex items-center gap-1">
               <MapPin className="h-3 w-3" />

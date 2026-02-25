@@ -1,6 +1,10 @@
-// Uganda location data sourced from:
+// Uganda location data stored locally from:
 // Districts & Subcounties: https://github.com/Uganda-Open-Data/kalulu
 // Parishes: https://github.com/emugabi/ug-district-data
+
+import districtsData from "@/data/uganda_districts.json";
+import subcountiesData from "@/data/uganda_subcounties.json";
+import parishesData from "@/data/uganda_parishes.json";
 
 export interface District {
   district_code: number;
@@ -25,62 +29,39 @@ export interface ParishEntry {
   PARISH: string;
 }
 
-const DISTRICTS_URL =
-  'https://raw.githubusercontent.com/Uganda-Open-Data/kalulu/master/district_lookup/uganda_districts_2020.json';
-const SUBCOUNTIES_URL =
-  'https://raw.githubusercontent.com/Uganda-Open-Data/kalulu/master/subcounty_lookup/uganda_subcounties_2020.json';
-const PARISHES_URL =
-  'https://raw.githubusercontent.com/emugabi/ug-district-data/master/data.json';
+const districts: District[] = (districtsData as District[]).sort((a, b) =>
+  a.district_name.localeCompare(b.district_name)
+);
 
-let cachedDistricts: District[] | null = null;
-let cachedSubcounties: Subcounty[] | null = null;
-let cachedParishes: ParishEntry[] | null = null;
+const subcounties: Subcounty[] = subcountiesData as Subcounty[];
 
-export async function fetchDistricts(): Promise<District[]> {
-  if (cachedDistricts) return cachedDistricts;
-  const res = await fetch(DISTRICTS_URL);
-  const data: District[] = await res.json();
-  cachedDistricts = data.sort((a, b) =>
-    a.district_name.localeCompare(b.district_name)
-  );
-  return cachedDistricts;
+const parishes: ParishEntry[] = (parishesData as any).data || parishesData;
+
+export function fetchDistricts(): Promise<District[]> {
+  return Promise.resolve(districts);
 }
 
-export async function fetchSubcounties(): Promise<Subcounty[]> {
-  if (cachedSubcounties) return cachedSubcounties;
-  const res = await fetch(SUBCOUNTIES_URL);
-  const data: Subcounty[] = await res.json();
-  cachedSubcounties = data;
-  return cachedSubcounties;
+export function fetchSubcounties(): Promise<Subcounty[]> {
+  return Promise.resolve(subcounties);
 }
 
-export async function fetchSubcountiesForDistrict(
+export function fetchSubcountiesForDistrict(
   districtCode: number
 ): Promise<Subcounty[]> {
-  const all = await fetchSubcounties();
-  return all
+  const filtered = subcounties
     .filter((s) => s.district_code === districtCode)
     .sort((a, b) => a.subcounty_name.localeCompare(b.subcounty_name));
+  return Promise.resolve(filtered);
 }
 
-async function fetchAllParishes(): Promise<ParishEntry[]> {
-  if (cachedParishes) return cachedParishes;
-  const res = await fetch(PARISHES_URL);
-  const json = await res.json();
-  cachedParishes = json.data || json;
-  return cachedParishes!;
-}
-
-export async function fetchParishesForSubcounty(
+export function fetchParishesForSubcounty(
   districtName: string,
   subcountyName: string
 ): Promise<string[]> {
-  const all = await fetchAllParishes();
   const dNorm = districtName.toUpperCase().trim();
   const sNorm = subcountyName.toUpperCase().trim();
-  const parishes = all
+  const result = parishes
     .filter((p) => p.DISTRICT === dNorm && p.SUBCOUNTY === sNorm)
     .map((p) => p.PARISH);
-  // deduplicate and sort
-  return [...new Set(parishes)].sort();
+  return Promise.resolve([...new Set(result)].sort());
 }
