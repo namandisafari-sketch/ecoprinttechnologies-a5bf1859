@@ -13,6 +13,7 @@ import {
   Settings,
   Bell,
   Mail,
+  Truck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -28,6 +29,7 @@ const navItems = [
   { label: "Notifications", href: "/admin/notifications", icon: Bell },
   { label: "Newsletter", href: "/admin/newsletter", icon: Mail },
   { label: "Chat", href: "/admin/chat", icon: MessageCircle },
+  { label: "Delivery Zones", href: "/admin/delivery-zones", icon: Truck },
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
