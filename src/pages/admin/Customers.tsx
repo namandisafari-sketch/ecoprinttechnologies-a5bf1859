@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
@@ -13,12 +14,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Loader2, Users, ShoppingCart, DollarSign, Search, UserPlus, Smartphone, Monitor, Tablet } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Loader2, Users, ShoppingCart, DollarSign, Search, Smartphone, Monitor, Tablet, Eye } from "lucide-react";
+import { formatDistanceToNow, format } from "date-fns";
 
 const AdminCustomers = () => {
   const [search, setSearch] = useState("");
   const [deviceSearch, setDeviceSearch] = useState("");
+  const [selectedDevice, setSelectedDevice] = useState<any>(null);
 
   // Fetch all registered users from profiles
   const { data: profiles = [], isLoading: profilesLoading } = useQuery({
@@ -271,6 +279,7 @@ const AdminCustomers = () => {
                         <TableHead>Language</TableHead>
                         <TableHead>Connection</TableHead>
                         <TableHead>Registered</TableHead>
+                        <TableHead className="text-right">Action</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -301,6 +310,11 @@ const AdminCustomers = () => {
                             <TableCell className="text-muted-foreground text-sm">
                               {formatDistanceToNow(new Date(device.created_at), { addSuffix: true })}
                             </TableCell>
+                            <TableCell className="text-right">
+                              <Button variant="ghost" size="sm" onClick={() => setSelectedDevice(device)}>
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
                           </TableRow>
                         );
                       })}
@@ -317,6 +331,56 @@ const AdminCustomers = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Device Detail Dialog */}
+      <Dialog open={!!selectedDevice} onOpenChange={(open) => !open && setSelectedDevice(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Device Details</DialogTitle>
+          </DialogHeader>
+          {selectedDevice && (() => {
+            const DevIcon = getDeviceIcon(selectedDevice.device_type);
+            return (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                    <DevIcon className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-lg text-foreground">{selectedDevice.full_name}</p>
+                    <Badge variant="outline" className="capitalize">{selectedDevice.device_type || "unknown"}</Badge>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  {[
+                    ["Device ID", selectedDevice.id.slice(0, 12) + "..."],
+                    ["Fingerprint", selectedDevice.device_fingerprint?.slice(0, 16) + "..."],
+                    ["Recovery Code", selectedDevice.recovery_code],
+                    ["Platform", selectedDevice.platform],
+                    ["Language", selectedDevice.language],
+                    ["Screen", selectedDevice.screen_width && selectedDevice.screen_height ? `${selectedDevice.screen_width}×${selectedDevice.screen_height}` : "—"],
+                    ["Connection", selectedDevice.connection_type],
+                    ["IP Address", selectedDevice.ip_address],
+                    ["Registered", selectedDevice.created_at ? format(new Date(selectedDevice.created_at), "PPp") : "—"],
+                    ["Last Updated", selectedDevice.updated_at ? format(new Date(selectedDevice.updated_at), "PPp") : "—"],
+                  ].map(([label, value]) => (
+                    <div key={label}>
+                      <p className="text-muted-foreground text-xs">{label}</p>
+                      <p className="font-medium text-foreground break-all">{value || "—"}</p>
+                    </div>
+                  ))}
+                </div>
+                {selectedDevice.user_agent && (
+                  <div>
+                    <p className="text-muted-foreground text-xs mb-1">User Agent</p>
+                    <p className="text-xs text-foreground bg-muted p-2 rounded break-all">{selectedDevice.user_agent}</p>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
