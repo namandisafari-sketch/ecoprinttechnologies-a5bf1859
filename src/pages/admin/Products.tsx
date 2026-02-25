@@ -4,9 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Search, Loader2, Package } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -63,133 +60,107 @@ const AdminProducts = () => {
     setEditingProduct(null);
   };
 
-  // Show full-page wizard
   if (showWizard) {
     return <ProductWizard editingProduct={editingProduct} onClose={closeWizard} />;
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="space-y-4 md:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Products</h1>
-          <p className="text-muted-foreground">Manage your product catalog</p>
+          <h1 className="text-xl md:text-3xl font-bold text-foreground">Products</h1>
+          <p className="text-sm text-muted-foreground">Manage your product catalog</p>
         </div>
-        <Button onClick={() => setShowWizard(true)}>
+        <Button onClick={() => setShowWizard(true)} size="sm">
           <Plus className="h-4 w-4 mr-2" />
           Add Product
         </Button>
       </div>
 
       <Card>
-        <CardContent className="pt-6">
+        <CardContent className="p-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input placeholder="Search products..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
           </div>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardContent className="p-0">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : products && products.length > 0 ? (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Product</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Brand</TableHead>
-                    <TableHead className="text-right">Price</TableHead>
-                    <TableHead className="text-center">Stock</TableHead>
-                    <TableHead className="text-center">Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {products.map((product: any) => {
-                    const discount = product.original_price && product.original_price > product.price
-                      ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
-                      : 0;
-                    return (
-                      <TableRow key={product.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            {product.image_url && (
-                              <img src={product.image_url} alt={product.name} className="w-10 h-10 rounded object-cover" />
-                            )}
-                            <div>
-                              <p className="font-medium">{product.name}</p>
-                              <p className="text-xs text-muted-foreground">{product.sku || "—"}</p>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>{product.categories?.name || "—"}</TableCell>
-                        <TableCell>{product.brands?.name || "—"}</TableCell>
-                        <TableCell className="text-right">
-                          <div>
-                            <p className="font-medium">{formatPrice(Number(product.price))}</p>
-                            {product.original_price && (
-                              <div className="flex items-center justify-end gap-1">
-                                <p className="text-xs text-muted-foreground line-through">
-                                  {formatPrice(Number(product.original_price))}
-                                </p>
-                                {discount > 0 && (
-                                  <Badge variant="destructive" className="text-[10px] px-1 py-0">
-                                    -{discount}%
-                                  </Badge>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">{product.stock_quantity}</TableCell>
-                        <TableCell className="text-center">
-                          <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                            product.is_active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-                          }`}>
-                            {product.is_active ? "Active" : "Inactive"}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button variant="ghost" size="icon" onClick={() => openEdit(product)}>
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => deleteProduct.mutate(product.id)}
-                              className="text-destructive hover:text-destructive"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No products found</p>
-              <p className="text-sm text-muted-foreground">Create your first product to get started</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : products && products.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {products.map((product: any) => {
+            const discount = product.original_price && product.original_price > product.price
+              ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
+              : 0;
+            return (
+              <Card key={product.id} className="overflow-hidden">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3 mb-3">
+                    {product.image_url ? (
+                      <img src={product.image_url} alt={product.name} className="w-16 h-16 rounded-lg object-cover flex-shrink-0" />
+                    ) : (
+                      <div className="w-16 h-16 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                        <Package className="h-6 w-6 text-muted-foreground" />
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-sm truncate">{product.name}</p>
+                      <p className="text-xs text-muted-foreground">{product.sku || "No SKU"}</p>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {product.categories?.name && (
+                          <Badge variant="outline" className="text-[10px] px-1.5 py-0">{product.categories.name}</Badge>
+                        )}
+                        {product.brands?.name && (
+                          <Badge variant="outline" className="text-[10px] px-1.5 py-0">{product.brands.name}</Badge>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <p className="font-semibold text-primary">{formatPrice(Number(product.price))}</p>
+                      {product.original_price && (
+                        <div className="flex items-center gap-1">
+                          <p className="text-xs text-muted-foreground line-through">{formatPrice(Number(product.original_price))}</p>
+                          {discount > 0 && <Badge variant="destructive" className="text-[10px] px-1 py-0">-{discount}%</Badge>}
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium">Stock: {product.stock_quantity ?? 0}</p>
+                      <Badge variant={product.is_active ? "default" : "secondary"} className="text-[10px]">
+                        {product.is_active ? "Active" : "Inactive"}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-2 border-t border-border pt-3">
+                    <Button variant="outline" size="sm" onClick={() => openEdit(product)}>
+                      <Pencil className="h-3 w-3 mr-1" /> Edit
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => deleteProduct.mutate(product.id)} className="text-destructive hover:text-destructive">
+                      <Trash2 className="h-3 w-3 mr-1" /> Delete
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      ) : (
+        <Card>
+          <CardContent className="text-center py-12">
+            <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <p className="text-muted-foreground">No products found</p>
+            <p className="text-sm text-muted-foreground">Create your first product to get started</p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
