@@ -7,18 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+  Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { Loader2, Users, ShoppingCart, DollarSign, Search, Smartphone, Monitor, Tablet, Eye } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
@@ -28,20 +17,15 @@ const AdminCustomers = () => {
   const [deviceSearch, setDeviceSearch] = useState("");
   const [selectedDevice, setSelectedDevice] = useState<any>(null);
 
-  // Fetch all registered users from profiles
   const { data: profiles = [], isLoading: profilesLoading } = useQuery({
     queryKey: ["admin-all-users"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const { data, error } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
   });
 
-  // Fetch user roles
   const { data: roles = [] } = useQuery({
     queryKey: ["admin-user-roles"],
     queryFn: async () => {
@@ -51,15 +35,11 @@ const AdminCustomers = () => {
     },
   });
 
-  // Fetch order analytics per user
   const { data: orderStats = {} } = useQuery({
     queryKey: ["admin-order-stats"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("orders")
-        .select("user_id, total, status");
+      const { data, error } = await supabase.from("orders").select("user_id, total, status");
       if (error) throw error;
-
       const stats: Record<string, { orders: number; total: number; delivered: number }> = {};
       data?.forEach((order) => {
         if (!order.user_id) return;
@@ -72,14 +52,10 @@ const AdminCustomers = () => {
     },
   });
 
-  // Fetch all devices
   const { data: devices = [], isLoading: devicesLoading } = useQuery({
     queryKey: ["admin-devices"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("devices")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const { data, error } = await supabase.from("devices").select("*").order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -114,21 +90,12 @@ const AdminCustomers = () => {
 
   const filtered = profiles.filter((p: any) => {
     const q = search.toLowerCase();
-    return (
-      (p.full_name || "").toLowerCase().includes(q) ||
-      (p.phone || "").toLowerCase().includes(q) ||
-      p.user_id.toLowerCase().includes(q)
-    );
+    return (p.full_name || "").toLowerCase().includes(q) || (p.phone || "").toLowerCase().includes(q) || p.user_id.toLowerCase().includes(q);
   });
 
   const filteredDevices = devices.filter((d: any) => {
     const q = deviceSearch.toLowerCase();
-    return (
-      (d.full_name || "").toLowerCase().includes(q) ||
-      (d.device_type || "").toLowerCase().includes(q) ||
-      (d.platform || "").toLowerCase().includes(q) ||
-      (d.ip_address || "").toLowerCase().includes(q)
-    );
+    return (d.full_name || "").toLowerCase().includes(q) || (d.device_type || "").toLowerCase().includes(q) || (d.platform || "").toLowerCase().includes(q);
   });
 
   const totalUsers = profiles.length;
@@ -136,205 +103,172 @@ const AdminCustomers = () => {
   const totalRevenue = Object.values(orderStats).reduce((sum: number, s: any) => sum + s.total, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground">Users & Customers</h1>
-        <p className="text-muted-foreground">All registered users with order analytics</p>
+        <h1 className="text-xl md:text-3xl font-bold text-foreground">Users & Customers</h1>
+        <p className="text-sm text-muted-foreground">All registered users with order analytics</p>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-3 md:gap-4">
         <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-              <Users className="h-5 w-5 text-primary" />
+          <CardContent className="p-3 md:p-4 flex items-center gap-3">
+            <div className="w-9 h-9 md:w-10 md:h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Users className="h-4 w-4 md:h-5 md:w-5 text-primary" />
             </div>
-            <div>
-              <p className="text-2xl font-bold">{totalUsers}</p>
-              <p className="text-xs text-muted-foreground">Registered Users</p>
+            <div className="min-w-0">
+              <p className="text-lg md:text-2xl font-bold">{totalUsers}</p>
+              <p className="text-[10px] md:text-xs text-muted-foreground">Users</p>
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-              <Smartphone className="h-5 w-5 text-primary" />
+          <CardContent className="p-3 md:p-4 flex items-center gap-3">
+            <div className="w-9 h-9 md:w-10 md:h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Smartphone className="h-4 w-4 md:h-5 md:w-5 text-primary" />
             </div>
-            <div>
-              <p className="text-2xl font-bold">{devices.length}</p>
-              <p className="text-xs text-muted-foreground">Devices</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-              <ShoppingCart className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{totalCustomersWithOrders}</p>
-              <p className="text-xs text-muted-foreground">Buyers</p>
+            <div className="min-w-0">
+              <p className="text-lg md:text-2xl font-bold">{devices.length}</p>
+              <p className="text-[10px] md:text-xs text-muted-foreground">Devices</p>
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-              <DollarSign className="h-5 w-5 text-primary" />
+          <CardContent className="p-3 md:p-4 flex items-center gap-3">
+            <div className="w-9 h-9 md:w-10 md:h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+              <ShoppingCart className="h-4 w-4 md:h-5 md:w-5 text-primary" />
             </div>
-            <div>
-              <p className="text-2xl font-bold">{formatPrice(totalRevenue)}</p>
-              <p className="text-xs text-muted-foreground">Total Revenue</p>
+            <div className="min-w-0">
+              <p className="text-lg md:text-2xl font-bold">{totalCustomersWithOrders}</p>
+              <p className="text-[10px] md:text-xs text-muted-foreground">Buyers</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-3 md:p-4 flex items-center gap-3">
+            <div className="w-9 h-9 md:w-10 md:h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+              <DollarSign className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-lg md:text-2xl font-bold truncate">{formatPrice(totalRevenue)}</p>
+              <p className="text-[10px] md:text-xs text-muted-foreground">Revenue</p>
             </div>
           </CardContent>
         </Card>
       </div>
 
       <Tabs defaultValue="users" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="users">Registered Users</TabsTrigger>
-          <TabsTrigger value="devices">Devices ({devices.length})</TabsTrigger>
+        <TabsList className="w-full">
+          <TabsTrigger value="users" className="flex-1">Users</TabsTrigger>
+          <TabsTrigger value="devices" className="flex-1">Devices ({devices.length})</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="users" className="space-y-4">
+        <TabsContent value="users" className="space-y-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Search by name or phone..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
           </div>
-          <Card>
-            <CardHeader><CardTitle className="text-lg">All Users ({filtered.length})</CardTitle></CardHeader>
-            <CardContent className="p-0">
-              {profilesLoading ? (
-                <div className="flex items-center justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
-              ) : filtered.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>User</TableHead>
-                        <TableHead>Role</TableHead>
-                        <TableHead className="text-center">Orders</TableHead>
-                        <TableHead className="text-right">Total Spent</TableHead>
-                        <TableHead className="text-center">Delivered</TableHead>
-                        <TableHead>Joined</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filtered.map((profile: any) => {
-                        const role = getRoleForUser(profile.user_id);
-                        const stats = (orderStats as any)[profile.user_id] || { orders: 0, total: 0, delivered: 0 };
-                        return (
-                          <TableRow key={profile.id}>
-                            <TableCell>
-                              <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                                  <span className="text-sm font-medium text-primary">{(profile.full_name || "U").charAt(0).toUpperCase()}</span>
-                                </div>
-                                <div>
-                                  <p className="font-medium text-foreground">{profile.full_name || "Unnamed"}</p>
-                                  <p className="text-xs text-muted-foreground">{profile.phone || "No phone"}</p>
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell><Badge variant={getRoleBadgeVariant(role) as any} className="capitalize">{role}</Badge></TableCell>
-                            <TableCell className="text-center">{stats.orders}</TableCell>
-                            <TableCell className="text-right font-medium">{stats.total > 0 ? formatPrice(stats.total) : "—"}</TableCell>
-                            <TableCell className="text-center">{stats.delivered}</TableCell>
-                            <TableCell className="text-muted-foreground text-sm">{formatDistanceToNow(new Date(profile.created_at), { addSuffix: true })}</TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">No users found</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+
+          {profilesLoading ? (
+            <div className="flex items-center justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+          ) : filtered.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+              {filtered.map((profile: any) => {
+                const role = getRoleForUser(profile.user_id);
+                const stats = (orderStats as any)[profile.user_id] || { orders: 0, total: 0, delivered: 0 };
+                return (
+                  <Card key={profile.id}>
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-sm font-medium text-primary">{(profile.full_name || "U").charAt(0).toUpperCase()}</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-foreground truncate">{profile.full_name || "Unnamed"}</p>
+                          <p className="text-xs text-muted-foreground">{profile.phone || "No phone"}</p>
+                        </div>
+                        <Badge variant={getRoleBadgeVariant(role) as any} className="capitalize text-[10px]">{role}</Badge>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 text-center">
+                        <div className="bg-muted/50 rounded-lg p-2">
+                          <p className="text-sm font-bold">{stats.orders}</p>
+                          <p className="text-[10px] text-muted-foreground">Orders</p>
+                        </div>
+                        <div className="bg-muted/50 rounded-lg p-2">
+                          <p className="text-sm font-bold">{stats.delivered}</p>
+                          <p className="text-[10px] text-muted-foreground">Delivered</p>
+                        </div>
+                        <div className="bg-muted/50 rounded-lg p-2">
+                          <p className="text-xs font-bold truncate">{stats.total > 0 ? formatPrice(stats.total) : "—"}</p>
+                          <p className="text-[10px] text-muted-foreground">Spent</p>
+                        </div>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground mt-2">
+                        Joined {formatDistanceToNow(new Date(profile.created_at), { addSuffix: true })}
+                      </p>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">No users found</p>
+            </div>
+          )}
         </TabsContent>
 
-        <TabsContent value="devices" className="space-y-4">
+        <TabsContent value="devices" className="space-y-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search by name, device type, platform, or IP..." value={deviceSearch} onChange={(e) => setDeviceSearch(e.target.value)} className="pl-10" />
+            <Input placeholder="Search devices..." value={deviceSearch} onChange={(e) => setDeviceSearch(e.target.value)} className="pl-10" />
           </div>
-          <Card>
-            <CardHeader><CardTitle className="text-lg">All Devices ({filteredDevices.length})</CardTitle></CardHeader>
-            <CardContent className="p-0">
-              {devicesLoading ? (
-                <div className="flex items-center justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
-              ) : filteredDevices.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Platform</TableHead>
-                        <TableHead>Screen</TableHead>
-                        <TableHead>Language</TableHead>
-                        <TableHead>Connection</TableHead>
-                        <TableHead>Registered</TableHead>
-                        <TableHead className="text-right">Action</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredDevices.map((device: any) => {
-                        const DevIcon = getDeviceIcon(device.device_type);
-                        return (
-                          <TableRow key={device.id}>
-                            <TableCell>
-                              <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                                  <DevIcon className="h-4 w-4 text-primary" />
-                                </div>
-                                <div>
-                                  <p className="font-medium text-foreground">{device.full_name}</p>
-                                  <p className="text-xs text-muted-foreground font-mono">{device.id.slice(0, 8)}...</p>
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant="outline" className="capitalize">{device.device_type || "unknown"}</Badge>
-                            </TableCell>
-                            <TableCell className="text-sm text-muted-foreground">{device.platform || "—"}</TableCell>
-                            <TableCell className="text-sm text-muted-foreground">
-                              {device.screen_width && device.screen_height ? `${device.screen_width}×${device.screen_height}` : "—"}
-                            </TableCell>
-                            <TableCell className="text-sm text-muted-foreground">{device.language || "—"}</TableCell>
-                            <TableCell className="text-sm text-muted-foreground">{device.connection_type || "—"}</TableCell>
-                            <TableCell className="text-muted-foreground text-sm">
-                              {formatDistanceToNow(new Date(device.created_at), { addSuffix: true })}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <Button variant="ghost" size="sm" onClick={() => setSelectedDevice(device)}>
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <Smartphone className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">No devices registered yet</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+
+          {devicesLoading ? (
+            <div className="flex items-center justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+          ) : filteredDevices.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+              {filteredDevices.map((device: any) => {
+                const DevIcon = getDeviceIcon(device.device_type);
+                return (
+                  <Card key={device.id} className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => setSelectedDevice(device)}>
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                          <DevIcon className="h-5 w-5 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-foreground truncate">{device.full_name}</p>
+                          <p className="text-xs text-muted-foreground font-mono">{device.id.slice(0, 8)}...</p>
+                        </div>
+                        <Badge variant="outline" className="capitalize text-[10px]">{device.device_type || "unknown"}</Badge>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
+                        <div><span className="block font-medium text-foreground">{device.platform || "—"}</span>Platform</div>
+                        <div><span className="block font-medium text-foreground">{device.screen_width && device.screen_height ? `${device.screen_width}×${device.screen_height}` : "—"}</span>Screen</div>
+                        <div><span className="block font-medium text-foreground">{device.connection_type || "—"}</span>Connection</div>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground mt-2">
+                        {formatDistanceToNow(new Date(device.created_at), { addSuffix: true })}
+                      </p>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <Smartphone className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">No devices registered yet</p>
+            </div>
+          )}
         </TabsContent>
       </Tabs>
 
       {/* Device Detail Dialog */}
       <Dialog open={!!selectedDevice} onOpenChange={(open) => !open && setSelectedDevice(null)}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Device Details</DialogTitle>
           </DialogHeader>

@@ -18,11 +18,13 @@ import ChatWidget from "@/components/chat/ChatWidget";
 import WelcomeToast from "@/components/WelcomeToast";
 import { Product } from "@/components/home/ProductCard";
 import { useToast } from "@/hooks/use-toast";
+import { useNotificationPermission } from "@/hooks/useNotificationPermission";
 
 const Index = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const { toast } = useToast();
+  useNotificationPermission();
 
   const handleAddToCart = useCallback((product: Product) => {
     setCartItems((prev) => {

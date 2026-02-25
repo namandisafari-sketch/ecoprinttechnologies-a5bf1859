@@ -1,40 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Card, CardContent } from "@/components/ui/card";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+  Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Plus, Edit, Trash2, Truck } from "lucide-react";
+import { Plus, Edit, Trash2, Truck, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
-  fetchDistricts,
-  fetchSubcountiesForDistrict,
-  District,
-  Subcounty,
+  fetchDistricts, fetchSubcountiesForDistrict, District, Subcounty,
 } from "@/lib/ugandaLocations";
-import { useEffect } from "react";
 
 interface DeliveryZone {
   id: string;
@@ -52,7 +34,6 @@ const AdminDeliveryZones = () => {
   const [showDialog, setShowDialog] = useState(false);
   const [editing, setEditing] = useState<DeliveryZone | null>(null);
 
-  // Form state
   const [zoneName, setZoneName] = useState("");
   const [district, setDistrict] = useState("");
   const [subcounty, setSubcounty] = useState("");
@@ -60,7 +41,6 @@ const AdminDeliveryZones = () => {
   const [estimatedDays, setEstimatedDays] = useState("");
   const [isActive, setIsActive] = useState(true);
 
-  // Location data
   const [districts, setDistricts] = useState<District[]>([]);
   const [subcounties, setSubcounties] = useState<Subcounty[]>([]);
 
@@ -93,10 +73,7 @@ const AdminDeliveryZones = () => {
   const saveMutation = useMutation({
     mutationFn: async (zone: Partial<DeliveryZone>) => {
       if (editing) {
-        const { error } = await supabase
-          .from("delivery_zones")
-          .update(zone)
-          .eq("id", editing.id);
+        const { error } = await supabase.from("delivery_zones").update(zone).eq("id", editing.id);
         if (error) throw error;
       } else {
         const { error } = await supabase.from("delivery_zones").insert([zone as any]);
@@ -144,7 +121,6 @@ const AdminDeliveryZones = () => {
     setDeliveryFee(String(zone.delivery_fee));
     setEstimatedDays(zone.estimated_days || "");
     setIsActive(zone.is_active);
-    // Load subcounties for district
     const d = districts.find((dd) => dd.district_name === zone.district);
     if (d) {
       const subs = await fetchSubcountiesForDistrict(d.district_code);
@@ -169,161 +145,117 @@ const AdminDeliveryZones = () => {
   };
 
   const formatPrice = (price: number) =>
-    new Intl.NumberFormat("en-UG", {
-      style: "currency",
-      currency: "UGX",
-      minimumFractionDigits: 0,
-    }).format(price);
+    new Intl.NumberFormat("en-UG", { style: "currency", currency: "UGX", minimumFractionDigits: 0 }).format(price);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Truck className="h-6 w-6" /> Delivery Zones
+          <h1 className="text-xl md:text-2xl font-bold flex items-center gap-2">
+            <Truck className="h-5 w-5 md:h-6 md:w-6" /> Delivery Zones
           </h1>
-          <p className="text-muted-foreground text-sm">
-            Set delivery prices for different areas
-          </p>
+          <p className="text-sm text-muted-foreground">Set delivery prices for different areas</p>
         </div>
-        <Button onClick={() => setShowDialog(true)}>
-          <Plus className="h-4 w-4 mr-2" /> Add Zone
+        <Button size="sm" onClick={() => setShowDialog(true)}>
+          <Plus className="h-4 w-4 mr-1" /> Add
         </Button>
       </div>
 
-      <div className="bg-card rounded-xl border overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Zone Name</TableHead>
-              <TableHead>District</TableHead>
-              <TableHead>Sub-county</TableHead>
-              <TableHead>Delivery Fee</TableHead>
-              <TableHead>Est. Days</TableHead>
-              <TableHead>Active</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                  Loading...
-                </TableCell>
-              </TableRow>
-            ) : !zones?.length ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                  No delivery zones configured yet
-                </TableCell>
-              </TableRow>
-            ) : (
-              zones.map((zone) => (
-                <TableRow key={zone.id}>
-                  <TableCell className="font-medium">{zone.zone_name}</TableCell>
-                  <TableCell>{zone.district}</TableCell>
-                  <TableCell>{zone.subcounty || "All"}</TableCell>
-                  <TableCell className="font-semibold text-primary">
-                    {formatPrice(zone.delivery_fee)}
-                  </TableCell>
-                  <TableCell>{zone.estimated_days || "—"}</TableCell>
-                  <TableCell>
-                    <span className={`text-xs px-2 py-1 rounded-full ${zone.is_active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
-                      {zone.is_active ? "Active" : "Inactive"}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" onClick={() => openEdit(zone)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-destructive"
-                        onClick={() => deleteMutation.mutate(zone.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+      {isLoading ? (
+        <div className="text-center py-12 text-muted-foreground">Loading...</div>
+      ) : !zones?.length ? (
+        <div className="text-center py-12">
+          <MapPin className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+          <p className="text-muted-foreground">No delivery zones configured yet</p>
+          <Button className="mt-4" onClick={() => setShowDialog(true)}>
+            <Plus className="h-4 w-4 mr-2" /> Add First Zone
+          </Button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+          {zones.map((zone) => (
+            <Card key={zone.id}>
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <p className="font-bold text-sm">{zone.zone_name}</p>
+                    <p className="text-xs text-muted-foreground">{zone.district}{zone.subcounty ? ` • ${zone.subcounty}` : " • All areas"}</p>
+                  </div>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full ${zone.is_active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
+                    {zone.is_active ? "Active" : "Inactive"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="flex-1">
+                    <p className="text-lg font-bold text-primary">{formatPrice(zone.delivery_fee)}</p>
+                    <p className="text-[10px] text-muted-foreground">Delivery fee</p>
+                  </div>
+                  {zone.estimated_days && (
+                    <div className="text-right">
+                      <p className="text-sm font-medium">{zone.estimated_days}</p>
+                      <p className="text-[10px] text-muted-foreground">Est. delivery</p>
                     </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" className="flex-1 h-8 text-xs" onClick={() => openEdit(zone)}>
+                    <Edit className="h-3.5 w-3.5 mr-1" /> Edit
+                  </Button>
+                  <Button variant="outline" size="sm" className="h-8 text-xs text-destructive" onClick={() => deleteMutation.mutate(zone.id)}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
       <Dialog open={showDialog} onOpenChange={(o) => !o && closeDialog()}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editing ? "Edit" : "Add"} Delivery Zone</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-1">
               <Label>Zone Name *</Label>
-              <Input
-                value={zoneName}
-                onChange={(e) => setZoneName(e.target.value)}
-                placeholder="e.g. Kampala Central"
-              />
+              <Input value={zoneName} onChange={(e) => setZoneName(e.target.value)} placeholder="e.g. Kampala Central" />
             </div>
             <div className="space-y-1">
               <Label>District *</Label>
               <Select value={district} onValueChange={handleDistrictChange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select district" />
-                </SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Select district" /></SelectTrigger>
                 <SelectContent className="max-h-60">
                   {districts.map((d) => (
-                    <SelectItem key={d.district_code} value={d.district_name}>
-                      {d.district_name}
-                    </SelectItem>
+                    <SelectItem key={d.district_code} value={d.district_name}>{d.district_name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1">
-              <Label>Sub-county (optional — leave empty for whole district)</Label>
+              <Label>Sub-county (optional)</Label>
               <Select value={subcounty} onValueChange={setSubcounty}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All sub-counties" />
-                </SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="All sub-counties" /></SelectTrigger>
                 <SelectContent className="max-h-60">
                   {subcounties.map((s) => (
-                    <SelectItem key={s.subcounty_code} value={s.subcounty_name}>
-                      {s.subcounty_name}
-                    </SelectItem>
+                    <SelectItem key={s.subcounty_code} value={s.subcounty_name}>{s.subcounty_name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1">
               <Label>Delivery Fee (UGX) *</Label>
-              <Input
-                type="number"
-                value={deliveryFee}
-                onChange={(e) => setDeliveryFee(e.target.value)}
-                placeholder="e.g. 10000"
-              />
+              <Input type="number" value={deliveryFee} onChange={(e) => setDeliveryFee(e.target.value)} placeholder="e.g. 10000" />
             </div>
             <div className="space-y-1">
               <Label>Estimated Delivery Days</Label>
-              <Input
-                value={estimatedDays}
-                onChange={(e) => setEstimatedDays(e.target.value)}
-                placeholder="e.g. 1-2 days"
-              />
+              <Input value={estimatedDays} onChange={(e) => setEstimatedDays(e.target.value)} placeholder="e.g. 1-2 days" />
             </div>
             <div className="flex items-center gap-2">
               <Switch checked={isActive} onCheckedChange={setIsActive} />
               <Label>Active</Label>
             </div>
-            <Button
-              className="w-full"
-              onClick={handleSave}
-              disabled={saveMutation.isPending}
-            >
+            <Button className="w-full" onClick={handleSave} disabled={saveMutation.isPending}>
               {saveMutation.isPending ? "Saving..." : editing ? "Update Zone" : "Create Zone"}
             </Button>
           </div>
