@@ -142,28 +142,52 @@ export type Database = {
       }
       devices: {
         Row: {
+          connection_type: string | null
           created_at: string
           device_fingerprint: string
+          device_type: string | null
           full_name: string
           id: string
+          ip_address: string | null
+          language: string | null
+          platform: string | null
           recovery_code: string
+          screen_height: number | null
+          screen_width: number | null
           updated_at: string
+          user_agent: string | null
         }
         Insert: {
+          connection_type?: string | null
           created_at?: string
           device_fingerprint: string
+          device_type?: string | null
           full_name: string
           id?: string
+          ip_address?: string | null
+          language?: string | null
+          platform?: string | null
           recovery_code: string
+          screen_height?: number | null
+          screen_width?: number | null
           updated_at?: string
+          user_agent?: string | null
         }
         Update: {
+          connection_type?: string | null
           created_at?: string
           device_fingerprint?: string
+          device_type?: string | null
           full_name?: string
           id?: string
+          ip_address?: string | null
+          language?: string | null
+          platform?: string | null
           recovery_code?: string
+          screen_height?: number | null
+          screen_width?: number | null
           updated_at?: string
+          user_agent?: string | null
         }
         Relationships: []
       }
