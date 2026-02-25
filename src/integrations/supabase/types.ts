@@ -140,6 +140,42 @@ export type Database = {
         }
         Relationships: []
       }
+      delivery_zones: {
+        Row: {
+          created_at: string
+          delivery_fee: number
+          district: string
+          estimated_days: string | null
+          id: string
+          is_active: boolean
+          subcounty: string | null
+          updated_at: string
+          zone_name: string
+        }
+        Insert: {
+          created_at?: string
+          delivery_fee?: number
+          district: string
+          estimated_days?: string | null
+          id?: string
+          is_active?: boolean
+          subcounty?: string | null
+          updated_at?: string
+          zone_name: string
+        }
+        Update: {
+          created_at?: string
+          delivery_fee?: number
+          district?: string
+          estimated_days?: string | null
+          id?: string
+          is_active?: boolean
+          subcounty?: string | null
+          updated_at?: string
+          zone_name?: string
+        }
+        Relationships: []
+      }
       devices: {
         Row: {
           connection_type: string | null

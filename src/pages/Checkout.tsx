@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { ChevronLeft, Loader2, Smartphone, ShieldCheck, MapPin, User, Package, Truck, CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import BottomNavigation from "@/components/layout/BottomNavigation";
 import { CartItem } from "@/components/cart/CartDrawer";
 import UgandaLocationSelector, { LocationData } from "@/components/checkout/UgandaLocationSelector";
 import { useDeviceContext } from "@/contexts/DeviceContext";
+import { useQuery } from "@tanstack/react-query";
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -23,8 +24,6 @@ const Checkout = () => {
   
   const cartItems: CartItem[] = locationState.state?.cartItems || [];
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const deliveryFee = subtotal >= 100000 ? 0 : 10000;
-  const total = subtotal + deliveryFee;
 
   const [formData, setFormData] = useState({
     name: deviceName || "",
@@ -48,6 +47,38 @@ const Checkout = () => {
   }>({ phase: 'idle' });
   const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pollCountRef = useRef(0);
+
+  // Fetch delivery zones
+  const { data: deliveryZones } = useQuery({
+    queryKey: ["delivery-zones-active"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("delivery_zones")
+        .select("*")
+        .eq("is_active", true);
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Calculate delivery fee based on selected location
+  const deliveryFee = useMemo(() => {
+    if (!ugandaLocation.district || !deliveryZones?.length) return 0;
+    // Try to find a matching zone (subcounty-specific first, then district-wide)
+    const subcountyMatch = deliveryZones.find(
+      (z) =>
+        z.district === ugandaLocation.district &&
+        z.subcounty === ugandaLocation.subcounty
+    );
+    if (subcountyMatch) return Number(subcountyMatch.delivery_fee);
+    const districtMatch = deliveryZones.find(
+      (z) => z.district === ugandaLocation.district && !z.subcounty
+    );
+    if (districtMatch) return Number(districtMatch.delivery_fee);
+    return 0;
+  }, [ugandaLocation.district, ugandaLocation.subcounty, deliveryZones]);
+
+  const total = subtotal + deliveryFee;
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-UG", {
