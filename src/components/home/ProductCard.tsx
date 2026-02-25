@@ -36,7 +36,7 @@ const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
   };
 
   return (
-    <div className="card-product bg-card group">
+    <div className="card-product bg-card group flex flex-col h-full">
       {/* Image container */}
       <Link to={product.slug ? `/product/${product.slug}` : "#"} className="block relative aspect-square overflow-hidden bg-muted">
         <img
@@ -81,7 +81,7 @@ const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
       </Link>
 
       {/* Product info */}
-      <Link to={product.slug ? `/product/${product.slug}` : "#"} className="block p-3 md:p-4">
+      <Link to={product.slug ? `/product/${product.slug}` : "#"} className="block p-3 md:p-4 flex-1 flex flex-col">
         <span className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-wider">
           {product.brand}
         </span>
@@ -89,7 +89,7 @@ const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
           {product.name}
         </h3>
         
-        <div className="flex items-center gap-1.5 md:gap-2 mt-2 md:mt-3">
+        <div className="flex items-center gap-1.5 md:gap-2 mt-auto pt-2 md:pt-3">
           <span className="text-sm md:text-lg font-bold text-primary">
             {formatPrice(product.price)}
           </span>
