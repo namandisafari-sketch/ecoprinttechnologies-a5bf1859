@@ -45,7 +45,7 @@ const AdminSidebar = () => {
   };
 
   return (
-    <aside className="hidden lg:flex fixed lg:static inset-y-0 left-0 z-40 w-64 bg-secondary flex-col">
+    <aside className="hidden lg:flex w-64 min-h-screen bg-secondary flex-col flex-shrink-0">
       <div className="flex flex-col h-full">
         {/* Logo */}
         <div className="flex items-center gap-3 px-6 py-5 border-b border-secondary-foreground/10">

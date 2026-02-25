@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useChatPresence } from "@/hooks/useChatPresence";
+import { useNotificationSound } from "@/hooks/useNotificationSound";
 import TypingIndicator from "@/components/chat/TypingIndicator";
 import {
   MessageCircle,
@@ -48,7 +49,7 @@ const AdminChat = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { permission, requestPermission, showNotification, isSupported } = useNotifications();
-
+  const { playSound } = useNotificationSound();
   const { isRemoteOnline, isRemoteTyping, sendTyping, sendStopTyping } = useChatPresence({
     conversationId: selectedConversation?.id ?? null,
     role: "admin",
@@ -110,6 +111,7 @@ const AdminChat = () => {
         queryClient.invalidateQueries({ queryKey: ["admin-conversations"] });
         const newMsg = payload.new as { sender_type: string; content: string; conversation_id: string };
         if (newMsg.sender_type === "customer") {
+          playSound();
           showNotification("New customer message", newMsg.content.substring(0, 100), () => {
             const conv = conversations?.find((c) => c.id === newMsg.conversation_id);
             if (conv) setSelectedConversation(conv);
@@ -118,6 +120,7 @@ const AdminChat = () => {
       })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "conversations" }, () => {
         queryClient.invalidateQueries({ queryKey: ["admin-conversations"] });
+        playSound();
         showNotification("New conversation started", "A customer has started a new chat");
       })
       .subscribe();
