@@ -9,6 +9,38 @@ interface DeviceProfile {
   device_fingerprint: string;
   full_name: string;
   recovery_code: string;
+  device_type: string | null;
+  user_agent: string | null;
+  ip_address: string | null;
+  screen_width: number | null;
+  screen_height: number | null;
+  platform: string | null;
+  language: string | null;
+  connection_type: string | null;
+}
+
+function getDeviceType(): string {
+  const ua = navigator.userAgent;
+  if (/tablet|ipad|playbook|silk/i.test(ua)) return "tablet";
+  if (/mobile|iphone|ipod|android|blackberry|opera mini|iemobile/i.test(ua)) return "mobile";
+  return "desktop";
+}
+
+function getConnectionType(): string | null {
+  const nav = navigator as any;
+  return nav.connection?.effectiveType || nav.connection?.type || null;
+}
+
+function collectDeviceMetadata() {
+  return {
+    device_type: getDeviceType(),
+    user_agent: navigator.userAgent,
+    screen_width: window.screen.width,
+    screen_height: window.screen.height,
+    platform: navigator.platform || null,
+    language: navigator.language || null,
+    connection_type: getConnectionType(),
+  };
 }
 
 function generateFingerprint(): string {
@@ -67,6 +99,7 @@ export function useDevice() {
   const registerDevice = useCallback(async (fullName: string): Promise<DeviceProfile> => {
     const fingerprint = generateFingerprint();
     const recoveryCode = generateRecoveryCode();
+    const metadata = collectDeviceMetadata();
 
     const { data, error } = await supabase
       .from("devices")
@@ -74,6 +107,7 @@ export function useDevice() {
         device_fingerprint: fingerprint,
         full_name: fullName,
         recovery_code: recoveryCode,
+        ...metadata,
       })
       .select()
       .single();
@@ -89,7 +123,6 @@ export function useDevice() {
   }, []);
 
   const recoverDevice = useCallback(async (code: string): Promise<DeviceProfile> => {
-    // Find old device by recovery code
     const { data: oldDevice, error } = await supabase
       .from("devices")
       .select("*")
@@ -98,11 +131,11 @@ export function useDevice() {
 
     if (error || !oldDevice) throw new Error("Invalid recovery code");
 
-    // Update the fingerprint to this new device
     const newFingerprint = generateFingerprint();
+    const metadata = collectDeviceMetadata();
     const { data: updated, error: updateError } = await supabase
       .from("devices")
-      .update({ device_fingerprint: newFingerprint })
+      .update({ device_fingerprint: newFingerprint, ...metadata })
       .eq("id", oldDevice.id)
       .select()
       .single();
