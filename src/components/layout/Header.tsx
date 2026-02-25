@@ -58,7 +58,7 @@ const Header = ({ cartCount, onCartClick }: HeaderProps) => {
         <div className="flex items-center justify-between gap-4">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-            <img src="/logo.png" alt="Co Print Technologies" className="h-14 w-auto object-contain" />
+            <img src="/logo.png" alt="Co Print Technologies" className="h-20 w-auto object-contain" />
           </Link>
 
           {/* Search bar */}
