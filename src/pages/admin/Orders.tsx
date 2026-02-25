@@ -5,9 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import {
@@ -54,15 +51,12 @@ const AdminOrders = () => {
         .from("orders")
         .select("*")
         .order("created_at", { ascending: false });
-
       if (searchQuery) {
         query = query.or(`order_number.ilike.%${searchQuery}%,customer_name.ilike.%${searchQuery}%,customer_email.ilike.%${searchQuery}%`);
       }
-
       if (statusFilter !== "all") {
         query = query.eq("status", statusFilter as Order["status"]);
       }
-
       const { data, error } = await query;
       if (error) throw error;
       return data;
@@ -70,11 +64,7 @@ const AdminOrders = () => {
   });
 
   const showReceiptForOrder = async (order: Order) => {
-    const { data: items } = await supabase
-      .from("order_items")
-      .select("*")
-      .eq("order_id", order.id);
-
+    const { data: items } = await supabase.from("order_items").select("*").eq("order_id", order.id);
     setReceiptOrder({
       ...order,
       items: (items || []).map((item) => ({
@@ -90,22 +80,15 @@ const AdminOrders = () => {
 
   const updateOrderStatus = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      const { error } = await supabase
-        .from("orders")
-        .update({ status: status as Order["status"] })
-        .eq("id", id);
+      const { error } = await supabase.from("orders").update({ status: status as Order["status"] }).eq("id", id);
       if (error) throw error;
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
       toast({ title: "Order status updated" });
-
-      // Auto-show receipt when status changes to shipped
       if (variables.status === "shipped") {
         const order = orders?.find((o) => o.id === variables.id);
-        if (order) {
-          showReceiptForOrder({ ...order, status: "shipped" as any });
-        }
+        if (order) showReceiptForOrder({ ...order, status: "shipped" as any });
       }
     },
     onError: (error) => {
@@ -115,10 +98,7 @@ const AdminOrders = () => {
 
   const updatePaymentStatus = useMutation({
     mutationFn: async ({ id, payment_status }: { id: string; payment_status: string }) => {
-      const { error } = await supabase
-        .from("orders")
-        .update({ payment_status: payment_status as Order["payment_status"] })
-        .eq("id", id);
+      const { error } = await supabase.from("orders").update({ payment_status: payment_status as Order["payment_status"] }).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -132,33 +112,15 @@ const AdminOrders = () => {
 
   const viewOrderDetails = async (order: Order) => {
     setSelectedOrder(order);
-    const { data, error } = await supabase
-      .from("order_items")
-      .select("*")
-      .eq("order_id", order.id);
-    
-    if (!error && data) {
-      setOrderItems(data);
-    }
+    const { data, error } = await supabase.from("order_items").select("*").eq("order_id", order.id);
+    if (!error && data) setOrderItems(data);
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-UG", {
-      style: "currency",
-      currency: "UGX",
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat("en-UG", { style: "currency", currency: "UGX", minimumFractionDigits: 0 }).format(price);
 
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString("en-UG", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  const formatDate = (date: string) =>
+    new Date(date).toLocaleDateString("en-UG", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
@@ -184,164 +146,120 @@ const AdminOrders = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground">Orders</h1>
-        <p className="text-muted-foreground">Manage customer orders</p>
+        <h1 className="text-xl md:text-3xl font-bold text-foreground">Orders</h1>
+        <p className="text-sm text-muted-foreground">Manage customer orders</p>
       </div>
 
       {/* Filters */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by order number, name, or email..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-40">
-                <SelectValue placeholder="Filter status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                {statusOptions.map((status) => (
-                  <SelectItem key={status.value} value={status.value}>
-                    {status.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input placeholder="Search orders..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
+        </div>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-full sm:w-40">
+            <SelectValue placeholder="Filter status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            {statusOptions.map((s) => (
+              <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
-      {/* Orders Table */}
-      <Card>
-        <CardContent className="p-0">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : orders && orders.length > 0 ? (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Order</TableHead>
-                    <TableHead>Customer</TableHead>
-                    <TableHead className="text-right">Total</TableHead>
-                    <TableHead className="text-center">Status</TableHead>
-                    <TableHead className="text-center">Payment</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {orders.map((order) => (
-                    <TableRow key={order.id}>
-                      <TableCell>
-                        <p className="font-medium">{order.order_number}</p>
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">{order.customer_name}</p>
-                          <p className="text-xs text-muted-foreground">{order.customer_email}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right font-medium">
-                        {formatPrice(Number(order.total))}
-                      </TableCell>
-                      <TableCell>
-                        <Select
-                          value={order.status || "pending"}
-                          onValueChange={(value) => updateOrderStatus.mutate({ id: order.id, status: value })}
-                        >
-                          <SelectTrigger className="w-32">
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status || "pending")}`}>
-                              {order.status}
-                            </span>
-                          </SelectTrigger>
-                          <SelectContent>
-                            {statusOptions.map((status) => (
-                              <SelectItem key={status.value} value={status.value}>
-                                {status.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                      <TableCell>
-                        <Select
-                          value={order.payment_status || "pending"}
-                          onValueChange={(value) => updatePaymentStatus.mutate({ id: order.id, payment_status: value })}
-                        >
-                          <SelectTrigger className="w-28">
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPaymentStatusColor(order.payment_status || "pending")}`}>
-                              {order.payment_status}
-                            </span>
-                          </SelectTrigger>
-                          <SelectContent>
-                            {paymentStatusOptions.map((status) => (
-                              <SelectItem key={status.value} value={status.value}>
-                                {status.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {formatDate(order.created_at)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => showReceiptForOrder(order)}
-                            title="Print Receipt"
-                          >
-                            <Printer className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => viewOrderDetails(order)}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <ShoppingCart className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No orders found</p>
-              <p className="text-sm text-muted-foreground">
-                Orders will appear here once customers start ordering
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Orders - Cards on mobile, list on desktop */}
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : orders && orders.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
+          {orders.map((order) => (
+            <Card key={order.id} className="overflow-hidden">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <p className="font-bold text-sm">{order.order_number}</p>
+                    <p className="text-xs text-muted-foreground">{formatDate(order.created_at)}</p>
+                  </div>
+                  <p className="font-bold text-primary">{formatPrice(Number(order.total))}</p>
+                </div>
+
+                <div className="mb-3">
+                  <p className="font-medium text-sm">{order.customer_name}</p>
+                  <p className="text-xs text-muted-foreground">{order.customer_phone}</p>
+                </div>
+
+                <div className="flex flex-wrap gap-2 mb-3">
+                  <span className={`px-2 py-1 rounded-full text-[10px] font-medium ${getStatusColor(order.status || "pending")}`}>
+                    {order.status}
+                  </span>
+                  <span className={`px-2 py-1 rounded-full text-[10px] font-medium ${getPaymentStatusColor(order.payment_status || "pending")}`}>
+                    {order.payment_status}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 mb-3">
+                  <Select
+                    value={order.status || "pending"}
+                    onValueChange={(v) => updateOrderStatus.mutate({ id: order.id, status: v })}
+                  >
+                    <SelectTrigger className="h-8 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {statusOptions.map((s) => (
+                        <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select
+                    value={order.payment_status || "pending"}
+                    onValueChange={(v) => updatePaymentStatus.mutate({ id: order.id, payment_status: v })}
+                  >
+                    <SelectTrigger className="h-8 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {paymentStatusOptions.map((s) => (
+                        <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" className="flex-1 h-8 text-xs" onClick={() => viewOrderDetails(order)}>
+                    <Eye className="h-3.5 w-3.5 mr-1" /> Details
+                  </Button>
+                  <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => showReceiptForOrder(order)}>
+                    <Printer className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-12">
+          <ShoppingCart className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+          <p className="text-muted-foreground">No orders found</p>
+        </div>
+      )}
 
       {/* Order Details Dialog */}
       <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Order Details - {selectedOrder?.order_number}</DialogTitle>
           </DialogHeader>
           {selectedOrder && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <h4 className="font-medium text-sm text-muted-foreground mb-1">Customer</h4>
                   <p className="font-medium">{selectedOrder.customer_name}</p>
@@ -349,49 +267,45 @@ const AdminOrders = () => {
                   <p className="text-sm text-muted-foreground">{selectedOrder.customer_phone}</p>
                 </div>
                 <div>
-                  <h4 className="font-medium text-sm text-muted-foreground mb-1">Shipping Address</h4>
+                  <h4 className="font-medium text-sm text-muted-foreground mb-1">Shipping</h4>
                   <p className="text-sm">{selectedOrder.shipping_address}</p>
                   <p className="text-sm">{selectedOrder.city}</p>
                 </div>
               </div>
 
-              {/* Delivery Confirmation Code */}
               {(selectedOrder as any).delivery_code && (
                 <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 text-center">
-                  <h4 className="font-medium text-sm text-muted-foreground mb-1">Delivery Confirmation Code</h4>
+                  <h4 className="font-medium text-sm text-muted-foreground mb-1">Delivery Code</h4>
                   <p className="text-2xl font-mono font-bold tracking-widest text-primary">
                     {(selectedOrder as any).delivery_code}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Delivery person must verify this code with the recipient
                   </p>
                 </div>
               )}
 
               <div>
-                <h4 className="font-medium text-sm text-muted-foreground mb-2">Order Items</h4>
+                <h4 className="font-medium text-sm text-muted-foreground mb-2">Items</h4>
                 <div className="border rounded-lg divide-y">
                   {orderItems.map((item) => (
                     <div key={item.id} className="flex justify-between p-3">
                       <div>
-                        <p className="font-medium">{item.product_name}</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="font-medium text-sm">{item.product_name}</p>
+                        <p className="text-xs text-muted-foreground">
                           Qty: {item.quantity} × {formatPrice(Number(item.product_price))}
                         </p>
                       </div>
-                      <p className="font-medium">{formatPrice(Number(item.subtotal))}</p>
+                      <p className="font-medium text-sm">{formatPrice(Number(item.subtotal))}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="border-t pt-4 space-y-2">
+              <div className="border-t pt-3 space-y-1">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
                   <span>{formatPrice(Number(selectedOrder.subtotal))}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Delivery Fee</span>
+                  <span className="text-muted-foreground">Delivery</span>
                   <span>{formatPrice(Number(selectedOrder.delivery_fee))}</span>
                 </div>
                 <div className="flex justify-between font-bold text-lg">
@@ -411,12 +325,8 @@ const AdminOrders = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Receipt Modal - auto-shown on shipped */}
       {receiptOrder && (
-        <ReceiptModal
-          order={receiptOrder}
-          onClose={() => setReceiptOrder(null)}
-        />
+        <ReceiptModal order={receiptOrder} onClose={() => setReceiptOrder(null)} />
       )}
     </div>
   );
