@@ -18,20 +18,19 @@ export const addWatermark = (file: File): Promise<File> => {
         // Draw the original image
         ctx.drawImage(img, 0, 0);
 
-        // Calculate watermark size (15% of the shorter dimension)
+        // Calculate watermark size (35% of the shorter dimension to compensate for logo whitespace)
         const shortSide = Math.min(img.width, img.height);
-        const logoSize = Math.max(shortSide * 0.15, 40);
+        const logoSize = Math.max(shortSide * 0.35, 80);
         const aspectRatio = logo.width / logo.height;
         const logoW = logoSize * aspectRatio;
         const logoH = logoSize;
 
-        // Position: bottom-right with padding
-        const padding = shortSide * 0.03;
-        const x = img.width - logoW - padding;
-        const y = img.height - logoH - padding;
+        // Position: center of the image
+        const x = (img.width - logoW) / 2;
+        const y = (img.height - logoH) / 2;
 
         // Draw with transparency
-        ctx.globalAlpha = 0.4;
+        ctx.globalAlpha = 0.3;
         ctx.drawImage(logo, x, y, logoW, logoH);
         ctx.globalAlpha = 1.0;
 
