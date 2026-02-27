@@ -22,11 +22,11 @@ const ImageUpload = ({ value, onChange, label = "Product Image" }: ImageUploadPr
     if (!file) return;
 
     // Validate file type
-    const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"];
     if (!validTypes.includes(file.type)) {
       toast({
         title: "Invalid file type",
-        description: "Please upload a JPG, PNG, WebP, or GIF image",
+        description: "Please upload a JPG, PNG, WebP, GIF, or AVIF image",
         variant: "destructive",
       });
       return;
@@ -112,7 +112,7 @@ const ImageUpload = ({ value, onChange, label = "Product Image" }: ImageUploadPr
           <Input
             ref={fileInputRef}
             type="file"
-            accept="image/jpeg,image/png,image/webp,image/gif"
+            accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
             onChange={handleUpload}
             className="hidden"
           />

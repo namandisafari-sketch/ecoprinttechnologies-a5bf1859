@@ -336,9 +336,9 @@ const ProductWizard = ({ editingProduct, onClose }: ProductWizardProps) => {
 
   // ── Image upload ───────────────────────────────────────────────────
   const uploadFile = async (file: File): Promise<string | null> => {
-    const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"];
     if (!validTypes.includes(file.type)) {
-      toast({ title: "Invalid file type", description: "Use JPG, PNG, WebP, or GIF", variant: "destructive" });
+      toast({ title: "Invalid file type", description: "Use JPG, PNG, WebP, GIF, or AVIF", variant: "destructive" });
       return null;
     }
     if (file.size > 5 * 1024 * 1024) {
