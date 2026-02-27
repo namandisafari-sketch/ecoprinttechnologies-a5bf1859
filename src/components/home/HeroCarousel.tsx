@@ -8,10 +8,10 @@ interface Slide {
   id: string;
   title: string;
   subtitle: string | null;
-  cta_text: string;
-  cta_link: string;
-  bg_class: string;
-  image_url: string | null;
+  image_url: string;
+  link: string | null;
+  display_order: number | null;
+  is_active: boolean | null;
 }
 
 const fetchSlides = async (): Promise<Slide[]> => {
@@ -69,7 +69,7 @@ const HeroCarousel = () => {
         ) : (
           <div className="w-full h-full bg-secondary" />
         )}
-        <div className={`absolute inset-0 bg-gradient-to-b ${slide.bg_class}`} />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/30" />
       </div>
 
       <div className="relative px-4 py-10 md:py-16 lg:py-24">
@@ -92,13 +92,15 @@ const HeroCarousel = () => {
             {slide.subtitle}
           </p>
 
-          <Link
-            to={slide.cta_link}
-            className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2.5 md:px-8 md:py-3 rounded-lg transition-colors text-sm md:text-base"
-          >
-            {slide.cta_text}
-            <ChevronRight className="h-4 w-4" />
-          </Link>
+          {slide.link && (
+            <Link
+              to={slide.link}
+              className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2.5 md:px-8 md:py-3 rounded-lg transition-colors text-sm md:text-base"
+            >
+              Shop Now
+              <ChevronRight className="h-4 w-4" />
+            </Link>
+          )}
         </div>
       </div>
 

@@ -16,17 +16,12 @@ import BottomNavigation from "@/components/layout/BottomNavigation";
 
 interface SellerProfile {
   id: string;
-  business_name: string;
+  business_name: string | null;
   description: string | null;
-  phone: string;
-  whatsapp: string | null;
+  phone: string | null;
   location: string | null;
-  shop_number: string | null;
-  specializations: string[] | null;
-  is_verified: boolean | null;
-  rating: number | null;
-  total_reviews: number | null;
-  avatar_url: string | null;
+  status: string | null;
+  user_id: string;
 }
 
 interface SellerService {
@@ -53,13 +48,13 @@ const Technicians = () => {
       let query = supabase
         .from("seller_profiles")
         .select("*")
-        .eq("is_active", true);
+        .eq("status", "approved");
 
       if (searchQuery) {
         query = query.or(`business_name.ilike.%${searchQuery}%,location.ilike.%${searchQuery}%`);
       }
 
-      const { data, error } = await query.order("rating", { ascending: false });
+      const { data, error } = await query.order("created_at", { ascending: false });
       if (error) throw error;
       return data as SellerProfile[];
     },
@@ -104,13 +99,9 @@ const Technicians = () => {
     const formData = new FormData(e.currentTarget);
 
     const { error } = await supabase.from("service_requests").insert({
-      customer_id: user.id,
       seller_id: selectedSeller.id,
-      title: formData.get("title") as string,
       description: formData.get("description") as string,
-      device_brand: formData.get("device_brand") as string,
-      device_model: formData.get("device_model") as string,
-      budget: formData.get("budget") ? parseFloat(formData.get("budget") as string) : null,
+      service_type: formData.get("title") as string,
       customer_phone: formData.get("phone") as string,
       customer_name: formData.get("name") as string,
     });
@@ -186,18 +177,9 @@ const Technicians = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
                           <div>
-                            <h3 className="font-semibold text-sm flex items-center gap-1">
-                              {seller.business_name}
-                              {seller.is_verified && (
-                                <Badge variant="secondary" className="text-[10px] px-1 py-0">✓</Badge>
-                              )}
+                            <h3 className="font-semibold text-sm">
+                              {seller.business_name || "Unnamed Business"}
                             </h3>
-                            {seller.shop_number && (
-                              <p className="text-xs font-medium text-primary flex items-center gap-1 mt-0.5">
-                                <Store className="h-3 w-3" />
-                                Shop {seller.shop_number}
-                              </p>
-                            )}
                             {seller.location && (
                               <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                                 <MapPin className="h-3 w-3" />
@@ -205,28 +187,7 @@ const Technicians = () => {
                               </p>
                             )}
                           </div>
-                          {seller.rating && seller.rating > 0 && (
-                            <div className="flex items-center gap-0.5 text-yellow-500 shrink-0">
-                              <Star className="h-3 w-3 fill-current" />
-                              <span className="text-xs font-medium">{seller.rating}</span>
-                            </div>
-                          )}
                         </div>
-
-                        {seller.specializations && seller.specializations.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {seller.specializations.slice(0, 2).map((spec, i) => (
-                              <Badge key={i} variant="outline" className="text-[10px] px-1.5 py-0">
-                                {spec}
-                              </Badge>
-                            ))}
-                            {seller.specializations.length > 2 && (
-                              <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                                +{seller.specializations.length - 2}
-                              </Badge>
-                            )}
-                          </div>
-                        )}
 
                         <div className="flex gap-2 mt-3">
                           <Dialog>
@@ -242,8 +203,7 @@ const Technicians = () => {
                             <DialogContent className="max-w-[95vw] max-h-[80vh] overflow-y-auto rounded-xl">
                               <DialogHeader>
                                 <DialogTitle className="flex items-center gap-2 text-base">
-                                  {seller.business_name}
-                                  {seller.is_verified && <Badge variant="secondary" className="text-xs">Verified</Badge>}
+                                  {seller.business_name || "Unnamed Business"}
                                 </DialogTitle>
                               </DialogHeader>
                               <div className="space-y-4">
@@ -251,18 +211,10 @@ const Technicians = () => {
                                   <p className="text-sm text-muted-foreground">{seller.description}</p>
                                 )}
                                 <div className="flex flex-wrap gap-3 text-sm">
-                                  <a href={`tel:${seller.phone}`} className="flex items-center gap-1 text-primary">
-                                    <Phone className="h-4 w-4" />
-                                    Call
-                                  </a>
-                                  {seller.whatsapp && (
-                                    <a 
-                                      href={`https://wa.me/${seller.whatsapp.replace(/\D/g, '')}`} 
-                                      target="_blank"
-                                      className="flex items-center gap-1 text-primary"
-                                    >
-                                      <MessageSquare className="h-4 w-4" />
-                                      WhatsApp
+                                  {seller.phone && (
+                                    <a href={`tel:${seller.phone}`} className="flex items-center gap-1 text-primary">
+                                      <Phone className="h-4 w-4" />
+                                      Call
                                     </a>
                                   )}
                                 </div>

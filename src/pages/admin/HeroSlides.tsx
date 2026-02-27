@@ -19,19 +19,11 @@ interface HeroSlide {
   id: string;
   title: string;
   subtitle: string | null;
-  cta_text: string;
-  cta_link: string;
-  image_url: string | null;
-  bg_class: string;
-  display_order: number;
-  is_active: boolean;
+  link: string | null;
+  image_url: string;
+  display_order: number | null;
+  is_active: boolean | null;
 }
-
-const bgOptions = [
-  { label: "Dark", value: "from-secondary/95 via-secondary/80 to-secondary/95" },
-  { label: "Primary", value: "from-primary/90 via-primary/70 to-primary/90" },
-  { label: "Accent", value: "from-accent/90 via-accent/70 to-accent/90" },
-];
 
 const AdminHeroSlides = () => {
   const { toast } = useToast();
@@ -43,10 +35,8 @@ const AdminHeroSlides = () => {
   const [form, setForm] = useState({
     title: "",
     subtitle: "",
-    cta_text: "Shop Now",
-    cta_link: "/search",
+    link: "",
     image_url: "",
-    bg_class: bgOptions[0].value,
     display_order: 0,
     is_active: true,
   });
@@ -133,10 +123,8 @@ const AdminHeroSlides = () => {
     setForm({
       title: "",
       subtitle: "",
-      cta_text: "Shop Now",
-      cta_link: "/search",
+      link: "",
       image_url: "",
-      bg_class: bgOptions[0].value,
       display_order: slides.length + 1,
       is_active: true,
     });
@@ -148,12 +136,10 @@ const AdminHeroSlides = () => {
     setForm({
       title: slide.title,
       subtitle: slide.subtitle || "",
-      cta_text: slide.cta_text,
-      cta_link: slide.cta_link,
+      link: slide.link || "",
       image_url: slide.image_url || "",
-      bg_class: slide.bg_class,
-      display_order: slide.display_order,
-      is_active: slide.is_active,
+      display_order: slide.display_order || 0,
+      is_active: slide.is_active ?? true,
     });
     setIsDialogOpen(true);
   };
@@ -259,41 +245,9 @@ const AdminHeroSlides = () => {
               <Input value={form.subtitle} onChange={(e) => setForm((p) => ({ ...p, subtitle: e.target.value }))} />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Button Text</Label>
-                <Input value={form.cta_text} onChange={(e) => setForm((p) => ({ ...p, cta_text: e.target.value }))} />
-              </div>
-              <div className="space-y-2">
-                <Label>Button Link</Label>
-                <Input value={form.cta_link} onChange={(e) => setForm((p) => ({ ...p, cta_link: e.target.value }))} />
-              </div>
-            </div>
-
             <div className="space-y-2">
-              <Label>Background Image</Label>
-              {form.image_url && (
-                <img src={form.image_url} alt="Preview" className="w-full h-32 object-cover rounded-lg" />
-              )}
-              <Input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
-              {uploading && <p className="text-sm text-muted-foreground">Uploading...</p>}
-            </div>
-
-            <div className="space-y-2">
-              <Label>Overlay Style</Label>
-              <div className="flex gap-2">
-                {bgOptions.map((opt) => (
-                  <Button
-                    key={opt.value}
-                    type="button"
-                    size="sm"
-                    variant={form.bg_class === opt.value ? "default" : "outline"}
-                    onClick={() => setForm((p) => ({ ...p, bg_class: opt.value }))}
-                  >
-                    {opt.label}
-                  </Button>
-                ))}
-              </div>
+              <Label>Link (optional)</Label>
+              <Input value={form.link} onChange={(e) => setForm((p) => ({ ...p, link: e.target.value }))} placeholder="/search or https://..." />
             </div>
 
             <div className="space-y-2">
