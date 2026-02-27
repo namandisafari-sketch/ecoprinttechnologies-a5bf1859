@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { addWatermark } from "@/lib/watermark";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -345,9 +346,9 @@ const ProductWizard = ({ editingProduct, onClose }: ProductWizardProps) => {
       toast({ title: "File too large", description: "Max 5MB per image", variant: "destructive" });
       return null;
     }
-    const ext = file.name.split(".").pop();
-    const name = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
-    const { error } = await supabase.storage.from("product-images").upload(`products/${name}`, file);
+    const watermarkedFile = await addWatermark(file);
+    const name = `${Date.now()}-${Math.random().toString(36).substring(7)}.png`;
+    const { error } = await supabase.storage.from("product-images").upload(`products/${name}`, watermarkedFile);
     if (error) throw error;
     const { data: { publicUrl } } = supabase.storage.from("product-images").getPublicUrl(`products/${name}`);
     return publicUrl;

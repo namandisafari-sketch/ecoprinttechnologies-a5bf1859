@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { addWatermark } from "@/lib/watermark";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,11 +36,11 @@ const MultiImageUpload = ({
       return null;
     }
 
-    const fileExt = file.name.split(".").pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+    const watermarkedFile = await addWatermark(file);
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.png`;
     const filePath = `products/${fileName}`;
 
-    const { error } = await supabase.storage.from("product-images").upload(filePath, file);
+    const { error } = await supabase.storage.from("product-images").upload(filePath, watermarkedFile);
     if (error) throw error;
 
     const { data: { publicUrl } } = supabase.storage.from("product-images").getPublicUrl(filePath);
