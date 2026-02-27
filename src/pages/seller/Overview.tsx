@@ -80,8 +80,8 @@ const SellerOverview = () => {
       bgColor: "bg-green-500/10",
     },
     {
-      label: "Rating",
-      value: `${sellerProfile?.rating || 0}/5`,
+      label: "Status",
+      value: sellerProfile?.status || "pending",
       icon: Star,
       color: "text-yellow-500",
       bgColor: "bg-yellow-500/10",
@@ -168,9 +168,9 @@ const SellerOverview = () => {
                   className="flex items-center justify-between p-3 bg-muted/50 rounded-xl"
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">{request.title}</p>
+                    <p className="font-medium truncate">{request.service_type || "Service Request"}</p>
                     <p className="text-sm text-muted-foreground">
-                      {request.customer_name} • {request.device_type} {request.device_brand}
+                      {request.customer_name}
                     </p>
                   </div>
                   <Badge className={getStatusColor(request.status || "pending")}>

@@ -122,7 +122,7 @@ const SellerRequests = () => {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold">{request.title}</h3>
+                      <h3 className="font-semibold">{request.service_type || "Service Request"}</h3>
                       <Badge className={getStatusColor(request.status || "pending")}>
                         {request.status}
                       </Badge>
@@ -148,17 +148,6 @@ const SellerRequests = () => {
                   </Select>
                 </div>
 
-                {/* Device Info */}
-                {(request.device_type || request.device_brand || request.device_model) && (
-                  <div className="flex items-center gap-2 text-sm bg-muted/50 px-3 py-2 rounded-lg">
-                    <Laptop className="h-4 w-4 text-muted-foreground" />
-                    <span>
-                      {[request.device_type, request.device_brand, request.device_model]
-                        .filter(Boolean)
-                        .join(" • ")}
-                    </span>
-                  </div>
-                )}
 
                 {/* Customer & Budget */}
                 <div className="flex flex-wrap items-center gap-4 text-sm">
@@ -180,12 +169,6 @@ const SellerRequests = () => {
                     </div>
                   </div>
                   
-                  {request.budget && (
-                    <div className="ml-auto text-right">
-                      <p className="text-xs text-muted-foreground">Budget</p>
-                      <p className="font-semibold text-primary">{formatPrice(request.budget)}</p>
-                    </div>
-                  )}
                 </div>
 
                 {/* Date */}
