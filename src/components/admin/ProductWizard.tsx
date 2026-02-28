@@ -12,10 +12,13 @@ import { Switch } from "@/components/ui/switch";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import {
   ArrowLeft, ArrowRight, Check, Loader2, Upload, X, Plus, Trash2,
-  Image as ImageIcon, GripVertical, Package, Tag, Settings2, Camera,
+  Image as ImageIcon, GripVertical, Package, Tag, Settings2, Camera, ClipboardPaste,
 } from "lucide-react";
 
 // ── Types ──────────────────────────────────────────────────────────────
@@ -243,6 +246,74 @@ const ProductWizard = ({ editingProduct, onClose }: ProductWizardProps) => {
   const [specifications, setSpecifications] = useState<Specification[]>([]);
   const [variants, setVariants] = useState<Variant[]>([]);
   const [specsLoaded, setSpecsLoaded] = useState(false);
+  const [pasteDialogOpen, setPasteDialogOpen] = useState(false);
+  const [pasteText, setPasteText] = useState("");
+
+  // ── Parse pasted spec text ─────────────────────────────────────────
+  const parseSpecText = (text: string): Specification[] => {
+    const lines = text.split("\n").map(l => l.trim()).filter(l => l.length > 0);
+    const parsed: Specification[] = [];
+    
+    // Skip header line like "Tech Specs"
+    let startIdx = 0;
+    if (lines.length > 0 && /^(tech\s*)?specs?$/i.test(lines[0])) {
+      startIdx = 1;
+    }
+    
+    // Pattern: alternating key/value lines
+    let i = startIdx;
+    while (i < lines.length) {
+      const key = lines[i];
+      i++;
+      // Collect value lines until the next key (heuristic: next key is typically short and title-case)
+      const valueLines: string[] = [];
+      while (i < lines.length) {
+        const nextLine = lines[i];
+        // Check if this looks like a new key: 
+        // - Next line after it exists and looks like a value, OR
+        // - Current line is short (<60 chars) and next+1 is a potential key
+        const isLikelyKey = nextLine.length < 80 && 
+          !nextLine.match(/^\d/) && 
+          !nextLine.match(/^[\d.,]+\s*(GB|TB|MB|WHr|W|mm|in|lb|kg|MHz|MT|fps|Gbps|nits)/i) &&
+          !nextLine.includes("×") &&
+          !nextLine.startsWith("1 ") && !nextLine.startsWith("2 ") && !nextLine.startsWith("3 ") && !nextLine.startsWith("4 ") &&
+          valueLines.length > 0;
+        
+        if (isLikelyKey) break;
+        valueLines.push(nextLine);
+        i++;
+      }
+      
+      if (valueLines.length > 0) {
+        parsed.push({ spec_key: key, spec_value: valueLines.join("\n") });
+      } else if (key.includes(":")) {
+        // Fallback: "Key: Value" format on single line
+        const colonIdx = key.indexOf(":");
+        parsed.push({ 
+          spec_key: key.substring(0, colonIdx).trim(), 
+          spec_value: key.substring(colonIdx + 1).trim() 
+        });
+      }
+    }
+    
+    return parsed;
+  };
+
+  const handlePasteSpecs = () => {
+    if (!pasteText.trim()) return;
+    const parsed = parseSpecText(pasteText);
+    if (parsed.length === 0) {
+      toast({ title: "Could not parse specs", description: "Try a different format", variant: "destructive" });
+      return;
+    }
+    // Merge: skip keys that already exist
+    const existingKeys = new Set(specifications.map(s => s.spec_key.toLowerCase()));
+    const newSpecs = parsed.filter(s => !existingKeys.has(s.spec_key.toLowerCase()));
+    setSpecifications(prev => [...prev, ...newSpecs]);
+    toast({ title: `Imported ${newSpecs.length} specifications` });
+    setPasteText("");
+    setPasteDialogOpen(false);
+  };
 
   // Fetch categories & brands
   const { data: categories } = useQuery({
@@ -674,6 +745,7 @@ const ProductWizard = ({ editingProduct, onClose }: ProductWizardProps) => {
 
         {/* ── Step 1: Specifications ──────────────────────────────── */}
         {currentStep === 1 && (
+          <>
           <div className="space-y-6">
             <Card>
               <CardContent className="pt-6 space-y-4">
@@ -686,7 +758,11 @@ const ProductWizard = ({ editingProduct, onClose }: ProductWizardProps) => {
                         : "Select a category in Step 1 for suggested specs"}
                     </p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
+                    <Button variant="outline" size="sm" onClick={() => setPasteDialogOpen(true)}>
+                      <ClipboardPaste className="h-4 w-4 mr-1" />
+                      Paste Specs
+                    </Button>
                     {selectedCategory && (
                       <Button variant="outline" size="sm" onClick={loadCategorySpecs}>
                         <Settings2 className="h-4 w-4 mr-1" />
@@ -708,7 +784,7 @@ const ProductWizard = ({ editingProduct, onClose }: ProductWizardProps) => {
                   <div className="text-center py-12 text-muted-foreground">
                     <Settings2 className="h-10 w-10 mx-auto mb-3 opacity-40" />
                     <p>No specifications added yet.</p>
-                    <p className="text-sm">Click "Load Specs" or "Add Custom" to begin.</p>
+                    <p className="text-sm">Click "Load Specs", "Paste Specs", or "Add Custom" to begin.</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -753,6 +829,32 @@ const ProductWizard = ({ editingProduct, onClose }: ProductWizardProps) => {
               </CardContent>
             </Card>
           </div>
+
+          <Dialog open={pasteDialogOpen} onOpenChange={setPasteDialogOpen}>
+            <DialogContent className="sm:max-w-lg">
+              <DialogHeader>
+                <DialogTitle>Paste Specifications</DialogTitle>
+              </DialogHeader>
+              <p className="text-sm text-muted-foreground">
+                Paste the tech specs text directly from a product page. The system will automatically parse key-value pairs.
+              </p>
+              <Textarea
+                value={pasteText}
+                onChange={(e) => setPasteText(e.target.value)}
+                placeholder={`Example:\nProcessor\nIntel Core i7-13700H\n\nRAM\n16GB DDR5\n\nStorage\n512GB NVMe SSD`}
+                rows={12}
+                className="font-mono text-sm"
+              />
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setPasteDialogOpen(false)}>Cancel</Button>
+                <Button onClick={handlePasteSpecs} disabled={!pasteText.trim()}>
+                  <ClipboardPaste className="h-4 w-4 mr-1" />
+                  Import Specs
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          </>
         )}
 
         {/* ── Step 2: Pricing & Variants ──────────────────────────── */}
