@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronLeft, Heart, Bell, Package, Settings, LogOut, User, ChevronRight } from "lucide-react";
+import { ChevronLeft, Heart, Bell, Package, Settings, LogOut, User, ChevronRight, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
@@ -22,6 +22,7 @@ const Profile = () => {
     { icon: Package, label: "My Orders", path: "/track-order", description: "Track your orders" },
     { icon: Heart, label: "Wishlist", path: "/wishlist", description: "Your saved products" },
     { icon: Bell, label: "Notifications", path: "/notifications", description: "View updates & offers" },
+    { icon: Truck, label: "Delivery Portal", path: "/delivery", description: "For delivery personnel" },
   ];
 
   return (
