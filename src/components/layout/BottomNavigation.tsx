@@ -1,4 +1,4 @@
-import { Home, Search, ShoppingCart, Bell, Truck } from "lucide-react";
+import { Home, Search, ShoppingCart, Bell, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,7 +19,7 @@ const BottomNavigation = ({ cartCount, onCartClick }: BottomNavigationProps) => 
     { icon: Search, label: "Search", path: "/search" },
     { icon: ShoppingCart, label: "Cart", path: "#cart", isCart: true },
     { icon: Bell, label: "Alerts", path: "/notifications", badge: unreadCount },
-    { icon: Truck, label: "Delivery", path: "/delivery" },
+    { icon: User, label: isAdmin ? "Admin" : "Account", path: isAdmin ? "/admin" : "/profile" },
   ];
 
   return (
