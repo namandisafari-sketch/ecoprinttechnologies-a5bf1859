@@ -11,7 +11,7 @@ import ImageGallery from "@/components/product/ImageGallery";
 import ProductCard, { Product } from "@/components/home/ProductCard";
 import CartDrawer from "@/components/cart/CartDrawer";
 import ChatWidget from "@/components/chat/ChatWidget";
-import { useProduct, useRelatedProducts } from "@/hooks/useProduct";
+import { useProduct, useRelatedProducts, useProductSpecifications } from "@/hooks/useProduct";
 import { trackProductView } from "@/components/home/RecentlyViewed";
 import { useWishlist } from "@/hooks/useWishlist";
 import ProductReviews from "@/components/product/ProductReviews";
@@ -34,6 +34,7 @@ const ProductDetail = () => {
     product?.id || "",
     4
   );
+  const { data: productSpecs } = useProductSpecifications(product?.id || "");
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-UG", {
@@ -274,6 +275,31 @@ const ProductDetail = () => {
                     {product.categories?.name && (
                       <div><span className="text-muted-foreground">Category:</span> <strong>{product.categories.name}</strong></div>
                     )}
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Detailed Specifications from product_specifications table */}
+            {productSpecs && productSpecs.length > 0 && (
+              <>
+                <Separator />
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">Technical Specifications</h3>
+                  <div className="border border-border rounded-lg overflow-hidden">
+                    {productSpecs.map((spec, idx) => (
+                      <div
+                        key={spec.id}
+                        className={`flex items-start text-sm ${idx % 2 === 0 ? "bg-muted/50" : "bg-background"}`}
+                      >
+                        <span className="w-2/5 px-3 py-2.5 font-medium text-muted-foreground border-r border-border">
+                          {spec.spec_key}
+                        </span>
+                        <span className="w-3/5 px-3 py-2.5 text-foreground whitespace-pre-line">
+                          {spec.spec_value}
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </>
