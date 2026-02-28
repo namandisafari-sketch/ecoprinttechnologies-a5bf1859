@@ -20,6 +20,22 @@ export const useProduct = (slug: string) => {
   });
 };
 
+export const useProductSpecifications = (productId: string) => {
+  return useQuery({
+    queryKey: ["product-specifications", productId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("product_specifications")
+        .select("*")
+        .eq("product_id", productId)
+        .order("display_order");
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!productId,
+  });
+};
+
 export const useRelatedProducts = (categoryId: string | null, currentProductId: string, limit = 4) => {
   return useQuery({
     queryKey: ["related-products", categoryId, currentProductId],
