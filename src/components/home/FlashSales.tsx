@@ -92,8 +92,8 @@ const FlashSales = ({ onAddToCart }: FlashSalesProps) => {
       <div className="bg-muted/50 mx-4 rounded-b-xl md:rounded-b-2xl p-3 md:p-5">
         <div className="flex md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 md:gap-4 overflow-x-auto md:overflow-visible pb-1 md:pb-0 -mx-1 px-1 md:mx-0 md:px-0 scrollbar-hide">
           {displayProducts.map((product) => (
-            <div key={product.id} className="min-w-[150px] md:min-w-0 flex-shrink-0">
-              <div className="card-product bg-card group">
+            <div key={product.id} className="min-w-[140px] max-w-[160px] md:min-w-0 md:max-w-none flex-shrink-0">
+              <div className="card-product bg-card group rounded-lg overflow-hidden shadow-sm">
                 <Link to={product.slug ? `/product/${product.slug}` : "#"} className="block relative aspect-square overflow-hidden bg-muted">
                   <img
                     src={product.image}
@@ -101,33 +101,32 @@ const FlashSales = ({ onAddToCart }: FlashSalesProps) => {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   {product.originalPrice && (
-                    <span className="absolute top-2 left-2 bg-primary text-primary-foreground text-[10px] md:text-xs font-bold px-1.5 py-0.5 rounded">
+                    <span className="absolute top-1.5 left-1.5 bg-primary text-primary-foreground text-[9px] md:text-xs font-bold px-1.5 py-0.5 rounded">
                       -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
                     </span>
                   )}
                 </Link>
-                <div className="p-2.5 md:p-3">
-                  <h3 className="text-xs md:text-sm font-medium text-foreground line-clamp-2 min-h-[2rem]">
+                <div className="p-2 md:p-3">
+                  <h3 className="text-[11px] md:text-sm font-medium text-foreground line-clamp-1">
                     {product.name}
                   </h3>
-                  <p className="text-sm md:text-base font-bold text-primary mt-1">
+                  <p className="text-xs md:text-base font-bold text-primary mt-0.5">
                     UGX {product.price.toLocaleString()}
                   </p>
                   {product.originalPrice && (
-                    <p className="text-[10px] md:text-xs text-muted-foreground line-through">
+                    <p className="text-[9px] md:text-xs text-muted-foreground line-through">
                       UGX {product.originalPrice.toLocaleString()}
                     </p>
                   )}
-                  {/* Stock progress bar */}
-                  <div className="mt-2">
-                    <div className="w-full bg-border rounded-full h-1.5 md:h-2">
+                  <div className="mt-1.5">
+                    <div className="w-full bg-border rounded-full h-1 md:h-1.5">
                       <div
-                        className="bg-accent h-1.5 md:h-2 rounded-full transition-all duration-300"
+                        className="bg-accent h-1 md:h-1.5 rounded-full transition-all duration-300"
                         style={{ width: `${Math.min(100, Math.max(10, (product.stockQuantity / 50) * 100))}%` }}
                       />
                     </div>
-                    <p className="text-[9px] md:text-[10px] text-muted-foreground mt-0.5">
-                      {product.stockQuantity > 0 ? `${product.stockQuantity} items left` : "Sold out"}
+                    <p className="text-[8px] md:text-[10px] text-muted-foreground mt-0.5">
+                      {product.stockQuantity > 0 ? `${product.stockQuantity} left` : "Sold out"}
                     </p>
                   </div>
                 </div>
