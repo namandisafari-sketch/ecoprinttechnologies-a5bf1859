@@ -110,6 +110,39 @@ export type Database = {
         }
         Relationships: []
       }
+      delivery_accounts: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          is_active: boolean | null
+          phone: string
+          pin_code: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name: string
+          id?: string
+          is_active?: boolean | null
+          phone: string
+          pin_code: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          is_active?: boolean | null
+          phone?: string
+          pin_code?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       delivery_zones: {
         Row: {
           created_at: string
@@ -412,6 +445,8 @@ export type Database = {
           customer_phone: string
           delivery_code: string | null
           delivery_fee: number
+          delivery_latitude: number | null
+          delivery_longitude: number | null
           device_id: string | null
           id: string
           notes: string | null
@@ -433,6 +468,8 @@ export type Database = {
           customer_phone: string
           delivery_code?: string | null
           delivery_fee?: number
+          delivery_latitude?: number | null
+          delivery_longitude?: number | null
           device_id?: string | null
           id?: string
           notes?: string | null
@@ -454,6 +491,8 @@ export type Database = {
           customer_phone?: string
           delivery_code?: string | null
           delivery_fee?: number
+          delivery_latitude?: number | null
+          delivery_longitude?: number | null
           device_id?: string | null
           id?: string
           notes?: string | null
@@ -473,6 +512,64 @@ export type Database = {
             columns: ["device_id"]
             isOneToOne: false
             referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          device_id: string
+          id: string
+          is_verified_purchase: boolean | null
+          order_id: string
+          product_id: string
+          rating: number
+          updated_at: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          device_id: string
+          id?: string
+          is_verified_purchase?: boolean | null
+          order_id: string
+          product_id: string
+          rating: number
+          updated_at?: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          device_id?: string
+          id?: string
+          is_verified_purchase?: boolean | null
+          order_id?: string
+          product_id?: string
+          rating?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_reviews_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_reviews_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
             referencedColumns: ["id"]
           },
         ]

@@ -14,6 +14,7 @@ import ChatWidget from "@/components/chat/ChatWidget";
 import { useProduct, useRelatedProducts } from "@/hooks/useProduct";
 import { trackProductView } from "@/components/home/RecentlyViewed";
 import { useWishlist } from "@/hooks/useWishlist";
+import ProductReviews from "@/components/product/ProductReviews";
 
 interface CartItem extends Product {
   quantity: number;
@@ -362,6 +363,11 @@ const ProductDetail = () => {
             </div>
           </div>
         </div>
+
+        {/* Product Reviews */}
+        <section className="px-4 py-4">
+          <ProductReviews productId={product.id} />
+        </section>
 
         {/* Related Products */}
         {relatedDisplayProducts.length > 0 && (

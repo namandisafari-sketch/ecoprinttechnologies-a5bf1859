@@ -15,6 +15,7 @@ import {
   Bell,
   Mail,
   Truck,
+  Navigation,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -31,6 +32,7 @@ const navItems = [
   { label: "Newsletter", href: "/admin/newsletter", icon: Mail },
   { label: "Chat", href: "/admin/chat", icon: MessageCircle },
   { label: "Delivery Zones", href: "/admin/delivery-zones", icon: Truck },
+  { label: "Delivery Accounts", href: "/admin/delivery-accounts", icon: Navigation },
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
