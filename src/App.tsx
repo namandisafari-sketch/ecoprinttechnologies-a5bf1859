@@ -18,6 +18,7 @@ import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import Wishlist from "./pages/Wishlist";
 import NotificationsPage from "./pages/Notifications";
+import Delivery from "./pages/Delivery";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/Dashboard";
@@ -35,6 +36,7 @@ import AdminHeroSlides from "./pages/admin/HeroSlides";
 import AdminNotifications from "./pages/admin/Notifications";
 import AdminStoreLocation from "./pages/admin/StoreLocation";
 import AdminDeliveryZones from "./pages/admin/DeliveryZones";
+import AdminDeliveryAccounts from "./pages/admin/DeliveryAccounts";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +60,7 @@ const App = () => (
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/delivery" element={<Delivery />} />
 
             {/* Admin routes */}
             <Route
@@ -83,6 +86,7 @@ const App = () => (
               <Route path="notifications" element={<AdminNotifications />} />
               <Route path="store-location" element={<AdminStoreLocation />} />
               <Route path="delivery-zones" element={<AdminDeliveryZones />} />
+              <Route path="delivery-accounts" element={<AdminDeliveryAccounts />} />
             </Route>
 
             {/* Catch-all */}
