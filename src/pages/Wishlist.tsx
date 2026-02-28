@@ -56,7 +56,7 @@ const Wishlist = () => {
                 className="flex items-center gap-3 p-3 bg-card rounded-xl border border-border hover:border-primary/30 transition-colors"
               >
                 <img
-                  src={product.image_url || "/placeholder.svg"}
+                  src={product.image_url || (product.images && product.images.length > 0 ? product.images[0] : "/placeholder.svg")}
                   alt={product.name}
                   className="w-20 h-20 object-cover rounded-lg flex-shrink-0"
                 />

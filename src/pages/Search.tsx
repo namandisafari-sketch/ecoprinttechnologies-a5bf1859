@@ -111,7 +111,7 @@ const Search = () => {
       brand: p.brands?.name || "Unknown",
       price: Number(p.price),
       originalPrice: p.original_price ? Number(p.original_price) : undefined,
-      image: p.image_url || "/placeholder.svg",
+      image: p.image_url || (p.images && p.images.length > 0 ? p.images[0] : "/placeholder.svg"),
       category: p.categories?.name || "Uncategorized",
       inStock: (p.stock_quantity || 0) > 0,
       isNew: p.is_new || false,
