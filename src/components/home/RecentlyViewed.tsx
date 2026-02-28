@@ -23,6 +23,7 @@ export const trackProductView = (product: {
   name: string;
   price: number;
   image_url?: string | null;
+  images?: string[] | null;
   brands?: { name: string } | null;
 }) => {
   try {
@@ -34,7 +35,7 @@ export const trackProductView = (product: {
       slug: product.slug,
       name: product.name,
       price: Number(product.price),
-      image: product.image_url || "/placeholder.svg",
+      image: product.image_url || (product.images && product.images.length > 0 ? product.images[0] : "/placeholder.svg"),
       brand: product.brands?.name || "Unknown",
       viewedAt: Date.now(),
     });
