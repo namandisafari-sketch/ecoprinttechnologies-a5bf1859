@@ -2,11 +2,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { DeviceProvider } from "@/contexts/DeviceContext";
+import { useMaintenanceMode } from "@/hooks/useMaintenanceMode";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import AdminLayout from "@/components/admin/AdminLayout";
+import MaintenancePage from "@/components/MaintenancePage";
 import Index from "./pages/Index";
 import Search from "./pages/Search";
 import ProductDetail from "./pages/ProductDetail";
@@ -40,6 +42,23 @@ import AdminDeliveryAccounts from "./pages/admin/DeliveryAccounts";
 
 const queryClient = new QueryClient();
 
+// Wrapper that checks maintenance mode for public routes
+const MaintenanceGuard = ({ children }: { children: React.ReactNode }) => {
+  const { isMaintenanceMode, isLoading } = useMaintenanceMode();
+  const { isAdmin } = useAuth();
+  const location = useLocation();
+
+  // Allow admin routes, login, delivery portal even in maintenance
+  const bypassPaths = ["/admin", "/login", "/signup", "/delivery"];
+  const isBypassed = bypassPaths.some(p => location.pathname.startsWith(p));
+
+  if (isLoading) return null;
+  if (isMaintenanceMode && !isAdmin && !isBypassed) {
+    return <MaintenancePage />;
+  }
+  return <>{children}</>;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -48,6 +67,7 @@ const App = () => (
         <Sonner />
         <DeviceProvider>
         <BrowserRouter>
+          <MaintenanceGuard>
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<Index />} />
@@ -92,6 +112,7 @@ const App = () => (
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </MaintenanceGuard>
         </BrowserRouter>
         </DeviceProvider>
       </TooltipProvider>

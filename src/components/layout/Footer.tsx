@@ -84,6 +84,16 @@ const Footer = () => {
             <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
           </div>
         </div>
+        <div className="border-t border-secondary-foreground/10 mt-4 pt-4 text-center">
+          <a
+            href="https://www.kabejjasystems.store"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-secondary-foreground/40 hover:text-primary transition-colors"
+          >
+            Powered by Kabejja Systems
+          </a>
+        </div>
       </div>
     </footer>
   );
