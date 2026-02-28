@@ -1128,8 +1128,8 @@ const ProductWizard = ({ editingProduct, onClose }: ProductWizardProps) => {
               <Card className="sticky top-32">
                 <CardContent className="pt-6 space-y-3">
                   <h2 className="font-semibold text-foreground">Product Preview</h2>
-                  {formData.image_url ? (
-                    <img src={formData.image_url} alt="Preview" className="w-full rounded-lg aspect-square object-cover" />
+                  {(formData.image_url || formData.images.length > 0) ? (
+                    <img src={formData.image_url || formData.images[0]} alt="Preview" className="w-full rounded-lg aspect-square object-cover" />
                   ) : (
                     <div className="w-full aspect-square rounded-lg bg-muted flex items-center justify-center">
                       <ImageIcon className="h-12 w-12 text-muted-foreground/30" />

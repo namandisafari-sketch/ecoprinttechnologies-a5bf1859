@@ -100,8 +100,8 @@ const AdminProducts = () => {
               <Card key={product.id} className="overflow-hidden">
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3 mb-3">
-                    {product.image_url ? (
-                      <img src={product.image_url} alt={product.name} className="w-16 h-16 rounded-lg object-cover flex-shrink-0" />
+                    {(product.image_url || (product.images && product.images.length > 0)) ? (
+                      <img src={product.image_url || product.images[0]} alt={product.name} className="w-16 h-16 rounded-lg object-cover flex-shrink-0" />
                     ) : (
                       <div className="w-16 h-16 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
                         <Package className="h-6 w-6 text-muted-foreground" />
