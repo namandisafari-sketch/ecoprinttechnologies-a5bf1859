@@ -16,6 +16,7 @@ import StoreMapSection from "@/components/home/StoreMapSection";
 import CartDrawer, { CartItem } from "@/components/cart/CartDrawer";
 import ChatWidget from "@/components/chat/ChatWidget";
 import WelcomeToast from "@/components/WelcomeToast";
+import KabejjaAdCard from "@/components/KabejjaAdCard";
 import { Product } from "@/components/home/ProductCard";
 import { useToast } from "@/hooks/use-toast";
 import { useNotificationPermission } from "@/hooks/useNotificationPermission";
@@ -95,6 +96,7 @@ const Index = () => {
           <PromoSection />
           <BrandsSection />
           <RecentlyViewed />
+          <KabejjaAdCard />
           <NewsletterSection />
           <StoreMapSection />
         </div>

@@ -100,6 +100,38 @@ async function downloadImage(url: string): Promise<{ blob: Blob; name: string } 
 const AdminSettings = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [loadingMaintenance, setLoadingMaintenance] = useState(true);
+
+  // Load maintenance mode state
+  useState(() => {
+    supabase
+      .from("store_settings")
+      .select("value")
+      .eq("key", "maintenance_mode")
+      .maybeSingle()
+      .then(({ data }) => {
+        setMaintenanceMode(data?.value === true);
+        setLoadingMaintenance(false);
+      });
+  });
+
+  const toggleMaintenanceMode = async (enabled: boolean) => {
+    setMaintenanceMode(enabled);
+    const { data: existing } = await supabase
+      .from("store_settings")
+      .select("id")
+      .eq("key", "maintenance_mode")
+      .maybeSingle();
+
+    if (existing) {
+      await supabase.from("store_settings").update({ value: enabled, updated_at: new Date().toISOString() }).eq("key", "maintenance_mode");
+    } else {
+      await supabase.from("store_settings").insert({ key: "maintenance_mode", value: enabled });
+    }
+    toast.success(enabled ? "Maintenance mode enabled" : "Maintenance mode disabled");
+  };
+
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -254,10 +286,14 @@ const AdminSettings = () => {
             <div className="space-y-0.5">
               <Label>Maintenance Mode</Label>
               <p className="text-sm text-muted-foreground">
-                Temporarily disable the storefront
+                Temporarily disable the storefront for customers
               </p>
             </div>
-            <Switch />
+            <Switch
+              checked={maintenanceMode}
+              onCheckedChange={toggleMaintenanceMode}
+              disabled={loadingMaintenance}
+            />
           </div>
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">

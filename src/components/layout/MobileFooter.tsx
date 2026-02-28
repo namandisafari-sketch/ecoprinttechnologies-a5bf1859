@@ -56,10 +56,18 @@ const MobileFooter = () => {
         </div>
 
         {/* Copyright */}
-        <div className="text-center">
+        <div className="text-center space-y-2">
           <p className="text-xs text-secondary-foreground/50">
             © 2025 Eco Print Technologies Ltd. All rights reserved.
           </p>
+          <a
+            href="https://www.kabejjasystems.store"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-secondary-foreground/40 hover:text-primary transition-colors inline-block"
+          >
+            Powered by Kabejja Systems
+          </a>
         </div>
       </div>
     </footer>
