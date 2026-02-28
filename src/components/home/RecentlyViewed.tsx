@@ -80,9 +80,10 @@ const RecentlyViewed = () => {
             <div className="bg-card rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
               <div className="aspect-square bg-muted overflow-hidden">
                 <img
-                  src={item.image}
+                  src={item.image && item.image !== "/placeholder.svg" ? item.image : "/placeholder.svg"}
                   alt={item.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  onError={(e) => { e.currentTarget.src = "/placeholder.svg"; }}
                 />
               </div>
               <div className="p-2.5 md:p-3">
