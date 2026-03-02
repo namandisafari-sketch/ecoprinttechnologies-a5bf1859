@@ -30,7 +30,7 @@ const FeaturedProducts = ({ onAddToCart }: FeaturedProductsProps) => {
   }, [products]);
 
   return (
-    <section className="py-6 md:py-10 px-4">
+    <section className="py-6 md:py-10 px-4 max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-4 md:mb-6">
         <h2 className="text-base md:text-xl lg:text-2xl font-bold text-foreground">
           Featured Laptops
@@ -42,7 +42,7 @@ const FeaturedProducts = ({ onAddToCart }: FeaturedProductsProps) => {
       </div>
 
       {isLoading ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5 lg:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
           {[...Array(8)].map((_, i) => (
             <div key={i} className="space-y-2">
               <Skeleton className="aspect-square rounded-xl" />
@@ -52,7 +52,7 @@ const FeaturedProducts = ({ onAddToCart }: FeaturedProductsProps) => {
           ))}
         </div>
       ) : displayProducts.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5 lg:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
           {displayProducts.map((product) => (
             <ProductCard
               key={product.id}
