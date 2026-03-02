@@ -60,7 +60,7 @@ const FlashSales = ({ onAddToCart }: FlashSalesProps) => {
   const pad = (n: number) => n.toString().padStart(2, "0");
 
   return (
-    <section className="py-4 md:py-8">
+    <section className="py-4 md:py-8 max-w-7xl mx-auto">
       {/* Flash sale header */}
       <div className="bg-primary mx-4 rounded-t-xl md:rounded-t-2xl px-4 py-3 md:px-6 md:py-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -90,7 +90,7 @@ const FlashSales = ({ onAddToCart }: FlashSalesProps) => {
 
       {/* Products - horizontal scroll on mobile, grid on desktop */}
       <div className="bg-muted/50 mx-4 rounded-b-xl md:rounded-b-2xl p-3 md:p-5">
-        <div className="flex md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 md:gap-4 overflow-x-auto md:overflow-visible pb-1 md:pb-0 -mx-1 px-1 md:mx-0 md:px-0 scrollbar-hide">
+        <div className="flex md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 overflow-x-auto md:overflow-visible pb-1 md:pb-0 -mx-1 px-1 md:mx-0 md:px-0 scrollbar-hide">
           {displayProducts.map((product) => (
             <div key={product.id} className="min-w-[140px] max-w-[160px] md:min-w-0 md:max-w-none flex-shrink-0">
               <div className="card-product bg-card group rounded-lg overflow-hidden shadow-sm">
