@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const PromoSection = () => {
   return (
-    <section className="py-6 md:py-10 px-4">
+    <section className="py-6 md:py-10 px-4 max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row gap-3 md:gap-5">
         {/* Main promo */}
         <Link to="/search?q=Sale" className="block md:flex-1">

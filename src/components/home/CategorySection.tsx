@@ -12,7 +12,7 @@ const CategorySection = () => {
 
   if (isLoading) {
     return (
-      <section className="py-6 md:py-10 px-4">
+      <section className="py-6 md:py-10 px-4 max-w-7xl mx-auto">
         <h2 className="text-base md:text-xl lg:text-2xl font-bold text-foreground mb-4 md:mb-6">Shop by Category</h2>
         <div className="flex md:grid md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4 overflow-x-auto md:overflow-visible pb-2 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
           {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -29,7 +29,7 @@ const CategorySection = () => {
   if (!categories || categories.length === 0) return null;
 
   return (
-    <section className="py-6 md:py-10 px-4">
+    <section className="py-6 md:py-10 px-4 max-w-7xl mx-auto">
       <h2 className="text-base md:text-xl lg:text-2xl font-bold text-foreground mb-4 md:mb-6">
         Shop by Category
       </h2>

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const DealBanners = () => {
   return (
-    <section className="py-4 md:py-6 px-4">
+    <section className="py-4 md:py-6 px-4 max-w-7xl mx-auto">
       <div className="flex md:grid md:grid-cols-3 gap-3 md:gap-4 overflow-x-auto md:overflow-visible pb-2 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
         {/* Deal 1 */}
         <Link to="/search?q=Sale" className="flex-shrink-0 w-[200px] md:w-auto">
