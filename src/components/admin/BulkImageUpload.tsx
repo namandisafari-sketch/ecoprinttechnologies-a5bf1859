@@ -121,6 +121,7 @@ const BulkImageUpload = ({ onClose }: BulkImageUploadProps) => {
   const [progress, setProgress] = useState(0);
   const [products, setProducts] = useState<ProductInfo[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const folderInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -302,14 +303,23 @@ const BulkImageUpload = ({ onClose }: BulkImageUploadProps) => {
       {matches.length === 0 ? (
         <Card
           className="border-2 border-dashed cursor-pointer hover:border-primary/50 transition-colors"
-          onClick={() => fileInputRef.current?.click()}
+          onClick={() => folderInputRef.current?.click()}
         >
-          <CardContent className="flex flex-col items-center justify-center py-12 gap-3">
+          <CardContent className="flex flex-col items-center justify-center py-10 gap-3">
             <Upload className="h-10 w-10 text-muted-foreground" />
             <p className="text-muted-foreground font-medium">Click to select a folder of product images</p>
             <p className="text-xs text-muted-foreground">
               Supports: Product_Name_1.png, dell xps (2).jpg, Name-Here 3.png
             </p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-2"
+              onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
+            >
+              <ImagePlus className="h-4 w-4 mr-2" />
+              Or select individual files
+            </Button>
           </CardContent>
         </Card>
       ) : (
@@ -397,6 +407,14 @@ const BulkImageUpload = ({ onClose }: BulkImageUploadProps) => {
         multiple
         className="hidden"
         onChange={handleFilesSelected}
+      />
+      <input
+        ref={folderInputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        className="hidden"
+        onChange={handleFilesSelected}
         {...({ webkitdirectory: "", directory: "" } as any)}
       />
 
@@ -409,8 +427,13 @@ const BulkImageUpload = ({ onClose }: BulkImageUploadProps) => {
           </Button>
         )}
         {matches.length > 0 && !isProcessing && (
+          <Button variant="outline" onClick={() => { setMatches([]); folderInputRef.current?.click(); }}>
+            Select different folder
+          </Button>
+        )}
+        {matches.length > 0 && !isProcessing && (
           <Button variant="outline" onClick={() => { setMatches([]); fileInputRef.current?.click(); }}>
-            Select different files
+            Select files
           </Button>
         )}
       </div>
