@@ -117,6 +117,19 @@ export function useDevice() {
       } else {
         localStorage.setItem(DEVICE_KEY, data.id);
         setDevice(data as DeviceProfile);
+
+        // Refresh metadata (IP, brand, model, etc.) on each visit
+        collectDeviceMetadata().then((metadata) => {
+          supabase
+            .from("devices")
+            .update(metadata)
+            .eq("id", data.id)
+            .select()
+            .single()
+            .then(({ data: updated }) => {
+              if (updated) setDevice(updated as DeviceProfile);
+            });
+        });
       }
     } catch {
       setNeedsRegistration(true);
