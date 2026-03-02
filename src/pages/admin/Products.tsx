@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Search, Loader2, Package } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Loader2, Package, ImagePlus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import ProductWizard from "@/components/admin/ProductWizard";
+import BulkImageUpload from "@/components/admin/BulkImageUpload";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Product = Tables<"products">;
@@ -15,6 +16,7 @@ type Product = Tables<"products">;
 const AdminProducts = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showWizard, setShowWizard] = useState(false);
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -64,6 +66,14 @@ const AdminProducts = () => {
     return <ProductWizard editingProduct={editingProduct} onClose={closeWizard} />;
   }
 
+  if (showBulkUpload) {
+    return (
+      <div className="max-w-2xl mx-auto">
+        <BulkImageUpload onClose={() => setShowBulkUpload(false)} />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4 md:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -71,10 +81,16 @@ const AdminProducts = () => {
           <h1 className="text-xl md:text-3xl font-bold text-foreground">Products</h1>
           <p className="text-sm text-muted-foreground">Manage your product catalog</p>
         </div>
-        <Button onClick={() => setShowWizard(true)} size="sm">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Product
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => setShowBulkUpload(true)}>
+            <ImagePlus className="h-4 w-4 mr-2" />
+            Bulk Images
+          </Button>
+          <Button onClick={() => setShowWizard(true)} size="sm">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Product
+          </Button>
+        </div>
       </div>
 
       <Card>
