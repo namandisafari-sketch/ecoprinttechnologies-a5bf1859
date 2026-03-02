@@ -34,8 +34,8 @@ interface ProductMatch {
 function parseFilename(filename: string): { productName: string; imageIndex: number } {
   // Remove extension
   const nameWithoutExt = filename.replace(/\.[^.]+$/, "");
-  // Match trailing _N or (N) pattern for image index
-  const indexMatch = nameWithoutExt.match(/[_\s]*[\(_]?(\d+)[\)]?$/);
+  // Match trailing _N, (N), -N, or space+N pattern for image index
+  const indexMatch = nameWithoutExt.match(/[\s_-]*[\(_-]?(\d+)[\)]?$/);
   let imageIndex = 1;
   let baseName = nameWithoutExt;
 
@@ -44,8 +44,10 @@ function parseFilename(filename: string): { productName: string; imageIndex: num
     baseName = nameWithoutExt.slice(0, indexMatch.index);
   }
 
-  // Replace underscores with spaces for matching
-  const productName = baseName.replace(/_/g, " ").trim();
+  // Remove common non-product suffixes like "hero"
+  let cleaned = baseName.replace(/[-_\s]*(hero|thumb|main|banner|cover)[-_\s]*/gi, " ");
+  // Replace underscores and hyphens with spaces for matching
+  const productName = cleaned.replace(/[_-]/g, " ").replace(/\s+/g, " ").trim();
   return { productName, imageIndex };
 }
 
