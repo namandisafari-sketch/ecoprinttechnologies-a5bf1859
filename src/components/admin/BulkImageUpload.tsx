@@ -13,29 +13,52 @@ import {
   AlertCircle,
   ImagePlus,
   SkipForward,
+  ChevronDown,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
+
+interface ProductInfo {
+  id: string;
+  name: string;
+  image_url: string | null;
+  images: string[] | null;
+}
 
 interface ProductMatch {
   file: File;
+  preview: string;
   productName: string;
   imageIndex: number;
   productId: string | null;
+  matchedProduct: ProductInfo | null;
   status: "pending" | "uploading" | "done" | "skipped" | "error";
   message?: string;
 }
 
 /**
- * Parse a filename like "Dell_Latitude_7390_i7_8th_Gen_8GB_1.png"
- * into { productName: "Dell Latitude 7390 i7 8th Gen 8GB", imageIndex: 1 }
+ * Parse filenames like:
+ * - "Dell_Latitude_7390_i7_8th_Gen_8GB_1.png"
+ * - "dell xps (1).png"
+ * - "dell xps 4.png"
+ * - "dell xps.png" (no index → defaults to 1)
+ * - "lenovo-thinkpad-x1-yoga-3rd-gen-hero 1.jpg"
+ * - "Thinkpad-X1-YOGA Gen5 2.jpg"
  */
 function parseFilename(filename: string): { productName: string; imageIndex: number } {
-  // Remove extension
   const nameWithoutExt = filename.replace(/\.[^.]+$/, "");
-  // Match trailing _N, (N), -N, or space+N pattern for image index
-  const indexMatch = nameWithoutExt.match(/[\s_-]*[\(_-]?(\d+)[\)]?$/);
+
+  // Try matching trailing index patterns: (N), _N, -N, space+N
+  const indexMatch = nameWithoutExt.match(/[\s_-]*\((\d+)\)\s*$/)
+    || nameWithoutExt.match(/[\s_-]+(\d+)\s*$/);
+
   let imageIndex = 1;
   let baseName = nameWithoutExt;
 
@@ -44,33 +67,44 @@ function parseFilename(filename: string): { productName: string; imageIndex: num
     baseName = nameWithoutExt.slice(0, indexMatch.index);
   }
 
-  // Remove common non-product suffixes like "hero"
+  // Remove common non-product suffixes
   let cleaned = baseName.replace(/[-_\s]*(hero|thumb|main|banner|cover)[-_\s]*/gi, " ");
-  // Replace underscores and hyphens with spaces for matching
   const productName = cleaned.replace(/[_-]/g, " ").replace(/\s+/g, " ").trim();
   return { productName, imageIndex };
 }
 
 /**
- * Fuzzy match: check if product name contains all significant words from parsed name
+ * Fuzzy match: finds best product where all significant parsed words appear in product name.
+ * Uses a lower threshold (0.5) and also tries substring matching for short names.
  */
 function matchProduct(
   parsedName: string,
-  products: { id: string; name: string; image_url: string | null; images: string[] | null }[]
-): { id: string; name: string; image_url: string | null; images: string[] | null } | null {
+  products: ProductInfo[]
+): ProductInfo | null {
   const parsedWords = parsedName.toLowerCase().split(/\s+/).filter(w => w.length > 1);
-  
-  let bestMatch: typeof products[0] | null = null;
+  if (parsedWords.length === 0) return null;
+
+  let bestMatch: ProductInfo | null = null;
   let bestScore = 0;
 
   for (const product of products) {
     const productLower = product.name.toLowerCase();
     const matchedWords = parsedWords.filter(w => productLower.includes(w));
     const score = matchedWords.length / parsedWords.length;
-    
-    if (score > bestScore && score >= 0.7) {
+
+    if (score > bestScore && score >= 0.5) {
       bestScore = score;
       bestMatch = product;
+    }
+  }
+
+  // Fallback: if parsed name is short (1-2 words), try if product name contains the full parsed string
+  if (!bestMatch) {
+    const parsedLower = parsedName.toLowerCase();
+    for (const product of products) {
+      if (product.name.toLowerCase().includes(parsedLower)) {
+        return product;
+      }
     }
   }
 
@@ -85,7 +119,7 @@ const BulkImageUpload = ({ onClose }: BulkImageUploadProps) => {
   const [matches, setMatches] = useState<ProductMatch[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<ProductInfo[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -94,7 +128,6 @@ const BulkImageUpload = ({ onClose }: BulkImageUploadProps) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    // Fetch all products for matching
     const { data: allProducts } = await supabase
       .from("products")
       .select("id, name, image_url, images")
@@ -110,12 +143,10 @@ const BulkImageUpload = ({ onClose }: BulkImageUploadProps) => {
     const parsed: ProductMatch[] = Array.from(files).map((file) => {
       const { productName, imageIndex } = parseFilename(file.name);
       const matched = matchProduct(productName, allProducts);
+      const preview = URL.createObjectURL(file);
 
-      // Check if this image was already uploaded (by checking existing URLs contain a similar name pattern)
       let alreadyUploaded = false;
       if (matched) {
-        const existingUrls = [matched.image_url, ...(matched.images || [])].filter(Boolean) as string[];
-        // Simple check: if the product already has enough images covering this index
         if (imageIndex === 1 && matched.image_url) {
           alreadyUploaded = true;
         } else if (imageIndex > 1 && (matched.images || []).length >= imageIndex - 1) {
@@ -125,25 +156,48 @@ const BulkImageUpload = ({ onClose }: BulkImageUploadProps) => {
 
       return {
         file,
+        preview,
         productName,
         imageIndex,
         productId: matched?.id || null,
+        matchedProduct: matched || null,
         status: alreadyUploaded ? "skipped" : matched ? "pending" : "error",
         message: alreadyUploaded
           ? `Already has image #${imageIndex}`
           : matched
           ? `→ ${matched.name}`
           : `No matching product found`,
-      };
+      } as ProductMatch;
     });
 
-    // Sort: pending first, then skipped, then errors
     parsed.sort((a, b) => {
       const order = { pending: 0, uploading: 1, done: 2, skipped: 3, error: 4 };
       return order[a.status] - order[b.status];
     });
 
     setMatches(parsed);
+  };
+
+  const reassignProduct = (index: number, product: ProductInfo) => {
+    setMatches((prev) =>
+      prev.map((m, i) => {
+        if (i !== index) return m;
+        // Check if already uploaded for this product
+        let alreadyUploaded = false;
+        if (m.imageIndex === 1 && product.image_url) {
+          alreadyUploaded = true;
+        } else if (m.imageIndex > 1 && (product.images || []).length >= m.imageIndex - 1) {
+          alreadyUploaded = true;
+        }
+        return {
+          ...m,
+          productId: product.id,
+          matchedProduct: product,
+          status: alreadyUploaded ? "skipped" : "pending",
+          message: alreadyUploaded ? `Already has image #${m.imageIndex}` : `→ ${product.name}`,
+        };
+      })
+    );
   };
 
   const startUpload = async () => {
@@ -155,8 +209,6 @@ const BulkImageUpload = ({ onClose }: BulkImageUploadProps) => {
 
     setIsProcessing(true);
     let completed = 0;
-
-    // Group by product for batch updates
     const productUpdates: Record<string, { mainImage?: string; galleryImages: string[] }> = {};
 
     for (const match of toUpload) {
@@ -178,7 +230,6 @@ const BulkImageUpload = ({ onClose }: BulkImageUploadProps) => {
           .from("product-images")
           .getPublicUrl(filePath);
 
-        // Queue the update
         if (!productUpdates[match.productId!]) {
           productUpdates[match.productId!] = { galleryImages: [] };
         }
@@ -206,7 +257,6 @@ const BulkImageUpload = ({ onClose }: BulkImageUploadProps) => {
       setProgress(Math.round((completed / toUpload.length) * 100));
     }
 
-    // Now batch-update products in the database
     for (const [productId, updates] of Object.entries(productUpdates)) {
       const existing = products.find((p) => p.id === productId);
       const existingImages = (existing?.images || []) as string[];
@@ -226,8 +276,6 @@ const BulkImageUpload = ({ onClose }: BulkImageUploadProps) => {
 
     queryClient.invalidateQueries({ queryKey: ["admin-products"] });
     setIsProcessing(false);
-
-    const doneCount = matches.filter((m) => m.status === "done").length + toUpload.filter(m => m.status !== "error").length;
     toast({ title: `Bulk upload complete`, description: `${completed} images processed` });
   };
 
@@ -252,7 +300,7 @@ const BulkImageUpload = ({ onClose }: BulkImageUploadProps) => {
         <div>
           <h2 className="text-lg font-bold">Bulk Image Upload</h2>
           <p className="text-sm text-muted-foreground">
-            Select images named like <code className="bg-muted px-1 rounded text-xs">Dell_Latitude_7390_i7_8th_Gen_8GB_1.png</code>
+            Select images named like <code className="bg-muted px-1 rounded text-xs">Dell XPS (1).png</code> or <code className="bg-muted px-1 rounded text-xs">Product_Name_1.png</code>
           </p>
         </div>
         <Button variant="ghost" size="icon" onClick={onClose}>
@@ -267,9 +315,9 @@ const BulkImageUpload = ({ onClose }: BulkImageUploadProps) => {
         >
           <CardContent className="flex flex-col items-center justify-center py-12 gap-3">
             <Upload className="h-10 w-10 text-muted-foreground" />
-            <p className="text-muted-foreground font-medium">Click to select product images</p>
+            <p className="text-muted-foreground font-medium">Click to select a folder of product images</p>
             <p className="text-xs text-muted-foreground">
-              Name format: ProductName_ImageNumber.png (e.g. Dell_Latitude_5440_i5_13th_Gen_16GB_1.png)
+              Supports: Product_Name_1.png, dell xps (2).jpg, Name-Here 3.png
             </p>
           </CardContent>
         </Card>
@@ -280,7 +328,7 @@ const BulkImageUpload = ({ onClose }: BulkImageUploadProps) => {
               <CardTitle className="text-base">
                 {matches.length} images detected
               </CardTitle>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 {pendingCount > 0 && <Badge>{pendingCount} ready</Badge>}
                 {skippedCount > 0 && <Badge variant="secondary">{skippedCount} skipped</Badge>}
                 {doneCount > 0 && <Badge variant="outline" className="text-green-600">{doneCount} done</Badge>}
@@ -290,17 +338,59 @@ const BulkImageUpload = ({ onClose }: BulkImageUploadProps) => {
             {isProcessing && <Progress value={progress} className="mt-2" />}
           </CardHeader>
           <CardContent>
-            <ScrollArea className="h-[300px]">
-              <div className="space-y-1.5">
+            <ScrollArea className="h-[400px]">
+              <div className="space-y-2">
                 {matches.map((match, i) => (
                   <div
                     key={i}
-                    className="flex items-center gap-2 text-sm py-1.5 px-2 rounded hover:bg-muted/50"
+                    className="flex items-center gap-3 text-sm p-2 rounded-lg border border-border hover:bg-muted/50"
                   >
-                    {statusIcon(match.status)}
-                    <span className="font-mono text-xs truncate max-w-[180px]">{match.file.name}</span>
-                    <span className="text-muted-foreground text-xs truncate flex-1">{match.message}</span>
-                    <Badge variant="outline" className="text-[10px] shrink-0">#{match.imageIndex}</Badge>
+                    {/* Image preview */}
+                    <img
+                      src={match.preview}
+                      alt={match.file.name}
+                      className="w-12 h-12 rounded object-cover flex-shrink-0 border border-border"
+                    />
+
+                    {/* File info */}
+                    <div className="min-w-0 flex-1">
+                      <p className="font-mono text-xs truncate">{match.file.name}</p>
+
+                      {/* Product assignment row */}
+                      <div className="flex items-center gap-1.5 mt-1">
+                        {statusIcon(match.status)}
+
+                        {match.matchedProduct ? (
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            {match.matchedProduct.image_url && (
+                              <img
+                                src={match.matchedProduct.image_url}
+                                alt=""
+                                className="w-6 h-6 rounded object-cover flex-shrink-0"
+                              />
+                            )}
+                            <span className="text-xs truncate text-muted-foreground">
+                              {match.matchedProduct.name}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-destructive">No match</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Image index badge */}
+                    <Badge variant="outline" className="text-[10px] shrink-0">
+                      #{match.imageIndex}
+                    </Badge>
+
+                    {/* Reassign button */}
+                    {!isProcessing && match.status !== "done" && (
+                      <ProductSelector
+                        products={products}
+                        onSelect={(p) => reassignProduct(i, p)}
+                      />
+                    )}
                   </div>
                 ))}
               </div>
@@ -336,5 +426,65 @@ const BulkImageUpload = ({ onClose }: BulkImageUploadProps) => {
     </div>
   );
 };
+
+/** Inline product selector popover with search */
+function ProductSelector({
+  products,
+  onSelect,
+}: {
+  products: ProductInfo[];
+  onSelect: (product: ProductInfo) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+
+  const filtered = search
+    ? products.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
+    : products.slice(0, 20);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="sm" className="text-xs h-7 px-2 shrink-0">
+          Assign <ChevronDown className="h-3 w-3 ml-1" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-72 p-2" align="end">
+        <Input
+          placeholder="Search products..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="h-8 text-xs mb-2"
+          autoFocus
+        />
+        <ScrollArea className="h-48">
+          <div className="space-y-0.5">
+            {filtered.map((p) => (
+              <button
+                key={p.id}
+                className="flex items-center gap-2 w-full text-left p-1.5 rounded hover:bg-muted text-xs"
+                onClick={() => {
+                  onSelect(p);
+                  setOpen(false);
+                  setSearch("");
+                }}
+              >
+                {p.image_url ? (
+                  <img src={p.image_url} alt="" className="w-6 h-6 rounded object-cover shrink-0" />
+                ) : (
+                  <div className="w-6 h-6 rounded bg-muted shrink-0" />
+                )}
+                <span className="truncate">{p.name}</span>
+              </button>
+            ))}
+            {filtered.length === 0 && (
+              <p className="text-xs text-muted-foreground text-center py-4">No products found</p>
+            )}
+          </div>
+        </ScrollArea>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 export default BulkImageUpload;
