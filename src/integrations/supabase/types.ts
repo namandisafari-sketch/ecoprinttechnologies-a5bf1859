@@ -186,6 +186,9 @@ export type Database = {
           id: string
           ip_address: string | null
           language: string | null
+          mac_address: string | null
+          phone_brand: string | null
+          phone_model: string | null
           platform: string | null
           recovery_code: string
           screen_height: number | null
@@ -202,6 +205,9 @@ export type Database = {
           id?: string
           ip_address?: string | null
           language?: string | null
+          mac_address?: string | null
+          phone_brand?: string | null
+          phone_model?: string | null
           platform?: string | null
           recovery_code: string
           screen_height?: number | null
@@ -218,6 +224,9 @@ export type Database = {
           id?: string
           ip_address?: string | null
           language?: string | null
+          mac_address?: string | null
+          phone_brand?: string | null
+          phone_model?: string | null
           platform?: string | null
           recovery_code?: string
           screen_height?: number | null

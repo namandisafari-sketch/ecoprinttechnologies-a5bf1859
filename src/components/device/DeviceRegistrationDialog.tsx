@@ -3,8 +3,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Smartphone, Key, Copy, Check } from "lucide-react";
+import { Loader2, Smartphone, Key, Copy, Check, Shield, Info } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface Props {
   open: boolean;
@@ -115,6 +116,27 @@ const DeviceRegistrationDialog = ({ open, onRegister, onRecover }: Props) => {
                 className="h-11"
               />
             </div>
+
+            <Collapsible>
+              <CollapsibleTrigger className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors w-full">
+                <Shield className="h-3.5 w-3.5 text-primary" />
+                <span>Why do we collect device information?</span>
+                <Info className="h-3 w-3 ml-auto" />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-2">
+                <div className="bg-muted/50 rounded-lg p-3 text-xs text-muted-foreground space-y-1.5">
+                  <p className="font-medium text-foreground text-xs">We collect the following to secure your account:</p>
+                  <ul className="space-y-1 list-disc list-inside">
+                    <li><strong>Device type & screen size</strong> — to optimize your experience</li>
+                    <li><strong>IP address</strong> — to detect unauthorized access</li>
+                    <li><strong>Phone brand & model</strong> — to identify your device for order tracking</li>
+                    <li><strong>Browser info</strong> — to ensure compatibility</li>
+                  </ul>
+                  <p className="text-[10px] pt-1 border-t border-border">This data is stored securely and never shared with third parties.</p>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+
             <Button onClick={handleRegister} disabled={isLoading} className="w-full h-11">
               {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               Get Started

@@ -245,9 +245,9 @@ const AdminCustomers = () => {
                         <Badge variant="outline" className="capitalize text-[10px]">{device.device_type || "unknown"}</Badge>
                       </div>
                       <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
-                        <div><span className="block font-medium text-foreground">{device.platform || "—"}</span>Platform</div>
-                        <div><span className="block font-medium text-foreground">{device.screen_width && device.screen_height ? `${device.screen_width}×${device.screen_height}` : "—"}</span>Screen</div>
-                        <div><span className="block font-medium text-foreground">{device.connection_type || "—"}</span>Connection</div>
+                        <div><span className="block font-medium text-foreground">{device.phone_brand || device.platform || "—"}</span>{device.phone_brand ? "Brand" : "Platform"}</div>
+                        <div><span className="block font-medium text-foreground">{device.phone_model || (device.screen_width && device.screen_height ? `${device.screen_width}×${device.screen_height}` : "—")}</span>{device.phone_model ? "Model" : "Screen"}</div>
+                        <div><span className="block font-medium text-foreground">{device.ip_address || device.connection_type || "—"}</span>{device.ip_address ? "IP" : "Connection"}</div>
                       </div>
                       <p className="text-[10px] text-muted-foreground mt-2">
                         {formatDistanceToNow(new Date(device.created_at), { addSuffix: true })}
@@ -291,6 +291,8 @@ const AdminCustomers = () => {
                     ["Fingerprint", selectedDevice.device_fingerprint?.slice(0, 16) + "..."],
                     ["Recovery Code", selectedDevice.recovery_code],
                     ["Platform", selectedDevice.platform],
+                    ["Phone Brand", selectedDevice.phone_brand],
+                    ["Phone Model", selectedDevice.phone_model],
                     ["Language", selectedDevice.language],
                     ["Screen", selectedDevice.screen_width && selectedDevice.screen_height ? `${selectedDevice.screen_width}×${selectedDevice.screen_height}` : "—"],
                     ["Connection", selectedDevice.connection_type],

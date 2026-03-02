@@ -31,7 +31,33 @@ function getConnectionType(): string | null {
   return nav.connection?.effectiveType || nav.connection?.type || null;
 }
 
-function collectDeviceMetadata() {
+function parsePhoneBrandModel(ua: string): { brand: string | null; model: string | null } {
+  // Try to extract Android device brand/model from UA string
+  const androidMatch = ua.match(/;\s*([^;)]+)\s+Build\//);
+  if (androidMatch) {
+    const parts = androidMatch[1].trim().split(/\s+/);
+    return { brand: parts[0] || null, model: parts.slice(1).join(" ") || parts[0] || null };
+  }
+  // iPhone
+  if (/iPhone/.test(ua)) return { brand: "Apple", model: "iPhone" };
+  if (/iPad/.test(ua)) return { brand: "Apple", model: "iPad" };
+  if (/Macintosh/.test(ua)) return { brand: "Apple", model: "Mac" };
+  return { brand: null, model: null };
+}
+
+async function fetchRealIP(): Promise<string | null> {
+  try {
+    const res = await fetch("https://api.ipify.org?format=json");
+    const data = await res.json();
+    return data.ip || null;
+  } catch {
+    return null;
+  }
+}
+
+async function collectDeviceMetadata() {
+  const { brand, model } = parsePhoneBrandModel(navigator.userAgent);
+  const ip = await fetchRealIP();
   return {
     device_type: getDeviceType(),
     user_agent: navigator.userAgent,
@@ -40,6 +66,9 @@ function collectDeviceMetadata() {
     platform: navigator.platform || null,
     language: navigator.language || null,
     connection_type: getConnectionType(),
+    phone_brand: brand,
+    phone_model: model,
+    ip_address: ip,
   };
 }
 
@@ -99,7 +128,7 @@ export function useDevice() {
   const registerDevice = useCallback(async (fullName: string): Promise<DeviceProfile> => {
     const fingerprint = generateFingerprint();
     const recoveryCode = generateRecoveryCode();
-    const metadata = collectDeviceMetadata();
+    const metadata = await collectDeviceMetadata();
 
     const { data, error } = await supabase
       .from("devices")
@@ -132,7 +161,7 @@ export function useDevice() {
     if (error || !oldDevice) throw new Error("Invalid recovery code");
 
     const newFingerprint = generateFingerprint();
-    const metadata = collectDeviceMetadata();
+    const metadata = await collectDeviceMetadata();
     const { data: updated, error: updateError } = await supabase
       .from("devices")
       .update({ device_fingerprint: newFingerprint, ...metadata })
