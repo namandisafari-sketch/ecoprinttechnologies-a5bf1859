@@ -11,7 +11,7 @@ const brands = [
 
 const BrandsSection = () => {
   return (
-    <section className="py-6 md:py-10 px-4">
+    <section className="py-6 md:py-10 px-4 max-w-7xl mx-auto">
       <h2 className="text-base md:text-xl lg:text-2xl font-bold text-foreground mb-4 md:mb-6">
         Shop by Brand
       </h2>

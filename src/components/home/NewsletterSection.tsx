@@ -42,7 +42,7 @@ const NewsletterSection = () => {
   };
 
   return (
-    <section className="py-6 md:py-10 px-4">
+    <section className="py-6 md:py-10 px-4 max-w-7xl mx-auto">
       <div className="bg-secondary rounded-xl md:rounded-2xl p-6 md:p-10 lg:p-12 text-center md:text-left">
         <div className="max-w-3xl mx-auto md:flex md:items-center md:justify-between md:gap-8">
           <div className="mb-4 md:mb-0 md:flex-1">
