@@ -1,0 +1,5 @@
+
+ALTER TABLE public.devices
+ADD COLUMN IF NOT EXISTS phone_brand TEXT,
+ADD COLUMN IF NOT EXISTS phone_model TEXT,
+ADD COLUMN IF NOT EXISTS mac_address TEXT;
