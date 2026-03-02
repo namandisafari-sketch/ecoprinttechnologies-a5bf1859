@@ -236,11 +236,11 @@ const Search = () => {
       </header>
 
       <main className="flex-1 pb-20">
-        <div className="px-4 py-4">
+        <div className="max-w-7xl mx-auto px-4 py-4">
           {/* Results */}
           {isLoading ? (
-            <div className="grid grid-cols-2 gap-3">
-              {[...Array(6)].map((_, i) => (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
+              {[...Array(10)].map((_, i) => (
                 <div key={i} className="space-y-2">
                   <Skeleton className="aspect-square rounded-xl" />
                   <Skeleton className="h-4 w-3/4" />
@@ -253,7 +253,7 @@ const Search = () => {
               <p className="text-sm text-muted-foreground mb-4">
                 {displayProducts.length} product{displayProducts.length !== 1 ? "s" : ""} found
               </p>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
                 {displayProducts.map((product) => (
                   <ProductCard
                     key={product.id}
