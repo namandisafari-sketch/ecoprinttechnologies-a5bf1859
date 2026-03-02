@@ -145,13 +145,10 @@ const BulkImageUpload = ({ onClose }: BulkImageUploadProps) => {
       const matched = matchProduct(productName, allProducts);
       const preview = URL.createObjectURL(file);
 
-      let alreadyUploaded = false;
+      // Skip already uploaded images entirely
       if (matched) {
-        if (imageIndex === 1 && matched.image_url) {
-          alreadyUploaded = true;
-        } else if (imageIndex > 1 && (matched.images || []).length >= imageIndex - 1) {
-          alreadyUploaded = true;
-        }
+        if (imageIndex === 1 && matched.image_url) return null;
+        if (imageIndex > 1 && (matched.images || []).length >= imageIndex - 1) return null;
       }
 
       return {
@@ -161,14 +158,10 @@ const BulkImageUpload = ({ onClose }: BulkImageUploadProps) => {
         imageIndex,
         productId: matched?.id || null,
         matchedProduct: matched || null,
-        status: alreadyUploaded ? "skipped" : matched ? "pending" : "error",
-        message: alreadyUploaded
-          ? `Already has image #${imageIndex}`
-          : matched
-          ? `→ ${matched.name}`
-          : `No matching product found`,
+        status: matched ? "pending" : "error",
+        message: matched ? `→ ${matched.name}` : `No matching product found`,
       } as ProductMatch;
-    });
+    }).filter(Boolean) as ProductMatch[];
 
     parsed.sort((a, b) => {
       const order = { pending: 0, uploading: 1, done: 2, skipped: 3, error: 4 };
@@ -280,14 +273,12 @@ const BulkImageUpload = ({ onClose }: BulkImageUploadProps) => {
   };
 
   const pendingCount = matches.filter((m) => m.status === "pending").length;
-  const skippedCount = matches.filter((m) => m.status === "skipped").length;
   const doneCount = matches.filter((m) => m.status === "done").length;
   const errorCount = matches.filter((m) => m.status === "error").length;
 
   const statusIcon = (status: ProductMatch["status"]) => {
     switch (status) {
       case "done": return <CheckCircle2 className="h-4 w-4 text-green-500" />;
-      case "skipped": return <SkipForward className="h-4 w-4 text-muted-foreground" />;
       case "error": return <AlertCircle className="h-4 w-4 text-destructive" />;
       case "uploading": return <Loader2 className="h-4 w-4 animate-spin text-primary" />;
       default: return <ImagePlus className="h-4 w-4 text-primary" />;
@@ -330,8 +321,8 @@ const BulkImageUpload = ({ onClose }: BulkImageUploadProps) => {
               </CardTitle>
               <div className="flex gap-2 flex-wrap">
                 {pendingCount > 0 && <Badge>{pendingCount} ready</Badge>}
-                {skippedCount > 0 && <Badge variant="secondary">{skippedCount} skipped</Badge>}
                 {doneCount > 0 && <Badge variant="outline" className="text-green-600">{doneCount} done</Badge>}
+                {errorCount > 0 && <Badge variant="destructive">{errorCount} no match</Badge>}
                 {errorCount > 0 && <Badge variant="destructive">{errorCount} no match</Badge>}
               </div>
             </div>
