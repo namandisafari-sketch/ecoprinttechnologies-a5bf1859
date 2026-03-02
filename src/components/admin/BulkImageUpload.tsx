@@ -314,6 +314,7 @@ const BulkImageUpload = ({ onClose }: BulkImageUploadProps) => {
         multiple
         className="hidden"
         onChange={handleFilesSelected}
+        {...({ webkitdirectory: "", directory: "" } as any)}
       />
 
       <div className="flex justify-end gap-2">
