@@ -1,12 +1,14 @@
 import { createContext, useContext, ReactNode } from "react";
 import { useDevice } from "@/hooks/useDevice";
-import DeviceRegistrationDialog from "@/components/device/DeviceRegistrationDialog";
 
 interface DeviceContextValue {
   deviceId: string | null | undefined;
   deviceName: string | null;
   recoveryCode: string | null;
   isLoading: boolean;
+  needsRegistration: boolean;
+  registerDevice: (name: string) => Promise<any>;
+  recoverDevice: (code: string) => Promise<any>;
 }
 
 const DeviceContext = createContext<DeviceContextValue>({
@@ -14,6 +16,9 @@ const DeviceContext = createContext<DeviceContextValue>({
   deviceName: null,
   recoveryCode: null,
   isLoading: true,
+  needsRegistration: false,
+  registerDevice: async () => {},
+  recoverDevice: async () => {},
 });
 
 export const useDeviceContext = () => useContext(DeviceContext);
@@ -28,14 +33,12 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
         deviceName: device?.full_name || null,
         recoveryCode: device?.recovery_code || null,
         isLoading,
+        needsRegistration,
+        registerDevice,
+        recoverDevice,
       }}
     >
       {children}
-      <DeviceRegistrationDialog
-        open={!isLoading && needsRegistration}
-        onRegister={registerDevice}
-        onRecover={recoverDevice}
-      />
     </DeviceContext.Provider>
   );
 };

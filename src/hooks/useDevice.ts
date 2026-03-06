@@ -98,8 +98,34 @@ export function useDevice() {
   const loadDevice = async () => {
     setIsLoading(true);
     try {
-      const fingerprint = localStorage.getItem(FINGERPRINT_KEY);
+      let fingerprint = localStorage.getItem(FINGERPRINT_KEY);
       if (!fingerprint) {
+        // Auto-register silently without prompting the user
+        try {
+          const newFingerprint = generateFingerprint();
+          const recoveryCode = generateRecoveryCode();
+          const metadata = await collectDeviceMetadata();
+          const { data, error } = await supabase
+            .from("devices")
+            .insert({
+              device_fingerprint: newFingerprint,
+              full_name: null,
+              recovery_code: recoveryCode,
+              ...metadata,
+            })
+            .select()
+            .single();
+          if (!error && data) {
+            localStorage.setItem(FINGERPRINT_KEY, newFingerprint);
+            localStorage.setItem(DEVICE_KEY, data.id);
+            setDevice(data as DeviceProfile);
+            setNeedsRegistration(false);
+            setIsLoading(false);
+            return;
+          }
+        } catch {
+          // Fall through
+        }
         setNeedsRegistration(true);
         setIsLoading(false);
         return;
