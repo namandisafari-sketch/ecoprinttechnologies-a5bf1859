@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Search, Loader2, Package, ImagePlus } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Loader2, Package, ImagePlus, Printer } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import ProductWizard from "@/components/admin/ProductWizard";
 import BulkImageUpload from "@/components/admin/BulkImageUpload";
+import ProductManual from "@/components/product/ProductManual";
+import { useRef } from "react";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Product = Tables<"products">;
@@ -18,8 +20,42 @@ const AdminProducts = () => {
   const [showWizard, setShowWizard] = useState(false);
   const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [printingProduct, setPrintingProduct] = useState<any>(null);
+  const manualRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  const handlePrintManual = (product: any) => {
+    setPrintingProduct(product);
+    setTimeout(() => {
+      if (!manualRef.current) return;
+      const printWindow = window.open("", "_blank");
+      if (!printWindow) return;
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>${product.name} - Product Manual</title>
+          <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { font-family: 'Segoe UI', Arial, sans-serif; }
+            @media print {
+              @page { size: A4; margin: 0; }
+              body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            }
+          </style>
+        </head>
+        <body>${manualRef.current.innerHTML}</body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.onload = () => {
+        printWindow.print();
+        printWindow.close();
+      };
+      setPrintingProduct(null);
+    }, 100);
+  };
 
   const { data: products, isLoading } = useQuery({
     queryKey: ["admin-products", searchQuery],
@@ -156,6 +192,9 @@ const AdminProducts = () => {
                   </div>
 
                   <div className="flex justify-end gap-2 border-t border-border pt-3">
+                    <Button variant="outline" size="sm" onClick={() => handlePrintManual(product)}>
+                      <Printer className="h-3 w-3 mr-1" /> Print
+                    </Button>
                     <Button variant="outline" size="sm" onClick={() => openEdit(product)}>
                       <Pencil className="h-3 w-3 mr-1" /> Edit
                     </Button>
@@ -176,6 +215,12 @@ const AdminProducts = () => {
             <p className="text-sm text-muted-foreground">Create your first product to get started</p>
           </CardContent>
         </Card>
+      )}
+      {/* Hidden Product Manual for printing */}
+      {printingProduct && (
+        <div style={{ position: "absolute", left: "-9999px", top: 0 }}>
+          <ProductManual ref={manualRef} product={printingProduct} specs={[]} />
+        </div>
       )}
     </div>
   );
