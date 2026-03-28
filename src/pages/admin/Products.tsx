@@ -20,8 +20,42 @@ const AdminProducts = () => {
   const [showWizard, setShowWizard] = useState(false);
   const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [printingProduct, setPrintingProduct] = useState<any>(null);
+  const manualRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  const handlePrintManual = (product: any) => {
+    setPrintingProduct(product);
+    setTimeout(() => {
+      if (!manualRef.current) return;
+      const printWindow = window.open("", "_blank");
+      if (!printWindow) return;
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>${product.name} - Product Manual</title>
+          <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { font-family: 'Segoe UI', Arial, sans-serif; }
+            @media print {
+              @page { size: A4; margin: 0; }
+              body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            }
+          </style>
+        </head>
+        <body>${manualRef.current.innerHTML}</body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.onload = () => {
+        printWindow.print();
+        printWindow.close();
+      };
+      setPrintingProduct(null);
+    }, 100);
+  };
 
   const { data: products, isLoading } = useQuery({
     queryKey: ["admin-products", searchQuery],
