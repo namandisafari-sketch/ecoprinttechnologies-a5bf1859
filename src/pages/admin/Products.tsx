@@ -192,6 +192,9 @@ const AdminProducts = () => {
                   </div>
 
                   <div className="flex justify-end gap-2 border-t border-border pt-3">
+                    <Button variant="outline" size="sm" onClick={() => handlePrintManual(product)}>
+                      <Printer className="h-3 w-3 mr-1" /> Print
+                    </Button>
                     <Button variant="outline" size="sm" onClick={() => openEdit(product)}>
                       <Pencil className="h-3 w-3 mr-1" /> Edit
                     </Button>
