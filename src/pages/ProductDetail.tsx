@@ -491,6 +491,11 @@ const ProductDetail = () => {
       />
 
       <ChatWidget />
+
+      {/* Hidden Product Manual for printing */}
+      <div style={{ position: "absolute", left: "-9999px", top: 0 }}>
+        <ProductManual ref={manualRef} product={product} specs={productSpecs || []} />
+      </div>
     </div>
   );
 };
