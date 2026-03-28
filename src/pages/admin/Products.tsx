@@ -9,6 +9,8 @@ import { Plus, Pencil, Trash2, Search, Loader2, Package, ImagePlus, Printer } fr
 import { Badge } from "@/components/ui/badge";
 import ProductWizard from "@/components/admin/ProductWizard";
 import BulkImageUpload from "@/components/admin/BulkImageUpload";
+import ProductManual from "@/components/product/ProductManual";
+import { useRef } from "react";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Product = Tables<"products">;
