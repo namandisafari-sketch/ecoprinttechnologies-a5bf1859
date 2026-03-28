@@ -220,4 +220,14 @@ const AdminProducts = () => {
   );
 };
 
+      {/* Hidden Product Manual for printing */}
+      {printingProduct && (
+        <div style={{ position: "absolute", left: "-9999px", top: 0 }}>
+          <ProductManual ref={manualRef} product={printingProduct} specs={[]} />
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default AdminProducts;
