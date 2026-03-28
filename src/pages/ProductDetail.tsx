@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ChevronLeft, ShoppingCart, Heart, Share2, Minus, Plus, Phone, MessageCircle, Truck, Shield, RotateCcw, Star, MapPin } from "lucide-react";
+import { ChevronLeft, ShoppingCart, Heart, Share2, Minus, Plus, Phone, MessageCircle, Truck, Shield, RotateCcw, Star, MapPin, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
