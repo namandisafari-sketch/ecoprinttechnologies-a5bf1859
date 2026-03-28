@@ -392,7 +392,7 @@ const ProductDetail = () => {
             {/* Share */}
             <div>
               <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground mb-2">Share This Product</h3>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <Button variant="outline" size="sm" onClick={handleShare}>
                   <Share2 className="h-4 w-4 mr-1" /> Share
                 </Button>
@@ -400,6 +400,9 @@ const ProductDetail = () => {
                   <a href={`https://wa.me/?text=${encodeURIComponent(product.name + " " + window.location.href)}`} target="_blank" rel="noopener noreferrer">
                     <MessageCircle className="h-4 w-4 mr-1" /> WhatsApp
                   </a>
+                </Button>
+                <Button variant="outline" size="sm" onClick={handlePrintManual}>
+                  <Printer className="h-4 w-4 mr-1" /> Print Manual
                 </Button>
               </div>
             </div>
