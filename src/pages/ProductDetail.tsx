@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ChevronLeft, ShoppingCart, Heart, Share2, Minus, Plus, Phone, MessageCircle, Truck, Shield, RotateCcw, Star, MapPin } from "lucide-react";
+import { ChevronLeft, ShoppingCart, Heart, Share2, Minus, Plus, Phone, MessageCircle, Truck, Shield, RotateCcw, Star, MapPin, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -15,6 +15,7 @@ import { useProduct, useRelatedProducts, useProductSpecifications } from "@/hook
 import { trackProductView } from "@/components/home/RecentlyViewed";
 import { useWishlist } from "@/hooks/useWishlist";
 import ProductReviews from "@/components/product/ProductReviews";
+import ProductManual from "@/components/product/ProductManual";
 
 interface CartItem extends Product {
   quantity: number;
@@ -26,6 +27,7 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const manualRef = useRef<HTMLDivElement>(null);
   const { isWishlisted, toggleWishlist } = useWishlist();
 
   const { data: product, isLoading } = useProduct(slug || "");
@@ -54,6 +56,34 @@ const ProductDetail = () => {
       await navigator.clipboard.writeText(url);
       toast({ title: "Link copied!" });
     }
+  };
+
+  const handlePrintManual = () => {
+    if (!manualRef.current) return;
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>${product?.name} - Product Manual</title>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { font-family: 'Segoe UI', Arial, sans-serif; }
+          @media print {
+            @page { size: A4; margin: 0; }
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          }
+        </style>
+      </head>
+      <body>${manualRef.current.innerHTML}</body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.onload = () => {
+      printWindow.print();
+      printWindow.close();
+    };
   };
 
   const handleAddToCart = (productToAdd?: Product) => {
@@ -362,7 +392,7 @@ const ProductDetail = () => {
             {/* Share */}
             <div>
               <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground mb-2">Share This Product</h3>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <Button variant="outline" size="sm" onClick={handleShare}>
                   <Share2 className="h-4 w-4 mr-1" /> Share
                 </Button>
@@ -370,6 +400,9 @@ const ProductDetail = () => {
                   <a href={`https://wa.me/?text=${encodeURIComponent(product.name + " " + window.location.href)}`} target="_blank" rel="noopener noreferrer">
                     <MessageCircle className="h-4 w-4 mr-1" /> WhatsApp
                   </a>
+                </Button>
+                <Button variant="outline" size="sm" onClick={handlePrintManual}>
+                  <Printer className="h-4 w-4 mr-1" /> Print Manual
                 </Button>
               </div>
             </div>
@@ -458,6 +491,11 @@ const ProductDetail = () => {
       />
 
       <ChatWidget />
+
+      {/* Hidden Product Manual for printing */}
+      <div style={{ position: "absolute", left: "-9999px", top: 0 }}>
+        <ProductManual ref={manualRef} product={product} specs={productSpecs || []} />
+      </div>
     </div>
   );
 };
