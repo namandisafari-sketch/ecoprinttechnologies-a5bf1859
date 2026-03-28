@@ -27,6 +27,7 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const manualRef = useRef<HTMLDivElement>(null);
   const { isWishlisted, toggleWishlist } = useWishlist();
 
   const { data: product, isLoading } = useProduct(slug || "");
