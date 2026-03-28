@@ -216,10 +216,6 @@ const AdminProducts = () => {
           </CardContent>
         </Card>
       )}
-    </div>
-  );
-};
-
       {/* Hidden Product Manual for printing */}
       {printingProduct && (
         <div style={{ position: "absolute", left: "-9999px", top: 0 }}>
