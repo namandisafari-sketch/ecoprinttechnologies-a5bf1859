@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Search, Loader2, Package, ImagePlus } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Loader2, Package, ImagePlus, Printer } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import ProductWizard from "@/components/admin/ProductWizard";
 import BulkImageUpload from "@/components/admin/BulkImageUpload";
