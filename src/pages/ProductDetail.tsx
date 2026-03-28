@@ -15,6 +15,7 @@ import { useProduct, useRelatedProducts, useProductSpecifications } from "@/hook
 import { trackProductView } from "@/components/home/RecentlyViewed";
 import { useWishlist } from "@/hooks/useWishlist";
 import ProductReviews from "@/components/product/ProductReviews";
+import ProductManual from "@/components/product/ProductManual";
 
 interface CartItem extends Product {
   quantity: number;
