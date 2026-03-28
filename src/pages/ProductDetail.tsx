@@ -58,6 +58,34 @@ const ProductDetail = () => {
     }
   };
 
+  const handlePrintManual = () => {
+    if (!manualRef.current) return;
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>${product?.name} - Product Manual</title>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { font-family: 'Segoe UI', Arial, sans-serif; }
+          @media print {
+            @page { size: A4; margin: 0; }
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          }
+        </style>
+      </head>
+      <body>${manualRef.current.innerHTML}</body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.onload = () => {
+      printWindow.print();
+      printWindow.close();
+    };
+  };
+
   const handleAddToCart = (productToAdd?: Product) => {
     const itemToAdd = productToAdd || {
       id: parseInt(product!.id.slice(0, 8), 16),
