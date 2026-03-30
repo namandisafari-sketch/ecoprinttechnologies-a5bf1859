@@ -34,7 +34,7 @@ interface CustomerInfo {
 const AdminPOS = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({ name: "", phone: "" });
+  const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({ name: "", phone: "", email: "", address: "" });
   const [paymentMethod, setPaymentMethod] = useState<string>("cash");
   const [discount, setDiscount] = useState<number>(0);
   const [isProcessing, setIsProcessing] = useState(false);
