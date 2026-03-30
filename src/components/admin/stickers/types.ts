@@ -20,6 +20,8 @@ export interface StickerLayout {
   textAlign: "left" | "center" | "right";
   specsAlign: "left" | "center";
   footerAlign: "left" | "center" | "right";
+  footerImageHeightMm: number;
+  footerGapMm: number;
 }
 
 export interface StickerData {
