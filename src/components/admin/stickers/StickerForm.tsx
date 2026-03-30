@@ -5,8 +5,11 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Trash2, Plus, Image as ImageIcon } from "lucide-react";
-import { StickerData } from "./types";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Trash2, Plus, Copy, ChevronDown } from "lucide-react";
+import { StickerData, StickerLayout } from "./types";
+import ImageDropZone from "./ImageDropZone";
+import LayoutControls from "./LayoutControls";
 
 interface StickerFormProps {
   sticker: StickerData;
@@ -18,6 +21,7 @@ interface StickerFormProps {
   onAddSpec: () => void;
   onRemoveSpec: (specIdx: number) => void;
   onRemove: () => void;
+  onDuplicate: () => void;
   onLoadProduct: (productId: string) => void;
   onUpdateFooterImage: (index: number, field: "url" | "label", value: string) => void;
   onAddFooterImage: () => void;
@@ -27,7 +31,7 @@ interface StickerFormProps {
 const StickerForm = ({
   sticker, index, canRemove, products,
   onUpdate, onUpdateSpec, onAddSpec, onRemoveSpec,
-  onRemove, onLoadProduct,
+  onRemove, onDuplicate, onLoadProduct,
   onUpdateFooterImage, onAddFooterImage, onRemoveFooterImage,
 }: StickerFormProps) => {
   return (
@@ -35,11 +39,16 @@ const StickerForm = ({
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm">Sticker {index + 1}</CardTitle>
-          {canRemove && (
-            <Button variant="ghost" size="icon" onClick={onRemove}>
-              <Trash2 className="h-4 w-4 text-destructive" />
+          <div className="flex gap-1">
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onDuplicate} title="Duplicate sticker">
+              <Copy className="h-3.5 w-3.5" />
             </Button>
-          )}
+            {canRemove && (
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onRemove}>
+                <Trash2 className="h-3.5 w-3.5 text-destructive" />
+              </Button>
+            )}
+          </div>
         </div>
         {products && products.length > 0 && (
           <Select onValueChange={onLoadProduct}>
@@ -55,24 +64,22 @@ const StickerForm = ({
         )}
       </CardHeader>
       <CardContent className="space-y-3 max-h-[60vh] overflow-y-auto">
-        {/* Brand Logo */}
+        {/* Brand Logo - Drag & Drop */}
         <div>
-          <Label className="text-xs font-semibold">Brand Logo URL</Label>
-          <div className="flex gap-1">
+          <Label className="text-xs font-semibold">Brand Logo</Label>
+          <ImageDropZone
+            value={sticker.brandLogoUrl}
+            onChange={(url) => onUpdate("brandLogoUrl", url)}
+            label="Drop logo or click to upload"
+            height="h-16"
+          />
+          {!sticker.brandLogoUrl && (
             <Input
-              value={sticker.brandLogoUrl}
+              value=""
               onChange={(e) => onUpdate("brandLogoUrl", e.target.value)}
-              placeholder="https://... or auto-loaded from product"
-              className="text-xs h-8"
+              placeholder="Or paste URL..."
+              className="text-xs h-7 mt-1"
             />
-          </div>
-          {sticker.brandLogoUrl && (
-            <div className="mt-1 flex items-center gap-2">
-              <img src={sticker.brandLogoUrl} alt="logo" className="h-8 object-contain bg-white rounded border p-0.5" />
-              <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={() => onUpdate("brandLogoUrl", "")}>
-                Remove
-              </Button>
-            </div>
           )}
         </div>
 
@@ -148,7 +155,7 @@ const StickerForm = ({
           )}
         </div>
 
-        {/* Footer Images (Energy Star, TCO, etc.) */}
+        {/* Footer Images */}
         <div>
           <div className="flex items-center justify-between mb-1">
             <Label className="text-xs font-semibold">Footer Images / Badges</Label>
@@ -156,24 +163,50 @@ const StickerForm = ({
               <Plus className="h-3 w-3 mr-1" /> Add
             </Button>
           </div>
-          <div className="space-y-1">
+          <div className="space-y-2">
             {sticker.footerImages.map((fi, fiIdx) => (
-              <div key={fiIdx} className="flex gap-1 items-center">
-                <Input value={fi.url} onChange={(e) => onUpdateFooterImage(fiIdx, "url", e.target.value)} placeholder="Image URL" className="text-xs h-7 flex-1" />
-                <Input value={fi.label} onChange={(e) => onUpdateFooterImage(fiIdx, "label", e.target.value)} placeholder="Label" className="text-xs h-7 w-[30%]" />
-                <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => onRemoveFooterImage(fiIdx)}>
-                  <Trash2 className="h-3 w-3" />
-                </Button>
+              <div key={fiIdx} className="space-y-1">
+                <ImageDropZone
+                  value={fi.url}
+                  onChange={(url) => onUpdateFooterImage(fiIdx, "url", url)}
+                  label="Drop badge image"
+                  height="h-12"
+                />
+                <div className="flex gap-1 items-center">
+                  {!fi.url && (
+                    <Input value="" onChange={(e) => onUpdateFooterImage(fiIdx, "url", e.target.value)} placeholder="Or paste URL" className="text-xs h-7 flex-1" />
+                  )}
+                  <Input value={fi.label} onChange={(e) => onUpdateFooterImage(fiIdx, "label", e.target.value)} placeholder="Label" className="text-xs h-7 w-[30%]" />
+                  <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => onRemoveFooterImage(fiIdx)}>
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Made in / PRM / RATT */}
+        {/* Footer Text */}
         <div>
-          <Label className="text-xs font-semibold">Footer Text (Made in, PRM, RATT etc.)</Label>
-          <Input value={sticker.footerText} onChange={(e) => onUpdate("footerText", e.target.value)} placeholder="Made in China | PRM: TPN-C 139" className="text-xs h-8" />
+          <Label className="text-xs font-semibold">Footer Text</Label>
+          <Input value={sticker.footerText} onChange={(e) => onUpdate("footerText", e.target.value)} placeholder="Kabejja Technologies" className="text-xs h-8" />
         </div>
+
+        {/* Layout Controls - Collapsible */}
+        <Collapsible>
+          <CollapsibleTrigger asChild>
+            <Button variant="outline" size="sm" className="w-full text-xs h-7 justify-between">
+              Layout & Sizing Controls
+              <ChevronDown className="h-3 w-3" />
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-2">
+            <LayoutControls
+              layout={sticker.layout}
+              onChange={(layout) => onUpdate("layout", layout)}
+            />
+          </CollapsibleContent>
+        </Collapsible>
       </CardContent>
     </Card>
   );
