@@ -39,6 +39,7 @@ import AdminNotifications from "./pages/admin/Notifications";
 import AdminStoreLocation from "./pages/admin/StoreLocation";
 import AdminDeliveryZones from "./pages/admin/DeliveryZones";
 import AdminDeliveryAccounts from "./pages/admin/DeliveryAccounts";
+import AdminStickers from "./pages/admin/Stickers";
 
 const queryClient = new QueryClient();
 
@@ -107,6 +108,7 @@ const App = () => (
               <Route path="store-location" element={<AdminStoreLocation />} />
               <Route path="delivery-zones" element={<AdminDeliveryZones />} />
               <Route path="delivery-accounts" element={<AdminDeliveryAccounts />} />
+              <Route path="stickers" element={<AdminStickers />} />
             </Route>
 
             {/* Catch-all */}
