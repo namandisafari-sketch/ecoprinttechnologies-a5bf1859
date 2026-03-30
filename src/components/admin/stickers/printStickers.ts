@@ -27,7 +27,7 @@ export const printStickers = (stickers: StickerData[]) => {
           const footerAlignFlex = L.footerAlign === "left" ? "flex-start" : L.footerAlign === "right" ? "flex-end" : "center";
           const titleAlignFlex = L.textAlign === "left" ? "flex-start" : L.textAlign === "right" ? "flex-end" : "center";
           return `
-          <div style="width:${L.stickerWidthMm}mm;height:297mm;border-right:${idx < stickers.length - 1 ? '1px dashed #ccc' : 'none'};padding:${L.paddingTopMm}mm ${L.paddingHorizontalMm}mm;display:flex;flex-direction:column;align-items:${titleAlignFlex};overflow:hidden;">
+          <div class="sticker" style="width:${L.stickerWidthMm}mm;height:297mm;padding:${L.paddingTopMm}mm ${L.paddingHorizontalMm}mm;display:flex;flex-direction:column;align-items:${titleAlignFlex};overflow:hidden;">
             ${sticker.showBrandLogo && sticker.brandLogoUrl ? `
               <div style="margin:2mm 0;"><img src="${sticker.brandLogoUrl}" style="max-height:${L.logoMaxHeightMm}mm;max-width:80%;object-fit:contain;" /></div>
             ` : ""}
