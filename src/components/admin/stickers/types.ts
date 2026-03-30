@@ -20,6 +20,8 @@ export interface StickerLayout {
   textAlign: "left" | "center" | "right";
   specsAlign: "left" | "center";
   footerAlign: "left" | "center" | "right";
+  footerImageHeightMm: number;
+  footerGapMm: number;
 }
 
 export interface StickerData {
@@ -51,6 +53,8 @@ export const DEFAULT_LAYOUT: StickerLayout = {
   textAlign: "center",
   specsAlign: "left",
   footerAlign: "center",
+  footerImageHeightMm: 12,
+  footerGapMm: 3,
 };
 
 export const DEFAULT_DISCLAIMERS = `For storage drive, GB a billion bytes TB =1 trillion bytes. Actual formatted capacity is less. Up to 35GB of system disk is reserved for system recovery software.

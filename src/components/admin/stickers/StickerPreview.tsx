@@ -97,12 +97,12 @@ const StickerPreview = forwardRef<HTMLDivElement, StickerPreviewProps>(({ sticke
               display: "flex",
               alignItems: "center",
               justifyContent: L.footerAlign === "left" ? "flex-start" : L.footerAlign === "right" ? "flex-end" : "center",
-              gap: "3mm",
+              gap: `${L.footerGapMm}mm`,
               flexWrap: "wrap",
             }}>
               {sticker.footerImages.map((fi, fiIdx) => (
                 <div key={fiIdx} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                  {fi.url && <img src={fi.url} alt={fi.label} style={{ height: "12mm", objectFit: "contain" }} />}
+                  {fi.url && <img src={fi.url} alt={fi.label} style={{ height: `${L.footerImageHeightMm}mm`, objectFit: "contain" }} />}
                   {fi.label && <span style={{ fontSize: "4pt", color: "#666", marginTop: "0.5mm" }}>{fi.label}</span>}
                 </div>
               ))}
