@@ -39,6 +39,7 @@ import AdminNotifications from "./pages/admin/Notifications";
 import AdminStoreLocation from "./pages/admin/StoreLocation";
 import AdminDeliveryZones from "./pages/admin/DeliveryZones";
 import AdminDeliveryAccounts from "./pages/admin/DeliveryAccounts";
+import AdminStickers from "./pages/admin/Stickers";
 
 const queryClient = new QueryClient();
 
