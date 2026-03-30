@@ -22,103 +22,165 @@ const A4Receipt = ({ order }: A4ReceiptProps) => {
   };
 
   return (
-    <div className="receipt p-8 font-sans text-black" style={{ minHeight: "297mm" }}>
+    <div className="receipt font-sans text-black bg-white" style={{ width: "210mm", minHeight: "297mm", padding: "12mm 15mm", fontSize: "10pt" }}>
       {/* Header */}
-      <div className="flex justify-between items-start mb-8 pb-6 border-b-2 border-gray-300">
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "2px solid #1a1a1a", paddingBottom: "8mm", marginBottom: "6mm" }}>
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">ECO PRINT TECHNOLOGIES</h1>
-          <p className="text-gray-600">Laptops & Tech Services</p>
-          <p className="text-sm text-gray-500 mt-2">
-            Tel: +256 705 154 828<br />
-            Email: info@ecoprint.ug<br />
-            Suncity Mall, Kampala
+          <h1 style={{ fontSize: "18pt", fontWeight: 800, color: "#111", margin: 0, letterSpacing: "-0.5px" }}>ECO PRINT TECHNOLOGIES</h1>
+          <p style={{ fontSize: "9pt", color: "#555", margin: "2px 0 0" }}>Laptops, Printers & Tech Services</p>
+          <p style={{ fontSize: "8pt", color: "#777", marginTop: "4px", lineHeight: 1.5 }}>
+            Tel: +256 705 154 828 &nbsp;|&nbsp; Email: info@ecoprint.ug<br />
+            Suncity Mall, Kampala, Uganda
           </p>
         </div>
-        <div className="text-right">
-          <h2 className="text-2xl font-bold text-gray-700">RECEIPT</h2>
-          <p className="text-lg font-mono mt-2">{order.order_number}</p>
-          <p className="text-sm text-gray-500 mt-1">{formatDate(order.created_at)}</p>
+        <div style={{ textAlign: "right" }}>
+          <h2 style={{ fontSize: "16pt", fontWeight: 700, color: "#333", margin: 0 }}>SALES INVOICE</h2>
+          <p style={{ fontSize: "11pt", fontFamily: "monospace", marginTop: "3px", fontWeight: 600 }}>{order.order_number}</p>
+          <p style={{ fontSize: "8pt", color: "#666", marginTop: "2px" }}>{formatDate(order.created_at)}</p>
         </div>
       </div>
 
-      {/* Customer & Payment Info */}
-      <div className="grid grid-cols-2 gap-8 mb-8">
-        <div>
-          <h3 className="font-bold text-gray-700 mb-2">Customer Details</h3>
-          <div className="bg-gray-50 p-4 rounded">
-            <p className="font-medium">{order.customer_name || "Walk-in Customer"}</p>
-            {order.customer_phone && order.customer_phone !== "N/A" && (
-              <p className="text-sm text-gray-600">Phone: {order.customer_phone}</p>
-            )}
-          </div>
+      {/* Customer & Payment */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8mm", marginBottom: "6mm" }}>
+        <div style={{ background: "#f8f8f8", padding: "4mm 5mm", borderRadius: "3px", border: "1px solid #e5e5e5" }}>
+          <h3 style={{ fontSize: "8pt", fontWeight: 700, color: "#888", textTransform: "uppercase", letterSpacing: "0.5px", margin: "0 0 3px" }}>Customer Details</h3>
+          <p style={{ fontWeight: 600, fontSize: "10pt", margin: "2px 0" }}>{order.customer_name || "Walk-in Customer"}</p>
+          {order.customer_phone && order.customer_phone !== "N/A" && (
+            <p style={{ fontSize: "9pt", color: "#555" }}>Phone: {order.customer_phone}</p>
+          )}
         </div>
-        <div>
-          <h3 className="font-bold text-gray-700 mb-2">Payment Details</h3>
-          <div className="bg-gray-50 p-4 rounded">
-            <p><span className="text-gray-600">Method:</span> {order.payment_method?.replace(/_/g, " ").toUpperCase()}</p>
-            <p><span className="text-gray-600">Status:</span> <span className="text-green-600 font-medium">PAID</span></p>
-          </div>
+        <div style={{ background: "#f8f8f8", padding: "4mm 5mm", borderRadius: "3px", border: "1px solid #e5e5e5" }}>
+          <h3 style={{ fontSize: "8pt", fontWeight: 700, color: "#888", textTransform: "uppercase", letterSpacing: "0.5px", margin: "0 0 3px" }}>Payment Information</h3>
+          <p style={{ fontSize: "10pt", margin: "2px 0" }}>
+            <span style={{ color: "#555" }}>Method:</span>{" "}
+            <strong>{order.payment_method?.replace(/_/g, " ").toUpperCase()}</strong>
+          </p>
+          <p style={{ fontSize: "10pt", margin: "2px 0" }}>
+            <span style={{ color: "#555" }}>Status:</span>{" "}
+            <span style={{ color: "#16a34a", fontWeight: 600 }}>✓ PAID</span>
+          </p>
         </div>
       </div>
 
-      {/* Items Table */}
-      <div className="mb-8">
-        <table className="w-full">
+      {/* Items with Product Photos */}
+      <div style={{ marginBottom: "5mm" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
-            <tr className="bg-gray-100">
-              <th className="text-left py-3 px-4 font-bold text-gray-700">#</th>
-              <th className="text-left py-3 px-4 font-bold text-gray-700">Description</th>
-              <th className="text-center py-3 px-4 font-bold text-gray-700">Qty</th>
-              <th className="text-right py-3 px-4 font-bold text-gray-700">Unit Price</th>
-              <th className="text-right py-3 px-4 font-bold text-gray-700">Amount</th>
+            <tr style={{ background: "#1a1a1a", color: "#fff" }}>
+              <th style={{ textAlign: "left", padding: "3mm 4mm", fontSize: "8pt", fontWeight: 600 }}>#</th>
+              <th style={{ textAlign: "left", padding: "3mm 4mm", fontSize: "8pt", fontWeight: 600 }}>Product</th>
+              <th style={{ textAlign: "center", padding: "3mm 4mm", fontSize: "8pt", fontWeight: 600 }}>Qty</th>
+              <th style={{ textAlign: "right", padding: "3mm 4mm", fontSize: "8pt", fontWeight: 600 }}>Unit Price</th>
+              <th style={{ textAlign: "right", padding: "3mm 4mm", fontSize: "8pt", fontWeight: 600 }}>Amount</th>
             </tr>
           </thead>
           <tbody>
-            {order.items.map((item: any, index: number) => (
-              <tr key={index} className="border-b border-gray-200">
-                <td className="py-3 px-4 text-gray-600">{index + 1}</td>
-                <td className="py-3 px-4">{item.product.name}</td>
-                <td className="py-3 px-4 text-center">{item.quantity}</td>
-                <td className="py-3 px-4 text-right">{formatPrice(item.product.price)}</td>
-                <td className="py-3 px-4 text-right font-medium">
-                  {formatPrice(item.product.price * item.quantity)}
-                </td>
-              </tr>
-            ))}
+            {order.items.map((item: any, index: number) => {
+              const product = item.product;
+              const imageUrl = product.image_url || (product.images && product.images[0]);
+              return (
+                <tr key={index} style={{ borderBottom: "1px solid #e5e5e5" }}>
+                  <td style={{ padding: "3mm 4mm", fontSize: "9pt", color: "#888", verticalAlign: "top" }}>{index + 1}</td>
+                  <td style={{ padding: "3mm 4mm" }}>
+                    <div style={{ display: "flex", alignItems: "flex-start", gap: "3mm" }}>
+                      {imageUrl && (
+                        <img
+                          src={imageUrl}
+                          alt={product.name}
+                          style={{ width: "18mm", height: "18mm", objectFit: "cover", borderRadius: "2px", border: "1px solid #e5e5e5", flexShrink: 0 }}
+                        />
+                      )}
+                      <div>
+                        <p style={{ fontWeight: 600, fontSize: "9pt", margin: 0, lineHeight: 1.3 }}>{product.name}</p>
+                        {product.sku && (
+                          <p style={{ fontSize: "7pt", color: "#888", margin: "1px 0 0" }}>SKU: {product.sku}</p>
+                        )}
+                        {product.model && (
+                          <p style={{ fontSize: "7pt", color: "#888", margin: "1px 0 0" }}>Model: {product.model}</p>
+                        )}
+                        {product.color && (
+                          <p style={{ fontSize: "7pt", color: "#888", margin: "1px 0 0" }}>Color: {product.color}</p>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                  <td style={{ padding: "3mm 4mm", textAlign: "center", fontSize: "9pt", verticalAlign: "top" }}>{item.quantity}</td>
+                  <td style={{ padding: "3mm 4mm", textAlign: "right", fontSize: "9pt", verticalAlign: "top" }}>{formatPrice(product.price)}</td>
+                  <td style={{ padding: "3mm 4mm", textAlign: "right", fontSize: "9pt", fontWeight: 600, verticalAlign: "top" }}>
+                    {formatPrice(product.price * item.quantity)}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
       {/* Totals */}
-      <div className="flex justify-end mb-8">
-        <div className="w-64">
-          <div className="flex justify-between py-2">
-            <span className="text-gray-600">Subtotal:</span>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "6mm" }}>
+        <div style={{ width: "70mm" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", padding: "2mm 0", fontSize: "9pt" }}>
+            <span style={{ color: "#555" }}>Subtotal:</span>
             <span>{formatPrice(order.subtotal)}</span>
           </div>
           {order.discount > 0 && (
-            <div className="flex justify-between py-2 text-green-600">
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "2mm 0", fontSize: "9pt", color: "#16a34a" }}>
               <span>Discount ({order.discount}%):</span>
               <span>-{formatPrice(order.discountAmount)}</span>
             </div>
           )}
-          <div className="flex justify-between py-3 border-t-2 border-gray-800 font-bold text-xl">
-            <span>Total:</span>
+          <div style={{ display: "flex", justifyContent: "space-between", padding: "3mm 0", borderTop: "2px solid #1a1a1a", fontWeight: 700, fontSize: "13pt" }}>
+            <span>TOTAL:</span>
             <span>{formatPrice(order.total)}</span>
           </div>
         </div>
       </div>
 
+      {/* Tips & Safety Section */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5mm", marginBottom: "5mm" }}>
+        <div style={{ border: "1px solid #ddd", borderRadius: "3px", padding: "4mm 5mm" }}>
+          <h4 style={{ fontSize: "8pt", fontWeight: 700, color: "#1a1a1a", textTransform: "uppercase", letterSpacing: "0.5px", margin: "0 0 3mm", borderBottom: "1px solid #eee", paddingBottom: "2mm" }}>
+            📋 Usage Tips
+          </h4>
+          <ul style={{ fontSize: "7.5pt", color: "#555", margin: 0, paddingLeft: "4mm", lineHeight: 1.8 }}>
+            <li>Always use the original charger supplied with your device.</li>
+            <li>Allow proper ventilation — do not block air vents.</li>
+            <li>Shut down properly; avoid forced shutdowns.</li>
+            <li>Keep your operating system & drivers updated.</li>
+            <li>Use a surge protector to prevent power damage.</li>
+            <li>Clean the screen with a soft microfiber cloth only.</li>
+          </ul>
+        </div>
+        <div style={{ border: "1px solid #ddd", borderRadius: "3px", padding: "4mm 5mm" }}>
+          <h4 style={{ fontSize: "8pt", fontWeight: 700, color: "#1a1a1a", textTransform: "uppercase", letterSpacing: "0.5px", margin: "0 0 3mm", borderBottom: "1px solid #eee", paddingBottom: "2mm" }}>
+            ⚠️ Safety & Warranty
+          </h4>
+          <ul style={{ fontSize: "7.5pt", color: "#555", margin: 0, paddingLeft: "4mm", lineHeight: 1.8 }}>
+            <li>Do not expose your device to extreme heat or moisture.</li>
+            <li>Keep liquids away from your laptop at all times.</li>
+            <li>Warranty is void if the device is opened by unauthorized persons.</li>
+            <li>Report any defects within 7 days of purchase.</li>
+            <li>Retain this invoice as proof of purchase for warranty claims.</li>
+            <li>For support, call: <strong>+256 705 154 828</strong></li>
+          </ul>
+        </div>
+      </div>
+
       {/* Footer */}
-      <div className="border-t-2 border-gray-300 pt-6 mt-auto">
-        <div className="text-center text-gray-600">
-          <p className="font-medium mb-2">Thank you for your purchase!</p>
-          <p className="text-sm">
-            For any inquiries regarding this receipt, please contact us at info@ecoprint.ug
-          </p>
-          <p className="text-xs mt-4 text-gray-400">
-            This is a computer-generated receipt and does not require a signature.
-          </p>
+      <div style={{ borderTop: "2px solid #1a1a1a", paddingTop: "4mm", marginTop: "auto" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ fontSize: "7.5pt", color: "#888" }}>
+            <p style={{ margin: 0 }}>This is a computer-generated invoice.</p>
+            <p style={{ margin: "1px 0 0" }}>No signature required.</p>
+          </div>
+          <div style={{ textAlign: "center" }}>
+            <p style={{ fontSize: "9pt", fontWeight: 600, color: "#333", margin: 0 }}>Thank you for choosing Eco Print Technologies!</p>
+            <p style={{ fontSize: "7.5pt", color: "#888", margin: "1px 0 0" }}>Quality Tech • Trusted Service • Kampala, Uganda</p>
+          </div>
+          <div style={{ fontSize: "7.5pt", color: "#888", textAlign: "right" }}>
+            <p style={{ margin: 0 }}>Date: {new Date(order.created_at).toLocaleDateString("en-UG")}</p>
+            <p style={{ margin: "1px 0 0" }}>Ref: {order.order_number}</p>
+          </div>
         </div>
       </div>
     </div>
