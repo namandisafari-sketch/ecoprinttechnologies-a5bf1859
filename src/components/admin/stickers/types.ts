@@ -8,6 +8,20 @@ export interface FooterImage {
   label: string;
 }
 
+export interface StickerLayout {
+  stickerWidthMm: number;
+  logoMaxHeightMm: number;
+  titleFontPt: number;
+  modelFontPt: number;
+  specFontPt: number;
+  disclaimerFontPt: number;
+  paddingTopMm: number;
+  paddingHorizontalMm: number;
+  textAlign: "left" | "center" | "right";
+  specsAlign: "left" | "center";
+  footerAlign: "left" | "center" | "right";
+}
+
 export interface StickerData {
   brandName: string;
   brandLogoUrl: string;
@@ -22,7 +36,22 @@ export interface StickerData {
   qrCodeUrl: string;
   footerImages: FooterImage[];
   footerText: string;
+  layout: StickerLayout;
 }
+
+export const DEFAULT_LAYOUT: StickerLayout = {
+  stickerWidthMm: 70,
+  logoMaxHeightMm: 22,
+  titleFontPt: 16,
+  modelFontPt: 10,
+  specFontPt: 8,
+  disclaimerFontPt: 5.5,
+  paddingTopMm: 6,
+  paddingHorizontalMm: 4,
+  textAlign: "center",
+  specsAlign: "left",
+  footerAlign: "center",
+};
 
 export const DEFAULT_DISCLAIMERS = `For storage drive, GB a billion bytes TB =1 trillion bytes. Actual formatted capacity is less. Up to 35GB of system disk is reserved for system recovery software.
 [4] Maximum memory capacities assume Windows 64-bit operating systems or Linux with Windows 32-bit operating systems, memory above 3GB may not be available due to system resource requirements.
@@ -52,4 +81,5 @@ export const emptyStickerData = (): StickerData => ({
   qrCodeUrl: "",
   footerImages: [],
   footerText: "Kabejja Technologies",
+  layout: { ...DEFAULT_LAYOUT },
 });
