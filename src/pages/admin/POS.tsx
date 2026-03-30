@@ -27,12 +27,14 @@ interface CartItem {
 interface CustomerInfo {
   name: string;
   phone: string;
+  email: string;
+  address: string;
 }
 
 const AdminPOS = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({ name: "", phone: "" });
+  const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({ name: "", phone: "", email: "", address: "" });
   const [paymentMethod, setPaymentMethod] = useState<string>("cash");
   const [discount, setDiscount] = useState<number>(0);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -139,7 +141,7 @@ const AdminPOS = () => {
 
   const clearCart = () => {
     setCart([]);
-    setCustomerInfo({ name: "", phone: "" });
+    setCustomerInfo({ name: "", phone: "", email: "", address: "" });
     setDiscount(0);
   };
 
@@ -181,8 +183,8 @@ const AdminPOS = () => {
           order_number: orderNumber,
           customer_name: customerInfo.name || "Walk-in Customer",
           customer_phone: customerInfo.phone || "N/A",
-          customer_email: "pos@ecoprint.ug",
-          shipping_address: "In-Store Purchase",
+          customer_email: customerInfo.email || "pos@ecoprint.ug",
+          shipping_address: customerInfo.address || "In-Store Purchase",
           city: "In-Store",
           subtotal: subtotal,
           delivery_fee: 0,
@@ -338,18 +340,30 @@ const AdminPOS = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="flex-1 flex flex-col overflow-hidden p-4 pt-0">
-          {/* Customer Info (Optional) */}
+          {/* Customer Info */}
           <div className="grid grid-cols-2 gap-2 mb-3">
             <Input
-              placeholder="Customer name (optional)"
+              placeholder="Customer name"
               value={customerInfo.name}
               onChange={(e) => setCustomerInfo((p) => ({ ...p, name: e.target.value }))}
               className="text-sm"
             />
             <Input
-              placeholder="Phone (optional)"
+              placeholder="Phone"
               value={customerInfo.phone}
               onChange={(e) => setCustomerInfo((p) => ({ ...p, phone: e.target.value }))}
+              className="text-sm"
+            />
+            <Input
+              placeholder="Email (optional)"
+              value={customerInfo.email}
+              onChange={(e) => setCustomerInfo((p) => ({ ...p, email: e.target.value }))}
+              className="text-sm"
+            />
+            <Input
+              placeholder="Address (optional)"
+              value={customerInfo.address}
+              onChange={(e) => setCustomerInfo((p) => ({ ...p, address: e.target.value }))}
               className="text-sm"
             />
           </div>

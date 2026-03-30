@@ -1,3 +1,5 @@
+import ecoprintLogo from "@/assets/ecoprint-logo.png";
+
 interface A4ReceiptProps {
   order: any;
 }
@@ -23,15 +25,17 @@ const A4Receipt = ({ order }: A4ReceiptProps) => {
 
   return (
     <div className="receipt font-sans text-black bg-white" style={{ width: "210mm", minHeight: "297mm", padding: "12mm 15mm", fontSize: "10pt" }}>
-      {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "2px solid #1a1a1a", paddingBottom: "8mm", marginBottom: "6mm" }}>
-        <div>
-          <h1 style={{ fontSize: "18pt", fontWeight: 800, color: "#111", margin: 0, letterSpacing: "-0.5px" }}>ECO PRINT TECHNOLOGIES</h1>
-          <p style={{ fontSize: "9pt", color: "#555", margin: "2px 0 0" }}>Laptops, Printers & Tech Services</p>
-          <p style={{ fontSize: "8pt", color: "#777", marginTop: "4px", lineHeight: 1.5 }}>
-            Tel: +256 705 154 828 &nbsp;|&nbsp; Email: info@ecoprint.ug<br />
-            Suncity Mall, Kampala, Uganda
-          </p>
+      {/* Header with Logo */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "2px solid #1a1a1a", paddingBottom: "6mm", marginBottom: "6mm" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "5mm" }}>
+          <img src={ecoprintLogo} alt="Eco Print Technologies" style={{ height: "16mm", width: "auto" }} />
+          <div>
+            <p style={{ fontSize: "8pt", color: "#555", margin: "2px 0 0" }}>Laptops, Printers & Tech Services</p>
+            <p style={{ fontSize: "7.5pt", color: "#777", marginTop: "2px", lineHeight: 1.5 }}>
+              Tel: +256 705 154 828 &nbsp;|&nbsp; Email: info@ecoprint.ug<br />
+              Suncity Mall, Kampala, Uganda
+            </p>
+          </div>
         </div>
         <div style={{ textAlign: "right" }}>
           <h2 style={{ fontSize: "16pt", fontWeight: 700, color: "#333", margin: 0 }}>SALES INVOICE</h2>
@@ -43,21 +47,31 @@ const A4Receipt = ({ order }: A4ReceiptProps) => {
       {/* Customer & Payment */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8mm", marginBottom: "6mm" }}>
         <div style={{ background: "#f8f8f8", padding: "4mm 5mm", borderRadius: "3px", border: "1px solid #e5e5e5" }}>
-          <h3 style={{ fontSize: "8pt", fontWeight: 700, color: "#888", textTransform: "uppercase", letterSpacing: "0.5px", margin: "0 0 3px" }}>Customer Details</h3>
+          <h3 style={{ fontSize: "8pt", fontWeight: 700, color: "#888", textTransform: "uppercase", letterSpacing: "0.5px", margin: "0 0 3px" }}>Billed To</h3>
           <p style={{ fontWeight: 600, fontSize: "10pt", margin: "2px 0" }}>{order.customer_name || "Walk-in Customer"}</p>
           {order.customer_phone && order.customer_phone !== "N/A" && (
-            <p style={{ fontSize: "9pt", color: "#555" }}>Phone: {order.customer_phone}</p>
+            <p style={{ fontSize: "9pt", color: "#555", margin: "1px 0" }}>Phone: {order.customer_phone}</p>
+          )}
+          {order.customer_email && order.customer_email !== "pos@ecoprint.ug" && (
+            <p style={{ fontSize: "9pt", color: "#555", margin: "1px 0" }}>Email: {order.customer_email}</p>
+          )}
+          {order.shipping_address && order.shipping_address !== "In-Store Purchase" && (
+            <p style={{ fontSize: "9pt", color: "#555", margin: "1px 0" }}>Address: {order.shipping_address}</p>
           )}
         </div>
         <div style={{ background: "#f8f8f8", padding: "4mm 5mm", borderRadius: "3px", border: "1px solid #e5e5e5" }}>
           <h3 style={{ fontSize: "8pt", fontWeight: 700, color: "#888", textTransform: "uppercase", letterSpacing: "0.5px", margin: "0 0 3px" }}>Payment Information</h3>
-          <p style={{ fontSize: "10pt", margin: "2px 0" }}>
+          <p style={{ fontSize: "9pt", margin: "2px 0" }}>
             <span style={{ color: "#555" }}>Method:</span>{" "}
             <strong>{order.payment_method?.replace(/_/g, " ").toUpperCase()}</strong>
           </p>
-          <p style={{ fontSize: "10pt", margin: "2px 0" }}>
+          <p style={{ fontSize: "9pt", margin: "2px 0" }}>
             <span style={{ color: "#555" }}>Status:</span>{" "}
             <span style={{ color: "#16a34a", fontWeight: 600 }}>✓ PAID</span>
+          </p>
+          <p style={{ fontSize: "9pt", margin: "2px 0" }}>
+            <span style={{ color: "#555" }}>Date:</span>{" "}
+            {formatDate(order.created_at)}
           </p>
         </div>
       </div>
@@ -136,7 +150,7 @@ const A4Receipt = ({ order }: A4ReceiptProps) => {
         </div>
       </div>
 
-      {/* Tips & Safety Section */}
+      {/* Tips & Safety */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5mm", marginBottom: "5mm" }}>
         <div style={{ border: "1px solid #ddd", borderRadius: "3px", padding: "4mm 5mm" }}>
           <h4 style={{ fontSize: "8pt", fontWeight: 700, color: "#1a1a1a", textTransform: "uppercase", letterSpacing: "0.5px", margin: "0 0 3mm", borderBottom: "1px solid #eee", paddingBottom: "2mm" }}>
@@ -158,9 +172,9 @@ const A4Receipt = ({ order }: A4ReceiptProps) => {
           <ul style={{ fontSize: "7.5pt", color: "#555", margin: 0, paddingLeft: "4mm", lineHeight: 1.8 }}>
             <li>Do not expose your device to extreme heat or moisture.</li>
             <li>Keep liquids away from your laptop at all times.</li>
-            <li>Warranty is void if the device is opened by unauthorized persons.</li>
+            <li>Warranty is void if opened by unauthorized persons.</li>
             <li>Report any defects within 7 days of purchase.</li>
-            <li>Retain this invoice as proof of purchase for warranty claims.</li>
+            <li>Retain this invoice as proof of purchase for warranty.</li>
             <li>For support, call: <strong>+256 705 154 828</strong></li>
           </ul>
         </div>
@@ -170,16 +184,15 @@ const A4Receipt = ({ order }: A4ReceiptProps) => {
       <div style={{ borderTop: "2px solid #1a1a1a", paddingTop: "4mm", marginTop: "auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div style={{ fontSize: "7.5pt", color: "#888" }}>
-            <p style={{ margin: 0 }}>This is a computer-generated invoice.</p>
+            <p style={{ margin: 0 }}>Computer-generated invoice.</p>
             <p style={{ margin: "1px 0 0" }}>No signature required.</p>
           </div>
           <div style={{ textAlign: "center" }}>
             <p style={{ fontSize: "9pt", fontWeight: 600, color: "#333", margin: 0 }}>Thank you for choosing Eco Print Technologies!</p>
-            <p style={{ fontSize: "7.5pt", color: "#888", margin: "1px 0 0" }}>Quality Tech • Trusted Service • Kampala, Uganda</p>
+            <p style={{ fontSize: "7pt", color: "#999", margin: "2px 0 0" }}>Powered by Kabejja Systems — www.kabejjasystems.store</p>
           </div>
           <div style={{ fontSize: "7.5pt", color: "#888", textAlign: "right" }}>
-            <p style={{ margin: 0 }}>Date: {new Date(order.created_at).toLocaleDateString("en-UG")}</p>
-            <p style={{ margin: "1px 0 0" }}>Ref: {order.order_number}</p>
+            <p style={{ margin: 0 }}>Ref: {order.order_number}</p>
           </div>
         </div>
       </div>
