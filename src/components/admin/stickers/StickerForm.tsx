@@ -192,6 +192,20 @@ const StickerForm = ({
           <Input value={sticker.footerText} onChange={(e) => onUpdate("footerText", e.target.value)} placeholder="Kabejja Technologies" className="text-xs h-8" />
         </div>
 
+        {/* Grid Footer Fields */}
+        {sticker.layout.footerLayout === "grid" && (
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label className="text-xs">Compliance ID</Label>
+              <Input value={sticker.complianceId} onChange={(e) => onUpdate("complianceId", e.target.value)} placeholder="TP00135A" className="text-xs h-8" />
+            </div>
+            <div>
+              <Label className="text-xs">PO / QT Code</Label>
+              <Input value={sticker.poCode} onChange={(e) => onUpdate("poCode", e.target.value)} placeholder="PO: 7520787279-00010&#10;QT: 12-30." className="text-xs h-8" />
+            </div>
+          </div>
+        )}
+
         {/* Layout Controls - Collapsible */}
         <Collapsible>
           <CollapsibleTrigger asChild>
