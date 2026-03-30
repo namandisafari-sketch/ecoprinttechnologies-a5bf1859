@@ -107,7 +107,14 @@ const StickerPreview = forwardRef<HTMLDivElement, StickerPreviewProps>(({ sticke
                 </div>
               ))}
               {sticker.showQrCode && sticker.qrCodeUrl && (
-                <QRCodeSVG value={sticker.qrCodeUrl} size={40} level="M" />
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                  <QRCodeSVG value={sticker.qrCodeUrl} size={40} level="M" />
+                  {sticker.productModel && (
+                    <span style={{ fontSize: "3.5pt", color: "#444", marginTop: "0.5mm", textAlign: "center", maxWidth: "15mm", lineHeight: "1.2", wordBreak: "break-word" }}>
+                      {sticker.brandName ? `${sticker.brandName} ` : ""}{sticker.productModel}
+                    </span>
+                  )}
+                </div>
               )}
               {sticker.footerText && (
                 <div style={{ fontSize: "5.5pt", color: "#555", whiteSpace: "pre-wrap", textAlign: "left" }}>
