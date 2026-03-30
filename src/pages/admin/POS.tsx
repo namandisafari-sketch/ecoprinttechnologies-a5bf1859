@@ -27,6 +27,8 @@ interface CartItem {
 interface CustomerInfo {
   name: string;
   phone: string;
+  email: string;
+  address: string;
 }
 
 const AdminPOS = () => {
