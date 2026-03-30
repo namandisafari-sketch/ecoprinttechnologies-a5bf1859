@@ -55,7 +55,12 @@ export const printStickers = (stickers: StickerData[]) => {
                   ${fi.label ? `<span style="font-size:4pt;color:#666;margin-top:0.5mm;">${fi.label}</span>` : ""}
                 </div>
               `).join("")}
-              ${sticker.showQrCode && sticker.qrCodeUrl ? renderQR(sticker.qrCodeUrl, 40) : ""}
+              ${sticker.showQrCode && sticker.qrCodeUrl ? `
+                <div style="display:flex;flex-direction:column;align-items:center;">
+                  ${renderQR(sticker.qrCodeUrl, 40)}
+                  ${sticker.productModel ? `<span style="font-size:3.5pt;color:#444;margin-top:0.5mm;text-align:center;max-width:15mm;line-height:1.2;word-break:break-word;">${sticker.brandName ? sticker.brandName + ' ' : ''}${sticker.productModel}</span>` : ''}
+                </div>
+              ` : ""}
               ${sticker.footerText ? `<div style="font-size:5.5pt;color:#555;white-space:pre-wrap;text-align:left;">${sticker.footerText}</div>` : ""}
             </div>
           </div>
