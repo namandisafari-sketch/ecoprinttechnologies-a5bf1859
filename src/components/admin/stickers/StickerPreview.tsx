@@ -28,7 +28,7 @@ const StickerPreview = forwardRef<HTMLDivElement, StickerPreviewProps>(({ sticke
             style={{
               width: `${L.stickerWidthMm}mm`,
               height: "297mm",
-              borderRight: idx < stickers.length - 1 ? "1px dashed #ccc" : "none",
+              border: "1px dashed #999",
               padding: `${L.paddingTopMm}mm ${L.paddingHorizontalMm}mm`,
               fontFamily: "Arial, Helvetica, sans-serif",
               display: "flex",
