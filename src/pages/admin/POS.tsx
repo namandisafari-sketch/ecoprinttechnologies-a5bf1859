@@ -340,18 +340,30 @@ const AdminPOS = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="flex-1 flex flex-col overflow-hidden p-4 pt-0">
-          {/* Customer Info (Optional) */}
+          {/* Customer Info */}
           <div className="grid grid-cols-2 gap-2 mb-3">
             <Input
-              placeholder="Customer name (optional)"
+              placeholder="Customer name"
               value={customerInfo.name}
               onChange={(e) => setCustomerInfo((p) => ({ ...p, name: e.target.value }))}
               className="text-sm"
             />
             <Input
-              placeholder="Phone (optional)"
+              placeholder="Phone"
               value={customerInfo.phone}
               onChange={(e) => setCustomerInfo((p) => ({ ...p, phone: e.target.value }))}
+              className="text-sm"
+            />
+            <Input
+              placeholder="Email (optional)"
+              value={customerInfo.email}
+              onChange={(e) => setCustomerInfo((p) => ({ ...p, email: e.target.value }))}
+              className="text-sm"
+            />
+            <Input
+              placeholder="Address (optional)"
+              value={customerInfo.address}
+              onChange={(e) => setCustomerInfo((p) => ({ ...p, address: e.target.value }))}
               className="text-sm"
             />
           </div>
