@@ -80,6 +80,17 @@ const LayoutControls = ({ layout, onChange }: LayoutControlsProps) => {
           </SelectContent>
         </Select>
       </div>
+
+      <div className="flex items-center gap-2">
+        <Label className="text-xs w-28 shrink-0">Footer Layout</Label>
+        <Select value={layout.footerLayout} onValueChange={(v) => update("footerLayout", v)}>
+          <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="row">Row (horizontal)</SelectItem>
+            <SelectItem value="grid">Grid (like packaging)</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 };

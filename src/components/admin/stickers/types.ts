@@ -22,6 +22,7 @@ export interface StickerLayout {
   footerAlign: "left" | "center" | "right";
   footerImageHeightMm: number;
   footerGapMm: number;
+  footerLayout: "row" | "grid";
 }
 
 export interface StickerData {
@@ -38,6 +39,8 @@ export interface StickerData {
   qrCodeUrl: string;
   footerImages: FooterImage[];
   footerText: string;
+  complianceId: string;
+  poCode: string;
   layout: StickerLayout;
 }
 
@@ -55,6 +58,7 @@ export const DEFAULT_LAYOUT: StickerLayout = {
   footerAlign: "center",
   footerImageHeightMm: 12,
   footerGapMm: 3,
+  footerLayout: "row",
 };
 
 export const DEFAULT_DISCLAIMERS = `For storage drive, GB a billion bytes TB =1 trillion bytes. Actual formatted capacity is less. Up to 35GB of system disk is reserved for system recovery software.
@@ -85,5 +89,7 @@ export const emptyStickerData = (): StickerData => ({
   qrCodeUrl: "",
   footerImages: [],
   footerText: "Kabejja Technologies",
+  complianceId: "",
+  poCode: "",
   layout: { ...DEFAULT_LAYOUT },
 });
