@@ -95,26 +95,22 @@ const StickerPreview = forwardRef<HTMLDivElement, StickerPreviewProps>(({ sticke
               paddingBottom: "3mm",
               width: "92%",
               display: "flex",
-              flexDirection: "column",
-              alignItems: L.footerAlign === "left" ? "flex-start" : L.footerAlign === "right" ? "flex-end" : "center",
-              gap: "2mm",
+              alignItems: "center",
+              justifyContent: L.footerAlign === "left" ? "flex-start" : L.footerAlign === "right" ? "flex-end" : "center",
+              gap: "3mm",
+              flexWrap: "wrap",
             }}>
-              {(sticker.footerImages.length > 0 || sticker.showQrCode) && (
-                <div style={{ display: "flex", alignItems: "center", justifyContent: L.footerAlign, gap: "3mm", flexWrap: "wrap" }}>
-                  {sticker.footerImages.map((fi, fiIdx) => (
-                    <div key={fiIdx} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                      {fi.url && <img src={fi.url} alt={fi.label} style={{ height: "12mm", objectFit: "contain" }} />}
-                      {fi.label && <span style={{ fontSize: "4pt", color: "#666", marginTop: "0.5mm" }}>{fi.label}</span>}
-                    </div>
-                  ))}
-                  {sticker.showQrCode && sticker.qrCodeUrl && (
-                    <QRCodeSVG value={sticker.qrCodeUrl} size={40} level="M" />
-                  )}
+              {sticker.footerImages.map((fi, fiIdx) => (
+                <div key={fiIdx} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                  {fi.url && <img src={fi.url} alt={fi.label} style={{ height: "12mm", objectFit: "contain" }} />}
+                  {fi.label && <span style={{ fontSize: "4pt", color: "#666", marginTop: "0.5mm" }}>{fi.label}</span>}
                 </div>
+              ))}
+              {sticker.showQrCode && sticker.qrCodeUrl && (
+                <QRCodeSVG value={sticker.qrCodeUrl} size={40} level="M" />
               )}
-
               {sticker.footerText && (
-                <div style={{ fontSize: "5.5pt", color: "#555", textAlign: L.footerAlign, whiteSpace: "pre-wrap" }}>
+                <div style={{ fontSize: "5.5pt", color: "#555", whiteSpace: "pre-wrap", textAlign: "left" }}>
                   {sticker.footerText}
                 </div>
               )}
