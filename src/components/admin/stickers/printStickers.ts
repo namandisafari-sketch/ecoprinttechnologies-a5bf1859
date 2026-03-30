@@ -17,6 +17,8 @@ export const printStickers = (stickers: StickerData[]) => {
           * { margin: 0; padding: 0; box-sizing: border-box; }
           body { width: 210mm; height: 297mm; display: flex; font-family: Arial, Helvetica, sans-serif; }
           @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+          .sticker { border: 1px dashed #999; }
+          .sticker + .sticker { border-left: 1px dashed #999; }
         </style>
       </head>
       <body>
