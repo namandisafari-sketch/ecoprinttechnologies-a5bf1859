@@ -185,7 +185,6 @@ const AdminPOS = () => {
           customer_phone: customerInfo.phone || "N/A",
           customer_email: customerInfo.email || "pos@ecoprint.ug",
           shipping_address: customerInfo.address || "In-Store Purchase",
-          shipping_address: "In-Store Purchase",
           city: "In-Store",
           subtotal: subtotal,
           delivery_fee: 0,
