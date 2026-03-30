@@ -66,6 +66,8 @@ const AdminStickers = () => {
         qrCodeUrl,
         footerImages: [],
         footerText: "Kabejja Technologies",
+        complianceId: "",
+        poCode: "",
         layout: { ...DEFAULT_LAYOUT },
       };
       return updated;
