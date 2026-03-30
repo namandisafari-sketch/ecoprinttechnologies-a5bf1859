@@ -48,6 +48,39 @@ export const printStickers = (stickers: StickerData[]) => {
               <hr style="width:60%;border:none;border-top:1px solid #000;margin-top:3mm;" />
               <div style="margin-top:3mm;font-size:${L.disclaimerFontPt}pt;line-height:1.35;width:92%;text-align:left;color:#333;">${sticker.disclaimers.replace(/\n/g, "<br/>")}</div>
             ` : ""}
+            ${L.footerLayout === "grid" ? `
+            <div style="margin-top:auto;padding-bottom:3mm;width:92%;">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:${L.footerGapMm}mm;">
+                <div>
+                  ${sticker.showQrCode && sticker.qrCodeUrl ? `
+                    <div style="display:flex;flex-direction:column;align-items:flex-start;">
+                      ${renderQR(sticker.qrCodeUrl, 50)}
+                      ${sticker.productModel ? `<span style="font-size:3.5pt;color:#444;margin-top:0.5mm;max-width:18mm;line-height:1.2;word-break:break-word;">${sticker.brandName ? sticker.brandName + ' ' : ''}${sticker.productModel}</span>` : ''}
+                    </div>
+                  ` : ''}
+                </div>
+                ${sticker.footerImages.length > 0 && sticker.footerImages[0]?.url ? `
+                  <div style="display:flex;flex-direction:column;align-items:center;">
+                    <img src="${sticker.footerImages[0].url}" style="height:${L.footerImageHeightMm}mm;object-fit:contain;" />
+                    ${sticker.footerImages[0].label ? `<span style="font-size:4pt;color:#666;margin-top:0.5mm;">${sticker.footerImages[0].label}</span>` : ''}
+                  </div>
+                ` : ''}
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:${L.footerGapMm}mm;">
+                ${sticker.complianceId ? `<div style="font-size:6pt;color:#333;"><div style="font-weight:bold;">Compliance ID:</div><div>${sticker.complianceId}</div></div>` : ''}
+                ${sticker.poCode ? `<div style="font-size:6pt;color:#333;text-align:right;white-space:pre-wrap;">${sticker.poCode}</div>` : ''}
+              </div>
+              <div style="display:flex;justify-content:center;align-items:center;gap:${L.footerGapMm}mm;flex-wrap:wrap;">
+                ${sticker.footerImages.slice(1).map(fi => `
+                  <div style="display:flex;flex-direction:column;align-items:center;">
+                    ${fi.url ? `<img src="${fi.url}" style="height:${L.footerImageHeightMm}mm;object-fit:contain;" />` : ''}
+                    ${fi.label ? `<span style="font-size:4pt;color:#666;margin-top:0.5mm;">${fi.label}</span>` : ''}
+                  </div>
+                `).join('')}
+                ${sticker.footerText ? `<div style="font-size:5.5pt;color:#555;white-space:pre-wrap;text-align:left;">${sticker.footerText}</div>` : ''}
+              </div>
+            </div>
+            ` : `
             <div style="margin-top:auto;padding-bottom:3mm;width:92%;display:flex;align-items:center;justify-content:${footerAlignFlex};gap:${L.footerGapMm}mm;flex-wrap:wrap;">
               ${sticker.footerImages.map(fi => `
                 <div style="display:flex;flex-direction:column;align-items:center;">
@@ -63,6 +96,7 @@ export const printStickers = (stickers: StickerData[]) => {
               ` : ""}
               ${sticker.footerText ? `<div style="font-size:5.5pt;color:#555;white-space:pre-wrap;text-align:left;">${sticker.footerText}</div>` : ""}
             </div>
+            `}
           </div>
         `}).join("")}
       </body>

@@ -90,38 +90,98 @@ const StickerPreview = forwardRef<HTMLDivElement, StickerPreviewProps>(({ sticke
               </>
             )}
 
-            <div style={{
-              marginTop: "auto",
-              paddingBottom: "3mm",
-              width: "92%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: L.footerAlign === "left" ? "flex-start" : L.footerAlign === "right" ? "flex-end" : "center",
-              gap: `${L.footerGapMm}mm`,
-              flexWrap: "wrap",
-            }}>
-              {sticker.footerImages.map((fi, fiIdx) => (
-                <div key={fiIdx} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                  {fi.url && <img src={fi.url} alt={fi.label} style={{ height: `${L.footerImageHeightMm}mm`, objectFit: "contain" }} />}
-                  {fi.label && <span style={{ fontSize: "4pt", color: "#666", marginTop: "0.5mm" }}>{fi.label}</span>}
-                </div>
-              ))}
-              {sticker.showQrCode && sticker.qrCodeUrl && (
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                  <QRCodeSVG value={sticker.qrCodeUrl} size={40} level="M" />
-                  {sticker.productModel && (
-                    <span style={{ fontSize: "3.5pt", color: "#444", marginTop: "0.5mm", textAlign: "center", maxWidth: "15mm", lineHeight: "1.2", wordBreak: "break-word" }}>
-                      {sticker.brandName ? `${sticker.brandName} ` : ""}{sticker.productModel}
-                    </span>
+            {L.footerLayout === "grid" ? (
+              /* Grid footer: QR top-left, badges top-right, compliance bottom-left, PO bottom-right, extra badge bottom-center */
+              <div style={{
+                marginTop: "auto",
+                paddingBottom: "3mm",
+                width: "92%",
+              }}>
+                {/* Top row: QR + first badge */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: `${L.footerGapMm}mm` }}>
+                  <div>
+                    {sticker.showQrCode && sticker.qrCodeUrl && (
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+                        <QRCodeSVG value={sticker.qrCodeUrl} size={50} level="M" />
+                        {sticker.productModel && (
+                          <span style={{ fontSize: "3.5pt", color: "#444", marginTop: "0.5mm", maxWidth: "18mm", lineHeight: "1.2", wordBreak: "break-word" }}>
+                            {sticker.brandName ? `${sticker.brandName} ` : ""}{sticker.productModel}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  {sticker.footerImages.length > 0 && sticker.footerImages[0]?.url && (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                      <img src={sticker.footerImages[0].url} alt={sticker.footerImages[0].label} style={{ height: `${L.footerImageHeightMm}mm`, objectFit: "contain" }} />
+                      {sticker.footerImages[0].label && <span style={{ fontSize: "4pt", color: "#666", marginTop: "0.5mm" }}>{sticker.footerImages[0].label}</span>}
+                    </div>
                   )}
                 </div>
-              )}
-              {sticker.footerText && (
-                <div style={{ fontSize: "5.5pt", color: "#555", whiteSpace: "pre-wrap", textAlign: "left" }}>
-                  {sticker.footerText}
+                {/* Middle row: Compliance ID + PO Code */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: `${L.footerGapMm}mm` }}>
+                  {sticker.complianceId && (
+                    <div style={{ fontSize: "6pt", color: "#333" }}>
+                      <div style={{ fontWeight: "bold" }}>Compliance ID:</div>
+                      <div>{sticker.complianceId}</div>
+                    </div>
+                  )}
+                  {sticker.poCode && (
+                    <div style={{ fontSize: "6pt", color: "#333", textAlign: "right", whiteSpace: "pre-wrap" }}>
+                      {sticker.poCode}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+                {/* Bottom row: remaining badges + footer text */}
+                <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: `${L.footerGapMm}mm`, flexWrap: "wrap" }}>
+                  {sticker.footerImages.slice(1).map((fi, fiIdx) => (
+                    <div key={fiIdx} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                      {fi.url && <img src={fi.url} alt={fi.label} style={{ height: `${L.footerImageHeightMm}mm`, objectFit: "contain" }} />}
+                      {fi.label && <span style={{ fontSize: "4pt", color: "#666", marginTop: "0.5mm" }}>{fi.label}</span>}
+                    </div>
+                  ))}
+                  {sticker.footerText && (
+                    <div style={{ fontSize: "5.5pt", color: "#555", whiteSpace: "pre-wrap", textAlign: "left" }}>
+                      {sticker.footerText}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              /* Row footer (original) */
+              <div style={{
+                marginTop: "auto",
+                paddingBottom: "3mm",
+                width: "92%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: L.footerAlign === "left" ? "flex-start" : L.footerAlign === "right" ? "flex-end" : "center",
+                gap: `${L.footerGapMm}mm`,
+                flexWrap: "wrap",
+              }}>
+                {sticker.footerImages.map((fi, fiIdx) => (
+                  <div key={fiIdx} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    {fi.url && <img src={fi.url} alt={fi.label} style={{ height: `${L.footerImageHeightMm}mm`, objectFit: "contain" }} />}
+                    {fi.label && <span style={{ fontSize: "4pt", color: "#666", marginTop: "0.5mm" }}>{fi.label}</span>}
+                  </div>
+                ))}
+                {sticker.showQrCode && sticker.qrCodeUrl && (
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    <QRCodeSVG value={sticker.qrCodeUrl} size={40} level="M" />
+                    {sticker.productModel && (
+                      <span style={{ fontSize: "3.5pt", color: "#444", marginTop: "0.5mm", textAlign: "center", maxWidth: "15mm", lineHeight: "1.2", wordBreak: "break-word" }}>
+                        {sticker.brandName ? `${sticker.brandName} ` : ""}{sticker.productModel}
+                      </span>
+                    )}
+                  </div>
+                )}
+                {sticker.footerText && (
+                  <div style={{ fontSize: "5.5pt", color: "#555", whiteSpace: "pre-wrap", textAlign: "left" }}>
+                    {sticker.footerText}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         );
       })}
