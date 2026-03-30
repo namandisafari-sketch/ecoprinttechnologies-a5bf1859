@@ -48,10 +48,10 @@ export const printStickers = (stickers: StickerData[]) => {
               <hr style="width:60%;border:none;border-top:1px solid #000;margin-top:3mm;" />
               <div style="margin-top:3mm;font-size:${L.disclaimerFontPt}pt;line-height:1.35;width:92%;text-align:left;color:#333;">${sticker.disclaimers.replace(/\n/g, "<br/>")}</div>
             ` : ""}
-            <div style="margin-top:auto;padding-bottom:3mm;width:92%;display:flex;align-items:center;justify-content:${footerAlignFlex};gap:3mm;flex-wrap:wrap;">
+            <div style="margin-top:auto;padding-bottom:3mm;width:92%;display:flex;align-items:center;justify-content:${footerAlignFlex};gap:${L.footerGapMm}mm;flex-wrap:wrap;">
               ${sticker.footerImages.map(fi => `
                 <div style="display:flex;flex-direction:column;align-items:center;">
-                  ${fi.url ? `<img src="${fi.url}" style="height:12mm;object-fit:contain;" />` : ""}
+                  ${fi.url ? `<img src="${fi.url}" style="height:${L.footerImageHeightMm}mm;object-fit:contain;" />` : ""}
                   ${fi.label ? `<span style="font-size:4pt;color:#666;margin-top:0.5mm;">${fi.label}</span>` : ""}
                 </div>
               `).join("")}

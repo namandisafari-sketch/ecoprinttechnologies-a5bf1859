@@ -43,6 +43,8 @@ const LayoutControls = ({ layout, onChange }: LayoutControlsProps) => {
       <SliderRow label="Disclaimer Font" value={layout.disclaimerFontPt} min={4} max={10} step={0.5} unit="pt" onChange={(v) => update("disclaimerFontPt", v)} />
       <SliderRow label="Top Padding" value={layout.paddingTopMm} min={2} max={20} step={1} unit="mm" onChange={(v) => update("paddingTopMm", v)} />
       <SliderRow label="Side Padding" value={layout.paddingHorizontalMm} min={2} max={15} step={1} unit="mm" onChange={(v) => update("paddingHorizontalMm", v)} />
+      <SliderRow label="Footer Img Height" value={layout.footerImageHeightMm} min={6} max={30} step={1} unit="mm" onChange={(v) => update("footerImageHeightMm", v)} />
+      <SliderRow label="Footer Gap" value={layout.footerGapMm} min={1} max={10} step={0.5} unit="mm" onChange={(v) => update("footerGapMm", v)} />
 
       <div className="flex items-center gap-2">
         <Label className="text-xs w-28 shrink-0">Title Align</Label>
