@@ -17,6 +17,8 @@ export const printStickers = (stickers: StickerData[]) => {
           * { margin: 0; padding: 0; box-sizing: border-box; }
           body { width: 210mm; height: 297mm; display: flex; font-family: Arial, Helvetica, sans-serif; }
           @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+          .sticker { border: 1px dashed #999; }
+          .sticker + .sticker { border-left: 1px dashed #999; }
         </style>
       </head>
       <body>
@@ -25,7 +27,7 @@ export const printStickers = (stickers: StickerData[]) => {
           const footerAlignFlex = L.footerAlign === "left" ? "flex-start" : L.footerAlign === "right" ? "flex-end" : "center";
           const titleAlignFlex = L.textAlign === "left" ? "flex-start" : L.textAlign === "right" ? "flex-end" : "center";
           return `
-          <div style="width:${L.stickerWidthMm}mm;height:297mm;border-right:${idx < stickers.length - 1 ? '1px dashed #ccc' : 'none'};padding:${L.paddingTopMm}mm ${L.paddingHorizontalMm}mm;display:flex;flex-direction:column;align-items:${titleAlignFlex};overflow:hidden;">
+          <div class="sticker" style="width:${L.stickerWidthMm}mm;height:297mm;padding:${L.paddingTopMm}mm ${L.paddingHorizontalMm}mm;display:flex;flex-direction:column;align-items:${titleAlignFlex};overflow:hidden;">
             ${sticker.showBrandLogo && sticker.brandLogoUrl ? `
               <div style="margin:2mm 0;"><img src="${sticker.brandLogoUrl}" style="max-height:${L.logoMaxHeightMm}mm;max-width:80%;object-fit:contain;" /></div>
             ` : ""}
