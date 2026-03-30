@@ -141,7 +141,7 @@ const AdminPOS = () => {
 
   const clearCart = () => {
     setCart([]);
-    setCustomerInfo({ name: "", phone: "" });
+    setCustomerInfo({ name: "", phone: "", email: "", address: "" });
     setDiscount(0);
   };
 
