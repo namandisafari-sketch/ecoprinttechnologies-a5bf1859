@@ -1,18 +1,48 @@
-import { useState, useRef } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useRef, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Printer, Plus, Tag, Copy } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Printer, Plus, Tag, Copy, Save, FolderOpen, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import StickerForm from "@/components/admin/stickers/StickerForm";
 import StickerPreview from "@/components/admin/stickers/StickerPreview";
 import { printStickers } from "@/components/admin/stickers/printStickers";
-import { StickerData, DEFAULT_SPECS, DEFAULT_DISCLAIMERS, DEFAULT_LAYOUT, emptyStickerData } from "@/components/admin/stickers/types";
+import { StickerData, StickerLayout, FooterImage, DEFAULT_SPECS, DEFAULT_DISCLAIMERS, DEFAULT_LAYOUT, emptyStickerData } from "@/components/admin/stickers/types";
+
+interface StickerTemplate {
+  id: string;
+  name: string;
+  createdAt: string;
+  layout: StickerLayout;
+  footerImages: FooterImage[];
+  footerText: string;
+  complianceId: string;
+  poCode: string;
+  disclaimers: string;
+  showQrCode: boolean;
+  showBrandLogo: boolean;
+  specs: { key: string; value: string }[];
+}
+
+const TEMPLATES_KEY = "sticker_templates";
 
 const AdminStickers = () => {
   const [stickers, setStickers] = useState<StickerData[]>([emptyStickerData()]);
   const printRef = useRef<HTMLDivElement>(null);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [showLoadDialog, setShowLoadDialog] = useState(false);
+  const [templateName, setTemplateName] = useState("");
+  const [saveFromIndex, setSaveFromIndex] = useState(0);
+  const queryClient = useQueryClient();
 
   const { data: products } = useQuery({
     queryKey: ["sticker-products"],
@@ -26,6 +56,104 @@ const AdminStickers = () => {
       return data;
     },
   });
+
+  const { data: templates = [] } = useQuery({
+    queryKey: ["sticker-templates"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("store_settings")
+        .select("value")
+        .eq("key", TEMPLATES_KEY)
+        .maybeSingle();
+      if (error) throw error;
+      return (data?.value as unknown as StickerTemplate[]) || [];
+    },
+  });
+
+  const saveTemplates = useMutation({
+    mutationFn: async (newTemplates: StickerTemplate[]) => {
+      const { data: existing } = await supabase
+        .from("store_settings")
+        .select("id")
+        .eq("key", TEMPLATES_KEY)
+        .maybeSingle();
+
+      if (existing) {
+        const { error } = await supabase
+          .from("store_settings")
+          .update({ value: newTemplates as any })
+          .eq("key", TEMPLATES_KEY);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("store_settings")
+          .insert({ key: TEMPLATES_KEY, value: newTemplates as any });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["sticker-templates"] });
+    },
+  });
+
+  const handleSaveTemplate = async () => {
+    if (!templateName.trim()) {
+      toast.error("Please enter a template name");
+      return;
+    }
+
+    const sticker = stickers[saveFromIndex];
+    const template: StickerTemplate = {
+      id: crypto.randomUUID(),
+      name: templateName.trim(),
+      createdAt: new Date().toISOString(),
+      layout: { ...sticker.layout },
+      footerImages: sticker.footerImages.map(fi => ({ ...fi })),
+      footerText: sticker.footerText,
+      complianceId: sticker.complianceId,
+      poCode: sticker.poCode,
+      disclaimers: sticker.disclaimers,
+      showQrCode: sticker.showQrCode,
+      showBrandLogo: sticker.showBrandLogo,
+      specs: sticker.specs.map(s => ({ ...s })),
+    };
+
+    const updated = [...templates, template];
+    await saveTemplates.mutateAsync(updated);
+    toast.success(`Template "${templateName}" saved`);
+    setTemplateName("");
+    setShowSaveDialog(false);
+  };
+
+  const handleDeleteTemplate = async (id: string) => {
+    const updated = templates.filter(t => t.id !== id);
+    await saveTemplates.mutateAsync(updated);
+    toast.success("Template deleted");
+  };
+
+  const handleLoadTemplate = (template: StickerTemplate, targetIndex: number) => {
+    setStickers(prev => {
+      const updated = [...prev];
+      const current = updated[targetIndex];
+      updated[targetIndex] = {
+        ...current,
+        layout: { ...template.layout },
+        footerImages: template.footerImages.map(fi => ({ ...fi })),
+        footerText: template.footerText,
+        complianceId: template.complianceId,
+        poCode: template.poCode,
+        disclaimers: template.disclaimers,
+        showQrCode: template.showQrCode,
+        showBrandLogo: template.showBrandLogo,
+        specs: template.specs.map(s => ({ ...s })),
+      };
+      return updated;
+    });
+    toast.success(`Template "${template.name}" applied to Sticker ${targetIndex + 1}`);
+    setShowLoadDialog(false);
+  };
+
+  // --- existing handlers ---
 
   const loadFromProduct = (productId: string, stickerIndex: number) => {
     const product = products?.find((p: any) => p.id === productId);
@@ -185,15 +313,21 @@ const AdminStickers = () => {
           <p className="text-muted-foreground text-sm">Generate packaging stickers with logos, QR codes & specs (up to 3 per A4)</p>
         </div>
         <div className="flex gap-2 flex-wrap">
+          <Button variant="outline" size="sm" onClick={() => setShowLoadDialog(true)}>
+            <FolderOpen className="h-4 w-4 mr-1" /> Load Template
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => { setSaveFromIndex(0); setShowSaveDialog(true); }}>
+            <Save className="h-4 w-4 mr-1" /> Save Template
+          </Button>
           {stickers.length === 1 && (
-            <Button variant="outline" onClick={() => fillAllWithSticker(0)}>
+            <Button variant="outline" size="sm" onClick={() => fillAllWithSticker(0)}>
               <Copy className="h-4 w-4 mr-1" /> Fill 3x Identical
             </Button>
           )}
-          <Button variant="outline" onClick={addSticker} disabled={stickers.length >= 3}>
+          <Button variant="outline" size="sm" onClick={addSticker} disabled={stickers.length >= 3}>
             <Plus className="h-4 w-4 mr-1" /> Add Sticker
           </Button>
-          <Button onClick={handlePrint}>
+          <Button size="sm" onClick={handlePrint}>
             <Printer className="h-4 w-4 mr-1" /> Print Stickers
           </Button>
         </div>
@@ -231,6 +365,83 @@ const AdminStickers = () => {
           <StickerPreview ref={printRef} stickers={stickers} />
         </CardContent>
       </Card>
+
+      {/* Save Template Dialog */}
+      <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Save Sticker Template</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Save the current layout, footer, disclaimers, and spec keys as a reusable template.
+            </p>
+            {stickers.length > 1 && (
+              <div className="flex gap-2">
+                {stickers.map((_, i) => (
+                  <Button
+                    key={i}
+                    variant={saveFromIndex === i ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSaveFromIndex(i)}
+                  >
+                    Sticker {i + 1}
+                  </Button>
+                ))}
+              </div>
+            )}
+            <Input
+              placeholder="Template name (e.g. HP Standard, Lenovo Grid)"
+              value={templateName}
+              onChange={(e) => setTemplateName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSaveTemplate()}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowSaveDialog(false)}>Cancel</Button>
+            <Button onClick={handleSaveTemplate} disabled={saveTemplates.isPending}>
+              <Save className="h-4 w-4 mr-1" /> Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Load Template Dialog */}
+      <Dialog open={showLoadDialog} onOpenChange={setShowLoadDialog}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Load Sticker Template</DialogTitle>
+          </DialogHeader>
+          {templates.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-4 text-center">
+              No saved templates yet. Create a sticker layout and save it as a template.
+            </p>
+          ) : (
+            <div className="space-y-2 max-h-[50vh] overflow-y-auto">
+              {templates.map((tpl) => (
+                <div key={tpl.id} className="flex items-center justify-between p-3 rounded-lg border bg-muted/30 hover:bg-muted/60 transition-colors">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm">{tpl.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {tpl.layout.footerLayout === "grid" ? "Grid footer" : "Row footer"} · {tpl.layout.stickerWidthMm}mm wide · {tpl.specs.filter(s => s.key).length} spec fields · {new Date(tpl.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="flex gap-1 ml-2">
+                    {stickers.map((_, i) => (
+                      <Button key={i} size="sm" variant="outline" className="text-xs h-7" onClick={() => handleLoadTemplate(tpl, i)}>
+                        → {i + 1}
+                      </Button>
+                    ))}
+                    <Button size="sm" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => handleDeleteTemplate(tpl.id)}>
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
