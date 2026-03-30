@@ -29,14 +29,14 @@ const ReceiptModal = ({ order, onClose }: ReceiptModalProps) => {
     const styles = `
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Courier New', monospace; }
+        body { font-family: ${receiptType === "thermal" ? "'Courier New', monospace" : "'Segoe UI', Arial, sans-serif"}; }
         ${receiptType === "thermal" ? `
           body { width: 80mm; }
           .receipt { padding: 10px; }
         ` : `
-          body { width: 210mm; }
-          .receipt { padding: 20px; }
+          body { width: 210mm; margin: 0 auto; }
         `}
+        img { display: inline-block; }
         @media print {
           body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
         }
