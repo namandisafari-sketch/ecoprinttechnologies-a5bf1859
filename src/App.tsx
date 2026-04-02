@@ -72,6 +72,7 @@ const App = () => (
         <Sonner />
         <DeviceProvider>
         <BrowserRouter>
+          <ScrollToTop />
           <MaintenanceGuard>
           <Routes>
             {/* Public routes */}
