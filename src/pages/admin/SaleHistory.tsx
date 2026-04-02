@@ -1,22 +1,28 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Search, ShoppingBag, TrendingUp, DollarSign } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Search, ShoppingBag, TrendingUp, DollarSign, Printer, Store, Globe, Eye } from "lucide-react";
 import { format } from "date-fns";
+import A4Receipt from "@/components/pos/A4Receipt";
 
 const AdminSaleHistory = () => {
   const [search, setSearch] = useState("");
+  const [sourceFilter, setSourceFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [receiptOpen, setReceiptOpen] = useState(false);
+  const receiptRef = useRef<HTMLDivElement>(null);
 
   const { data: orders = [] } = useQuery({
-    queryKey: ["sale-history", search, statusFilter, dateFrom, dateTo],
+    queryKey: ["sale-history", search, sourceFilter, statusFilter, dateFrom, dateTo],
     queryFn: async () => {
       let q = supabase
         .from("orders")
@@ -28,14 +34,23 @@ const AdminSaleHistory = () => {
       if (dateFrom) q = q.gte("created_at", `${dateFrom}T00:00:00`);
       if (dateTo) q = q.lte("created_at", `${dateTo}T23:59:59`);
 
+      // Source filter: store sales come from POS (payment_method = 'cash'/'pos'), online orders come from checkout
+      if (sourceFilter === "store") q = q.in("payment_method", ["cash", "pos", "card"]);
+      if (sourceFilter === "online") q = q.in("payment_method", ["mobile_money", "mtn_momo", "pesapal"]).not("payment_method", "is", null);
+
       const { data } = await q.limit(200);
       return data || [];
     },
   });
 
+  const isStoreSale = (order: any) => {
+    return ["cash", "pos", "card"].includes(order.payment_method);
+  };
+
   const completedOrders = orders.filter((o: any) => o.status !== "cancelled");
   const totalSales = completedOrders.reduce((s: number, o: any) => s + Number(o.total), 0);
-  const totalItems = completedOrders.reduce((s: number, o: any) => s + (o.order_items?.reduce((is: number, i: any) => is + i.quantity, 0) || 0), 0);
+  const storeCount = orders.filter((o: any) => isStoreSale(o)).length;
+  const onlineCount = orders.filter((o: any) => !isStoreSale(o)).length;
   const fmt = (n: number) => new Intl.NumberFormat("en-UG").format(Math.round(n));
 
   const statusColor = (s: string) => {
@@ -48,15 +63,45 @@ const AdminSaleHistory = () => {
     }
   };
 
+  const handleReprint = (order: any) => {
+    const receiptOrder = {
+      ...order,
+      items: order.order_items?.map((i: any) => ({
+        product_name: i.product_name,
+        quantity: i.quantity,
+        product_price: i.product_price,
+        subtotal: i.subtotal,
+      })) || [],
+    };
+    setSelectedOrder(receiptOrder);
+    setReceiptOpen(true);
+  };
+
+  const printReceipt = () => {
+    const el = receiptRef.current;
+    if (!el) return;
+    const w = window.open("", "_blank");
+    if (!w) return;
+    w.document.write(`<!DOCTYPE html><html><head><title>Receipt</title>
+      <style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:'Segoe UI',Arial,sans-serif;width:210mm;margin:0 auto;}img{display:inline-block;}@page{size:A4;margin:0;}@media print{body{print-color-adjust:exact;-webkit-print-color-adjust:exact;}}</style>
+    </head><body>${el.innerHTML}</body></html>`);
+    w.document.close();
+    w.focus();
+    setTimeout(() => { w.print(); w.close(); }, 300);
+  };
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Sale History</h1>
-        <p className="text-sm text-muted-foreground">Complete record of all sales transactions</p>
+        <p className="text-sm text-muted-foreground">
+          <span className="inline-flex items-center gap-1"><Store className="h-3 w-3" /> Store</span> = POS sales at the shop &nbsp;|&nbsp;
+          <span className="inline-flex items-center gap-1"><Globe className="h-3 w-3" /> Online</span> = Customer orders via the website
+        </p>
       </div>
 
       {/* Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
@@ -73,7 +118,7 @@ const AdminSaleHistory = () => {
             <div className="flex items-center gap-3">
               <div className="p-2 bg-accent/50 rounded-lg"><ShoppingBag className="h-5 w-5 text-accent-foreground" /></div>
               <div>
-                <p className="text-xs text-muted-foreground">Orders</p>
+                <p className="text-xs text-muted-foreground">Total Transactions</p>
                 <p className="text-xl font-bold text-foreground">{orders.length}</p>
               </div>
             </div>
@@ -82,10 +127,21 @@ const AdminSaleHistory = () => {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-secondary rounded-lg"><DollarSign className="h-5 w-5 text-secondary-foreground" /></div>
+              <div className="p-2 bg-orange-100 rounded-lg"><Store className="h-5 w-5 text-orange-600" /></div>
               <div>
-                <p className="text-xs text-muted-foreground">Items Sold</p>
-                <p className="text-xl font-bold text-foreground">{totalItems}</p>
+                <p className="text-xs text-muted-foreground">Store Sales</p>
+                <p className="text-xl font-bold text-foreground">{storeCount}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 rounded-lg"><Globe className="h-5 w-5 text-blue-600" /></div>
+              <div>
+                <p className="text-xs text-muted-foreground">Online Orders</p>
+                <p className="text-xl font-bold text-foreground">{onlineCount}</p>
               </div>
             </div>
           </CardContent>
@@ -98,8 +154,16 @@ const AdminSaleHistory = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Search by name, order #, phone..." className="pl-9" value={search} onChange={e => setSearch(e.target.value)} />
         </div>
+        <Select value={sourceFilter} onValueChange={setSourceFilter}>
+          <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Sources</SelectItem>
+            <SelectItem value="store">Store Sales</SelectItem>
+            <SelectItem value="online">Online Orders</SelectItem>
+          </SelectContent>
+        </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
             <SelectItem value="pending">Pending</SelectItem>
@@ -109,56 +173,96 @@ const AdminSaleHistory = () => {
             <SelectItem value="cancelled">Cancelled</SelectItem>
           </SelectContent>
         </Select>
-        <Input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="w-40" placeholder="From" />
-        <Input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="w-40" placeholder="To" />
+        <Input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="w-40" />
+        <Input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="w-40" />
       </div>
 
-      {/* Sales table */}
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Order #</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Items</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Payment</TableHead>
-                <TableHead className="text-right">Total</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {orders.map((o: any) => (
-                <TableRow key={o.id}>
-                  <TableCell className="text-sm">{format(new Date(o.created_at), "MMM dd, yyyy HH:mm")}</TableCell>
-                  <TableCell className="font-mono text-sm">{o.order_number}</TableCell>
-                  <TableCell>
+      {/* Grid Cards */}
+      {orders.length === 0 ? (
+        <div className="text-center py-16 text-muted-foreground">
+          <ShoppingBag className="h-12 w-12 mx-auto mb-3 opacity-30" />
+          <p>No sales found</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {orders.map((o: any) => {
+            const store = isStoreSale(o);
+            return (
+              <Card key={o.id} className="hover:shadow-md transition-shadow">
+                <CardContent className="p-4 space-y-3">
+                  {/* Header */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {store ? (
+                        <Badge variant="outline" className="text-orange-600 border-orange-300 bg-orange-50 gap-1">
+                          <Store className="h-3 w-3" /> Store
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-blue-600 border-blue-300 bg-blue-50 gap-1">
+                          <Globe className="h-3 w-3" /> Online
+                        </Badge>
+                      )}
+                      <Badge variant={statusColor(o.status) as any} className="capitalize">{o.status}</Badge>
+                    </div>
+                    <span className="text-xs text-muted-foreground font-mono">{o.order_number}</span>
+                  </div>
+
+                  {/* Customer */}
+                  <div>
+                    <p className="font-semibold text-sm text-foreground">{o.customer_name}</p>
+                    <p className="text-xs text-muted-foreground">{o.customer_phone}</p>
+                  </div>
+
+                  {/* Items */}
+                  <div className="bg-muted/50 rounded-md p-2 space-y-1">
+                    {o.order_items?.slice(0, 3).map((i: any, idx: number) => (
+                      <div key={idx} className="flex justify-between text-xs">
+                        <span className="truncate mr-2">{i.quantity}× {i.product_name}</span>
+                        <span className="text-muted-foreground whitespace-nowrap">UGX {fmt(i.subtotal)}</span>
+                      </div>
+                    ))}
+                    {(o.order_items?.length || 0) > 3 && (
+                      <p className="text-xs text-muted-foreground">+{o.order_items.length - 3} more items</p>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="flex items-center justify-between pt-1 border-t">
                     <div>
-                      <p className="text-sm font-medium">{o.customer_name}</p>
-                      <p className="text-xs text-muted-foreground">{o.customer_phone}</p>
+                      <p className="text-lg font-bold text-foreground">UGX {fmt(o.total)}</p>
+                      <p className="text-xs text-muted-foreground">{format(new Date(o.created_at), "MMM dd, yyyy • HH:mm")}</p>
                     </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="max-w-[200px]">
-                      {o.order_items?.slice(0, 2).map((i: any, idx: number) => (
-                        <p key={idx} className="text-xs truncate">{i.quantity}× {i.product_name}</p>
-                      ))}
-                      {(o.order_items?.length || 0) > 2 && <p className="text-xs text-muted-foreground">+{o.order_items.length - 2} more</p>}
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="sm" onClick={() => handleReprint(o)} title="Reprint receipt">
+                        <Printer className="h-4 w-4" />
+                      </Button>
                     </div>
-                  </TableCell>
-                  <TableCell><Badge variant={statusColor(o.status) as any} className="capitalize">{o.status}</Badge></TableCell>
-                  <TableCell><Badge variant={o.payment_status === "paid" ? "default" : "secondary"} className="capitalize">{o.payment_status}</Badge></TableCell>
-                  <TableCell className="text-right font-medium">UGX {fmt(o.total)}</TableCell>
-                </TableRow>
-              ))}
-              {orders.length === 0 && (
-                <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">No sales found</TableCell></TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Receipt Reprint Dialog */}
+      <Dialog open={receiptOpen} onOpenChange={setReceiptOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between">
+              <span>Receipt Preview</span>
+              <Button onClick={printReceipt} size="sm">
+                <Printer className="h-4 w-4 mr-1" /> Print
+              </Button>
+            </DialogTitle>
+          </DialogHeader>
+          {selectedOrder && (
+            <div ref={receiptRef} className="bg-white">
+              <A4Receipt order={selectedOrder} />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
