@@ -236,6 +236,80 @@ export type Database = {
         }
         Relationships: []
       }
+      expense_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          is_default: boolean | null
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          name?: string
+        }
+        Relationships: []
+      }
+      expenses: {
+        Row: {
+          amount: number
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          expense_date: string
+          id: string
+          payment_method: string | null
+          reference_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          expense_date?: string
+          id?: string
+          payment_method?: string | null
+          reference_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          expense_date?: string
+          id?: string
+          payment_method?: string | null
+          reference_number?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "expense_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hero_slides: {
         Row: {
           created_at: string
