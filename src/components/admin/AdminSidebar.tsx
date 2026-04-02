@@ -18,6 +18,9 @@ import {
   Navigation,
   Tag,
   FileText,
+  Wallet,
+  BarChart3,
+  History,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
