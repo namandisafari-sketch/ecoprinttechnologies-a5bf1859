@@ -18,6 +18,9 @@ import {
   Navigation,
   Tag,
   FileText,
+  Wallet,
+  BarChart3,
+  History,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -37,6 +40,9 @@ const navItems = [
   { label: "Delivery Accounts", href: "/admin/delivery-accounts", icon: Navigation },
   { label: "Stickers", href: "/admin/stickers", icon: Tag },
   { label: "Quotations", href: "/admin/quotations", icon: FileText },
+  { label: "Sale History", href: "/admin/sale-history", icon: History },
+  { label: "Expenses", href: "/admin/expenses", icon: Wallet },
+  { label: "Reports", href: "/admin/reports", icon: BarChart3 },
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
