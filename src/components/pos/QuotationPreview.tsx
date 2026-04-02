@@ -47,19 +47,28 @@ const QuotationPreview = ({ data }: QuotationPreviewProps) => {
     <div className="quotation-preview" style={{ width: "210mm", height: "297mm", maxHeight: "297mm", overflow: "hidden", padding: "8mm 12mm", fontFamily: "'Segoe UI', Arial, sans-serif", color: "#222", background: "#fff", display: "flex", flexDirection: "column", boxSizing: "border-box" }}>
       {/* === HEADER === */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1mm" }}>
-        <div style={{ display: "flex", gap: 0, marginTop: "2mm" }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-            <div style={{ display: "flex", gap: 0 }}>
-              <div style={{ width: "8mm", height: "14mm", background: "#00aa00" }} />
-              <div style={{ width: "8mm", height: "14mm", background: "#00cc99" }} />
-            </div>
-            <div style={{ display: "flex", gap: 0 }}>
-              <div style={{ width: "8mm", height: "10mm", background: "#00dd44" }} />
-              <div style={{ width: "8mm", height: "10mm", background: "#00eebb" }} />
-            </div>
+        {/* Staircase color blocks */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 0, marginTop: "0" }}>
+          {/* Row 1: 4 blocks */}
+          <div style={{ display: "flex", gap: 0 }}>
+            <div style={{ width: "7mm", height: "8mm", background: "#00ff00" }} />
+            <div style={{ width: "7mm", height: "8mm", background: "#00cc00" }} />
+            <div style={{ width: "7mm", height: "8mm", background: "#006600" }} />
+            <div style={{ width: "7mm", height: "8mm", background: "#00ffcc" }} />
+          </div>
+          {/* Row 2: 2 blocks */}
+          <div style={{ display: "flex", gap: 0 }}>
+            <div style={{ width: "7mm", height: "10mm", background: "#00ff00" }} />
+            <div style={{ width: "7mm", height: "10mm", background: "#00cc00" }} />
+          </div>
+          {/* Row 3: 2 narrower blocks */}
+          <div style={{ display: "flex", gap: 0 }}>
+            <div style={{ width: "5mm", height: "8mm", background: "#00ff00" }} />
+            <div style={{ width: "5mm", height: "8mm", background: "#00cc00" }} />
           </div>
         </div>
-        <div style={{ textAlign: "center" }}>
+        {/* Right: Logo + contact centered */}
+        <div style={{ textAlign: "center", flex: 1 }}>
           <img src={ecoprintLogo} alt="Eco Print Technologies" style={{ height: "14mm", width: "auto", marginBottom: "1mm" }} />
           <p style={{ fontSize: "8.5pt", fontWeight: 700, color: "#333", margin: "0" }}>
             Computer sales, repairs, accessories, networking &amp; IT Support
@@ -71,7 +80,6 @@ const QuotationPreview = ({ data }: QuotationPreviewProps) => {
             Tel: +256 702 365176 / +256783 935721
           </p>
         </div>
-        <div style={{ width: "16mm" }} />
       </div>
 
       <div style={{ borderBottom: "2px solid #006600", marginBottom: "3mm" }} />
