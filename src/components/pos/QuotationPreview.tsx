@@ -44,61 +44,53 @@ const QuotationPreview = ({ data }: QuotationPreviewProps) => {
   const notes = data.notes.length > 0 ? data.notes : defaultNotes;
 
   return (
-    <div className="quotation-preview" style={{ width: "210mm", minHeight: "297mm", padding: "10mm 15mm", fontFamily: "'Segoe UI', Arial, sans-serif", color: "#222", background: "#fff", display: "flex", flexDirection: "column" }}>
+    <div className="quotation-preview" style={{ width: "210mm", height: "297mm", maxHeight: "297mm", overflow: "hidden", padding: "8mm 12mm", fontFamily: "'Segoe UI', Arial, sans-serif", color: "#222", background: "#fff", display: "flex", flexDirection: "column", boxSizing: "border-box" }}>
       {/* === HEADER === */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2mm" }}>
-        {/* Left: green/red accent block */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1mm" }}>
         <div style={{ display: "flex", gap: 0, marginTop: "2mm" }}>
-          <div style={{ width: "12mm", height: "28mm", background: "#006600", borderRadius: "2px 0 0 2px" }} />
-          <div style={{ width: "12mm", height: "28mm", background: "#cc0000", borderRadius: "0 2px 2px 0" }} />
+          <div style={{ width: "10mm", height: "22mm", background: "#006600", borderRadius: "2px 0 0 2px" }} />
+          <div style={{ width: "10mm", height: "22mm", background: "#cc0000", borderRadius: "0 2px 2px 0" }} />
         </div>
-        {/* Right: logo + info */}
         <div style={{ textAlign: "right" }}>
-          <img src={ecoprintLogo} alt="Eco Print Technologies" style={{ height: "16mm", width: "auto", marginBottom: "2mm" }} />
-          <p style={{ fontSize: "9pt", fontWeight: 700, color: "#333", margin: "1px 0" }}>
+          <img src={ecoprintLogo} alt="Eco Print Technologies" style={{ height: "14mm", width: "auto", marginBottom: "1mm" }} />
+          <p style={{ fontSize: "8pt", fontWeight: 700, color: "#333", margin: "0" }}>
             Computer sales, repairs, accessories, networking &amp; IT Support
           </p>
-          <p style={{ fontSize: "8pt", color: "#444", margin: "1px 0" }}>
+          <p style={{ fontSize: "7.5pt", color: "#444", margin: "0" }}>
             F2-4 Suncity Plaza, Kampala Road
           </p>
-          <p style={{ fontSize: "8pt", color: "#444", margin: "1px 0" }}>
+          <p style={{ fontSize: "7.5pt", color: "#444", margin: "0" }}>
             Tel: +256 702 365176 / +256 783 935721
           </p>
         </div>
       </div>
 
-      {/* Divider */}
-      <div style={{ borderBottom: "2px solid #006600", marginBottom: "5mm" }} />
+      <div style={{ borderBottom: "2px solid #006600", marginBottom: "3mm" }} />
 
-      {/* Date */}
-      <p style={{ textAlign: "right", fontSize: "9pt", marginBottom: "4mm" }}>
+      <p style={{ textAlign: "right", fontSize: "8.5pt", marginBottom: "2mm" }}>
         {formatDate(data.date)}
       </p>
 
-      {/* To */}
-      <p style={{ fontSize: "9pt", marginBottom: "5mm" }}>
+      <p style={{ fontSize: "8.5pt", marginBottom: "3mm" }}>
         to: <strong>{data.customerName || "___________________________"}</strong>
       </p>
 
-      {/* Subject */}
-      <h2 style={{ fontSize: "11pt", fontWeight: 800, marginBottom: "5mm", textDecoration: "underline" }}>
+      <h2 style={{ fontSize: "10pt", fontWeight: 800, marginBottom: "3mm", textDecoration: "underline" }}>
         RE: {data.subject || "QUOTATION FOR SALE OF LAPTOPS."}
       </h2>
 
-      {/* Intro */}
-      <p style={{ fontSize: "9pt", lineHeight: 1.6, marginBottom: "5mm" }}>
+      <p style={{ fontSize: "8pt", lineHeight: 1.5, marginBottom: "3mm" }}>
         We thank you for the opportunity given to our company to quote for your requirements.
         As a reputable reseller/distributor and service center for computers and accessories,
         we are pleased to include our best offers for you as below;
       </p>
 
-      {/* Items Table */}
-      <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "5mm" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "3mm" }}>
         <thead>
           <tr>
             <th style={thS({ textAlign: "left" })}>Description</th>
-            <th style={thS({ width: "35mm" })}>Unit Price</th>
-            <th style={thS({ width: "35mm" })}>Total Price</th>
+            <th style={thS({ width: "30mm" })}>Unit Price</th>
+            <th style={thS({ width: "30mm" })}>Total Price</th>
           </tr>
         </thead>
         <tbody>
@@ -106,7 +98,7 @@ const QuotationPreview = ({ data }: QuotationPreviewProps) => {
             <tr key={i}>
               <td style={tdS({ textAlign: "left" })}>
                 {item.description}
-                {item.quantity > 1 && <span style={{ color: "#666", fontSize: "8pt" }}> (×{item.quantity})</span>}
+                {item.quantity > 1 && <span style={{ color: "#666", fontSize: "7.5pt" }}> (×{item.quantity})</span>}
               </td>
               <td style={tdS({})}>{formatPrice(item.unitPrice)}</td>
               <td style={tdS({})}>{formatPrice(item.unitPrice * item.quantity)}</td>
@@ -120,36 +112,33 @@ const QuotationPreview = ({ data }: QuotationPreviewProps) => {
           )}
           <tr>
             <td style={tdS({ textAlign: "right", fontWeight: 700, border: "none" })} colSpan={2}>Total amount</td>
-            <td style={{ ...tdS({}), fontWeight: 700, fontSize: "10pt" }}>{formatPrice(total)}</td>
+            <td style={{ ...tdS({}), fontWeight: 700, fontSize: "9pt" }}>{formatPrice(total)}</td>
           </tr>
         </tbody>
       </table>
 
-      {/* Terms */}
-      <ul style={{ listStyleType: "'-  '", paddingLeft: "5mm", marginBottom: "6mm" }}>
+      <ul style={{ listStyleType: "'-  '", paddingLeft: "4mm", marginBottom: "3mm" }}>
         {notes.map((note, i) => (
-          <li key={i} style={{ fontSize: "8.5pt", lineHeight: 1.6, marginBottom: "2mm" }}>{note}</li>
+          <li key={i} style={{ fontSize: "7.5pt", lineHeight: 1.4, marginBottom: "1mm" }}>{note}</li>
         ))}
       </ul>
 
-      {/* Signature */}
-      <div style={{ marginBottom: "8mm" }}>
-        <p style={{ fontSize: "9pt", marginBottom: "2mm" }}>Warm regards,</p>
-        <img src={signatureImg} alt="Signature" style={{ height: "14mm", width: "auto", marginBottom: "1mm" }} />
-        <p style={{ fontSize: "9pt", fontWeight: 700, margin: "1mm 0" }}>Ssentongo Fahd</p>
-        <p style={{ fontSize: "8pt", color: "#444", margin: "1mm 0" }}>Managing Director</p>
-        <p style={{ fontSize: "8pt", fontWeight: 600, margin: "1mm 0" }}>Ecoprint Technologies Ltd</p>
+      <div style={{ marginBottom: "2mm" }}>
+        <p style={{ fontSize: "8pt", marginBottom: "1mm" }}>Warm regards,</p>
+        <img src={signatureImg} alt="Signature" style={{ height: "12mm", width: "auto", marginBottom: "0" }} />
+        <p style={{ fontSize: "8.5pt", fontWeight: 700, margin: "0" }}>Ssentongo Fahd</p>
+        <p style={{ fontSize: "7.5pt", color: "#444", margin: "0" }}>Managing Director</p>
+        <p style={{ fontSize: "7.5pt", fontWeight: 600, margin: "0" }}>Ecoprint Technologies Ltd</p>
       </div>
 
-      {/* Footer */}
-      <div style={{ marginTop: "auto", borderTop: "1px solid #006600", paddingTop: "3mm" }}>
-        <div style={{ display: "flex", justifyContent: "center", gap: "8mm", flexWrap: "wrap" }}>
-          <span style={{ fontSize: "8pt", color: "#333" }}>📞 +256 702 365176 / +256 783 935721</span>
-          <span style={{ fontSize: "8pt", color: "#333" }}>✉ ecoprinttechnologies2020@gmail.com</span>
+      <div style={{ marginTop: "auto", borderTop: "1px solid #006600", paddingTop: "2mm" }}>
+        <div style={{ display: "flex", justifyContent: "center", gap: "6mm", flexWrap: "wrap" }}>
+          <span style={{ fontSize: "7.5pt", color: "#333" }}>📞 +256 702 365176 / +256 783 935721</span>
+          <span style={{ fontSize: "7.5pt", color: "#333" }}>✉ ecoprinttechnologies2020@gmail.com</span>
         </div>
-        <div style={{ display: "flex", justifyContent: "center", gap: "8mm", marginTop: "1mm" }}>
-          <span style={{ fontSize: "8pt", color: "#333" }}>🌐 www.ecoprinttechnologies.com</span>
-          <span style={{ fontSize: "8pt", color: "#333" }}>📍 F2-4 Suncity Plaza Kampala Road, Kampala</span>
+        <div style={{ display: "flex", justifyContent: "center", gap: "6mm", marginTop: "0.5mm" }}>
+          <span style={{ fontSize: "7.5pt", color: "#333" }}>🌐 www.ecoprinttechnologies.com</span>
+          <span style={{ fontSize: "7.5pt", color: "#333" }}>📍 F2-4 Suncity Plaza Kampala Road, Kampala</span>
         </div>
       </div>
     </div>
