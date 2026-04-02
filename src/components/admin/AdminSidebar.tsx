@@ -17,6 +17,7 @@ import {
   Truck,
   Navigation,
   Tag,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -35,6 +36,7 @@ const navItems = [
   { label: "Delivery Zones", href: "/admin/delivery-zones", icon: Truck },
   { label: "Delivery Accounts", href: "/admin/delivery-accounts", icon: Navigation },
   { label: "Stickers", href: "/admin/stickers", icon: Tag },
+  { label: "Quotations", href: "/admin/quotations", icon: FileText },
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
