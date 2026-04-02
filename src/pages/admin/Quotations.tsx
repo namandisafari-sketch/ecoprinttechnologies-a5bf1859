@@ -93,7 +93,7 @@ const AdminQuotations = () => {
     const w = window.open("", "_blank");
     if (!w) return;
     w.document.write(`<!DOCTYPE html><html><head><title>Quotation</title>
-      <style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:'Segoe UI',Arial,sans-serif;width:210mm;margin:0 auto;}img{display:inline-block;}@media print{body{print-color-adjust:exact;-webkit-print-color-adjust:exact;}}</style>
+      <style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:'Segoe UI',Arial,sans-serif;width:210mm;margin:0 auto;}img{display:inline-block;}@page{size:A4;margin:0;}@media print{body{print-color-adjust:exact;-webkit-print-color-adjust:exact;}}</style>
     </head><body>${el.innerHTML}</body></html>`);
     w.document.close();
     w.focus();
