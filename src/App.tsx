@@ -40,6 +40,7 @@ import AdminStoreLocation from "./pages/admin/StoreLocation";
 import AdminDeliveryZones from "./pages/admin/DeliveryZones";
 import AdminDeliveryAccounts from "./pages/admin/DeliveryAccounts";
 import AdminStickers from "./pages/admin/Stickers";
+import AdminQuotations from "./pages/admin/Quotations";
 
 const queryClient = new QueryClient();
 
