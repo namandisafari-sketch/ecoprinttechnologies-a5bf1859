@@ -17,6 +17,7 @@ import {
   Truck,
   Navigation,
   Tag,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";

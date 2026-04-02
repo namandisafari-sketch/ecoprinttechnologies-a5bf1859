@@ -110,6 +110,7 @@ const App = () => (
               <Route path="delivery-zones" element={<AdminDeliveryZones />} />
               <Route path="delivery-accounts" element={<AdminDeliveryAccounts />} />
               <Route path="stickers" element={<AdminStickers />} />
+              <Route path="quotations" element={<AdminQuotations />} />
             </Route>
 
             {/* Catch-all */}
