@@ -46,47 +46,40 @@ const QuotationPreview = ({ data }: QuotationPreviewProps) => {
   return (
     <div className="quotation-preview" style={{ width: "210mm", height: "297mm", maxHeight: "297mm", overflow: "hidden", padding: "8mm 12mm", fontFamily: "'Segoe UI', Arial, sans-serif", color: "#222", background: "#fff", display: "flex", flexDirection: "column", boxSizing: "border-box" }}>
       {/* === HEADER === */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2mm" }}>
-        {/* Left: green/red accent block */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1mm" }}>
         <div style={{ display: "flex", gap: 0, marginTop: "2mm" }}>
-          <div style={{ width: "12mm", height: "28mm", background: "#006600", borderRadius: "2px 0 0 2px" }} />
-          <div style={{ width: "12mm", height: "28mm", background: "#cc0000", borderRadius: "0 2px 2px 0" }} />
+          <div style={{ width: "10mm", height: "22mm", background: "#006600", borderRadius: "2px 0 0 2px" }} />
+          <div style={{ width: "10mm", height: "22mm", background: "#cc0000", borderRadius: "0 2px 2px 0" }} />
         </div>
-        {/* Right: logo + info */}
         <div style={{ textAlign: "right" }}>
-          <img src={ecoprintLogo} alt="Eco Print Technologies" style={{ height: "16mm", width: "auto", marginBottom: "2mm" }} />
-          <p style={{ fontSize: "9pt", fontWeight: 700, color: "#333", margin: "1px 0" }}>
+          <img src={ecoprintLogo} alt="Eco Print Technologies" style={{ height: "14mm", width: "auto", marginBottom: "1mm" }} />
+          <p style={{ fontSize: "8pt", fontWeight: 700, color: "#333", margin: "0" }}>
             Computer sales, repairs, accessories, networking &amp; IT Support
           </p>
-          <p style={{ fontSize: "8pt", color: "#444", margin: "1px 0" }}>
+          <p style={{ fontSize: "7.5pt", color: "#444", margin: "0" }}>
             F2-4 Suncity Plaza, Kampala Road
           </p>
-          <p style={{ fontSize: "8pt", color: "#444", margin: "1px 0" }}>
+          <p style={{ fontSize: "7.5pt", color: "#444", margin: "0" }}>
             Tel: +256 702 365176 / +256 783 935721
           </p>
         </div>
       </div>
 
-      {/* Divider */}
-      <div style={{ borderBottom: "2px solid #006600", marginBottom: "5mm" }} />
+      <div style={{ borderBottom: "2px solid #006600", marginBottom: "3mm" }} />
 
-      {/* Date */}
-      <p style={{ textAlign: "right", fontSize: "9pt", marginBottom: "4mm" }}>
+      <p style={{ textAlign: "right", fontSize: "8.5pt", marginBottom: "2mm" }}>
         {formatDate(data.date)}
       </p>
 
-      {/* To */}
-      <p style={{ fontSize: "9pt", marginBottom: "5mm" }}>
+      <p style={{ fontSize: "8.5pt", marginBottom: "3mm" }}>
         to: <strong>{data.customerName || "___________________________"}</strong>
       </p>
 
-      {/* Subject */}
-      <h2 style={{ fontSize: "11pt", fontWeight: 800, marginBottom: "5mm", textDecoration: "underline" }}>
+      <h2 style={{ fontSize: "10pt", fontWeight: 800, marginBottom: "3mm", textDecoration: "underline" }}>
         RE: {data.subject || "QUOTATION FOR SALE OF LAPTOPS."}
       </h2>
 
-      {/* Intro */}
-      <p style={{ fontSize: "9pt", lineHeight: 1.6, marginBottom: "5mm" }}>
+      <p style={{ fontSize: "8pt", lineHeight: 1.5, marginBottom: "3mm" }}>
         We thank you for the opportunity given to our company to quote for your requirements.
         As a reputable reseller/distributor and service center for computers and accessories,
         we are pleased to include our best offers for you as below;
