@@ -41,6 +41,9 @@ import AdminDeliveryZones from "./pages/admin/DeliveryZones";
 import AdminDeliveryAccounts from "./pages/admin/DeliveryAccounts";
 import AdminStickers from "./pages/admin/Stickers";
 import AdminQuotations from "./pages/admin/Quotations";
+import AdminExpenses from "./pages/admin/Expenses";
+import AdminReports from "./pages/admin/Reports";
+import AdminSaleHistory from "./pages/admin/SaleHistory";
 
 const queryClient = new QueryClient();
 
