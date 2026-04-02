@@ -44,7 +44,7 @@ const QuotationPreview = ({ data }: QuotationPreviewProps) => {
   const notes = data.notes.length > 0 ? data.notes : defaultNotes;
 
   return (
-    <div className="quotation-preview" style={{ width: "210mm", minHeight: "297mm", padding: "10mm 15mm", fontFamily: "'Segoe UI', Arial, sans-serif", color: "#222", background: "#fff", display: "flex", flexDirection: "column" }}>
+    <div className="quotation-preview" style={{ width: "210mm", height: "297mm", maxHeight: "297mm", overflow: "hidden", padding: "8mm 12mm", fontFamily: "'Segoe UI', Arial, sans-serif", color: "#222", background: "#fff", display: "flex", flexDirection: "column", boxSizing: "border-box" }}>
       {/* === HEADER === */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2mm" }}>
         {/* Left: green/red accent block */}
