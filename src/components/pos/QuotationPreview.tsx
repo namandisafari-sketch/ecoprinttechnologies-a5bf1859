@@ -48,21 +48,30 @@ const QuotationPreview = ({ data }: QuotationPreviewProps) => {
       {/* === HEADER === */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1mm" }}>
         <div style={{ display: "flex", gap: 0, marginTop: "2mm" }}>
-          <div style={{ width: "10mm", height: "22mm", background: "#006600", borderRadius: "2px 0 0 2px" }} />
-          <div style={{ width: "10mm", height: "22mm", background: "#cc0000", borderRadius: "0 2px 2px 0" }} />
+          <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+            <div style={{ display: "flex", gap: 0 }}>
+              <div style={{ width: "8mm", height: "14mm", background: "#00aa00" }} />
+              <div style={{ width: "8mm", height: "14mm", background: "#00cc99" }} />
+            </div>
+            <div style={{ display: "flex", gap: 0 }}>
+              <div style={{ width: "8mm", height: "10mm", background: "#00dd44" }} />
+              <div style={{ width: "8mm", height: "10mm", background: "#00eebb" }} />
+            </div>
+          </div>
         </div>
-        <div style={{ textAlign: "right" }}>
+        <div style={{ textAlign: "center" }}>
           <img src={ecoprintLogo} alt="Eco Print Technologies" style={{ height: "14mm", width: "auto", marginBottom: "1mm" }} />
-          <p style={{ fontSize: "8pt", fontWeight: 700, color: "#333", margin: "0" }}>
+          <p style={{ fontSize: "8.5pt", fontWeight: 700, color: "#333", margin: "0" }}>
             Computer sales, repairs, accessories, networking &amp; IT Support
           </p>
           <p style={{ fontSize: "7.5pt", color: "#444", margin: "0" }}>
-            F2-4 Suncity Plaza, Kampala Road
+            F24 Suncity Plaza, Kampala Road
           </p>
           <p style={{ fontSize: "7.5pt", color: "#444", margin: "0" }}>
-            Tel: +256 702 365176 / +256 783 935721
+            Tel: +256 702 365176 / +256783 935721
           </p>
         </div>
+        <div style={{ width: "16mm" }} />
       </div>
 
       <div style={{ borderBottom: "2px solid #006600", marginBottom: "3mm" }} />
