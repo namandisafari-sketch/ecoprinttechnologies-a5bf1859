@@ -640,7 +640,7 @@ export type Database = {
           display_order: number | null
           id: string
           product_id: string
-          spec_name: string
+          spec_key: string
           spec_value: string
         }
         Insert: {
@@ -648,7 +648,7 @@ export type Database = {
           display_order?: number | null
           id?: string
           product_id: string
-          spec_name: string
+          spec_key: string
           spec_value: string
         }
         Update: {
@@ -656,7 +656,7 @@ export type Database = {
           display_order?: number | null
           id?: string
           product_id?: string
-          spec_name?: string
+          spec_key?: string
           spec_value?: string
         }
         Relationships: [
@@ -797,6 +797,7 @@ export type Database = {
           rating: number | null
           shop_number: string | null
           specializations: string[] | null
+          status: string | null
           total_reviews: number | null
           updated_at: string
           user_id: string
@@ -815,6 +816,7 @@ export type Database = {
           rating?: number | null
           shop_number?: string | null
           specializations?: string[] | null
+          status?: string | null
           total_reviews?: number | null
           updated_at?: string
           user_id: string
@@ -833,6 +835,7 @@ export type Database = {
           rating?: number | null
           shop_number?: string | null
           specializations?: string[] | null
+          status?: string | null
           total_reviews?: number | null
           updated_at?: string
           user_id?: string
@@ -901,6 +904,7 @@ export type Database = {
           id: string
           seller_id: string
           service_id: string | null
+          service_type: string | null
           status: string | null
           title: string
           updated_at: string
@@ -918,6 +922,7 @@ export type Database = {
           id?: string
           seller_id: string
           service_id?: string | null
+          service_type?: string | null
           status?: string | null
           title: string
           updated_at?: string
@@ -935,6 +940,7 @@ export type Database = {
           id?: string
           seller_id?: string
           service_id?: string | null
+          service_type?: string | null
           status?: string | null
           title?: string
           updated_at?: string
