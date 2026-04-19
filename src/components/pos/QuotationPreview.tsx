@@ -147,14 +147,16 @@ const QuotationPreview = ({ data }: QuotationPreviewProps) => {
         <p style={{ fontSize: "7.5pt", fontWeight: 600, margin: "0" }}>Ecoprint Technologies Ltd</p>
       </div>
 
-      <div style={{ marginTop: "auto", borderTop: "1px solid #006600", paddingTop: "2mm" }}>
-        <div style={{ display: "flex", justifyContent: "center", gap: "6mm", flexWrap: "wrap" }}>
-          <span style={{ fontSize: "7.5pt", color: "#333" }}>📞 +256 702 365176 / +256 783 935721</span>
-          <span style={{ fontSize: "7.5pt", color: "#333" }}>✉ ecoprinttechnologies2020@gmail.com</span>
-        </div>
-        <div style={{ display: "flex", justifyContent: "center", gap: "6mm", marginTop: "0.5mm" }}>
-          <span style={{ fontSize: "7.5pt", color: "#333" }}>🌐 www.ecoprinttechnologies.com</span>
-          <span style={{ fontSize: "7.5pt", color: "#333" }}>📍 F2-4 Suncity Plaza Kampala Road, Kampala</span>
+        <div style={{ marginTop: "auto", paddingTop: "4mm" }}>
+          <div style={{ borderTop: "2px solid #009933", marginBottom: "3mm", position: "relative" }}>
+            <div style={{ position: "absolute", top: "-2px", left: 0, width: "30%", height: "2px", background: "#cc0000" }} />
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5mm 8mm", paddingBottom: "5mm" }}>
+            <span style={{ fontSize: "7.5pt", color: "#333" }}><span style={{ color: "#009933", fontWeight: 700 }}>✆</span> +256 702 365176 · +256 783 935721</span>
+            <span style={{ fontSize: "7.5pt", color: "#333", textAlign: "right" }}><span style={{ color: "#009933", fontWeight: 700 }}>✉</span> ecoprinttechnologies2020@gmail.com</span>
+            <span style={{ fontSize: "7.5pt", color: "#333" }}><span style={{ color: "#009933", fontWeight: 700 }}>🌐</span> www.ecoprinttechnologies.com</span>
+            <span style={{ fontSize: "7.5pt", color: "#333", textAlign: "right" }}><span style={{ color: "#009933", fontWeight: 700 }}>📍</span> F2-4 Suncity Plaza, Kampala Road</span>
+          </div>
         </div>
       </div>
     </div>
