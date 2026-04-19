@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_access_codes: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       brands: {
         Row: {
           created_at: string
@@ -77,6 +104,167 @@ export type Database = {
         }
         Relationships: []
       }
+      conversations: {
+        Row: {
+          created_at: string
+          customer_email: string | null
+          customer_name: string
+          customer_phone: string
+          id: string
+          last_message_at: string | null
+          session_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_email?: string | null
+          customer_name: string
+          customer_phone: string
+          id?: string
+          last_message_at?: string | null
+          session_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string
+          customer_phone?: string
+          id?: string
+          last_message_at?: string | null
+          session_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      devices: {
+        Row: {
+          created_at: string
+          device_fingerprint: string
+          full_name: string | null
+          id: string
+          recovery_code: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          device_fingerprint: string
+          full_name?: string | null
+          id?: string
+          recovery_code?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          device_fingerprint?: string
+          full_name?: string | null
+          id?: string
+          recovery_code?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          is_read: boolean | null
+          product_id: string | null
+          sender_id: string | null
+          sender_type: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          product_id?: string | null
+          sender_id?: string | null
+          sender_type: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          product_id?: string | null
+          sender_id?: string | null
+          sender_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      momo_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          order_id: string
+          phone: string
+          raw_request_json: Json | null
+          raw_response_json: Json | null
+          reference_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          order_id: string
+          phone: string
+          raw_request_json?: Json | null
+          raw_response_json?: Json | null
+          reference_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          order_id?: string
+          phone?: string
+          raw_request_json?: Json | null
+          raw_response_json?: Json | null
+          reference_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "momo_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           created_at: string
@@ -132,7 +320,9 @@ export type Database = {
           customer_email: string
           customer_name: string
           customer_phone: string
+          delivery_code: string | null
           delivery_fee: number | null
+          device_id: string | null
           id: string
           notes: string | null
           order_number: string
@@ -151,7 +341,9 @@ export type Database = {
           customer_email: string
           customer_name: string
           customer_phone: string
+          delivery_code?: string | null
           delivery_fee?: number | null
+          device_id?: string | null
           id?: string
           notes?: string | null
           order_number: string
@@ -170,7 +362,9 @@ export type Database = {
           customer_email?: string
           customer_name?: string
           customer_phone?: string
+          delivery_code?: string | null
           delivery_fee?: number | null
+          device_id?: string | null
           id?: string
           notes?: string | null
           order_number?: string
@@ -183,7 +377,15 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "orders_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       products: {
         Row: {
@@ -293,6 +495,179 @@ export type Database = {
         }
         Relationships: []
       }
+      seller_profiles: {
+        Row: {
+          avatar_url: string | null
+          business_name: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          is_verified: boolean | null
+          location: string | null
+          phone: string
+          rating: number | null
+          shop_number: string | null
+          specializations: string[] | null
+          total_reviews: number | null
+          updated_at: string
+          user_id: string
+          whatsapp: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          business_name: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          location?: string | null
+          phone: string
+          rating?: number | null
+          shop_number?: string | null
+          specializations?: string[] | null
+          total_reviews?: number | null
+          updated_at?: string
+          user_id: string
+          whatsapp?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          business_name?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          location?: string | null
+          phone?: string
+          rating?: number | null
+          shop_number?: string | null
+          specializations?: string[] | null
+          total_reviews?: number | null
+          updated_at?: string
+          user_id?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      seller_services: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          price: number
+          price_type: string | null
+          seller_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          price: number
+          price_type?: string | null
+          seller_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          price?: number
+          price_type?: string | null
+          seller_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_services_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "seller_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_requests: {
+        Row: {
+          budget: number | null
+          created_at: string
+          customer_id: string
+          customer_name: string
+          customer_phone: string
+          description: string
+          device_brand: string | null
+          device_model: string | null
+          device_type: string | null
+          id: string
+          seller_id: string
+          service_id: string | null
+          status: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          budget?: number | null
+          created_at?: string
+          customer_id: string
+          customer_name: string
+          customer_phone: string
+          description: string
+          device_brand?: string | null
+          device_model?: string | null
+          device_type?: string | null
+          id?: string
+          seller_id: string
+          service_id?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          budget?: number | null
+          created_at?: string
+          customer_id?: string
+          customer_name?: string
+          customer_phone?: string
+          description?: string
+          device_brand?: string | null
+          device_model?: string | null
+          device_type?: string | null
+          id?: string
+          seller_id?: string
+          service_id?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_requests_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "seller_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_requests_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "seller_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -327,6 +702,11 @@ export type Database = {
         Returns: boolean
       }
       is_admin_or_manager: { Args: { _user_id: string }; Returns: boolean }
+      is_seller: { Args: { _user_id: string }; Returns: boolean }
+      verify_admin_access_code: {
+        Args: { input_code: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "manager" | "user" | "seller" | "customer"
