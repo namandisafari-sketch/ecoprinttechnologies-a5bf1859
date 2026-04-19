@@ -41,6 +41,141 @@ export type Database = {
         }
         Relationships: []
       }
+      broker_pickups: {
+        Row: {
+          actual_return_date: string | null
+          amount_paid: number | null
+          approved_at: string | null
+          approved_by: string | null
+          broker_id: string
+          closed_at: string | null
+          created_at: string
+          expected_return_date: string | null
+          id: string
+          notes: string | null
+          payment_method: string | null
+          pickup_number: string
+          product_id: string | null
+          product_name: string
+          product_sku: string | null
+          purpose: string
+          quantity: number
+          released_at: string | null
+          released_by: string | null
+          status: string
+          total_value: number
+          unit_price: number
+          updated_at: string
+        }
+        Insert: {
+          actual_return_date?: string | null
+          amount_paid?: number | null
+          approved_at?: string | null
+          approved_by?: string | null
+          broker_id: string
+          closed_at?: string | null
+          created_at?: string
+          expected_return_date?: string | null
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          pickup_number: string
+          product_id?: string | null
+          product_name: string
+          product_sku?: string | null
+          purpose?: string
+          quantity?: number
+          released_at?: string | null
+          released_by?: string | null
+          status?: string
+          total_value?: number
+          unit_price?: number
+          updated_at?: string
+        }
+        Update: {
+          actual_return_date?: string | null
+          amount_paid?: number | null
+          approved_at?: string | null
+          approved_by?: string | null
+          broker_id?: string
+          closed_at?: string | null
+          created_at?: string
+          expected_return_date?: string | null
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          pickup_number?: string
+          product_id?: string | null
+          product_name?: string
+          product_sku?: string | null
+          purpose?: string
+          quantity?: number
+          released_at?: string | null
+          released_by?: string | null
+          status?: string
+          total_value?: number
+          unit_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "broker_pickups_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "broker_pickups_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      brokers: {
+        Row: {
+          commission_rate: number | null
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          id_number: string | null
+          is_active: boolean | null
+          location: string | null
+          notes: string | null
+          phone: string
+          updated_at: string
+        }
+        Insert: {
+          commission_rate?: number | null
+          created_at?: string
+          email?: string | null
+          full_name: string
+          id?: string
+          id_number?: string | null
+          is_active?: boolean | null
+          location?: string | null
+          notes?: string | null
+          phone: string
+          updated_at?: string
+        }
+        Update: {
+          commission_rate?: number | null
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          id_number?: string | null
+          is_active?: boolean | null
+          location?: string | null
+          notes?: string | null
+          phone?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
