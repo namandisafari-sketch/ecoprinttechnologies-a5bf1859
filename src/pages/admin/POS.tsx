@@ -83,6 +83,7 @@ const AdminPOS = () => {
   const [creditNotes, setCreditNotes] = useState('');
   const [endDayDate, setEndDayDate] = useState<Date | undefined>(undefined);
   const [saleDate, setSaleDate] = useState<Date | undefined>(undefined);
+  const [cashierName, setCashierName] = useState<string>('');
 
   useEffect(() => {
     fetchProducts();
@@ -91,6 +92,15 @@ const AdminPOS = () => {
     fetchCashRegisterBalance();
     fetchCustomerWallets();
   }, []);
+
+  useEffect(() => {
+    const fetchCashier = async () => {
+      if (!user) return;
+      const { data } = await supabase.from('profiles').select('full_name').eq('user_id', user.id).maybeSingle();
+      setCashierName(data?.full_name || user.email || 'Staff');
+    };
+    fetchCashier();
+  }, [user]);
 
   const fetchCustomers = async () => {
     const { data } = await supabase
@@ -380,6 +390,8 @@ const AdminPOS = () => {
         amount_paid: actualAmountPaid,
         change_given: paymentMethod === 'cash' ? Math.max(0, change) : 0,
         sold_by: user?.id,
+        cashier_id: user?.id,
+        cashier_name: cashierName,
         notes:
           paymentMethod === 'wallet'
             ? 'Paid from customer wallet'
@@ -982,6 +994,9 @@ const AdminPOS = () => {
 
               <div className="space-y-2">
                 <p><strong>Customer:</strong> {lastSale.customer_name}</p>
+                {lastSale.cashier_name && (
+                  <p className="text-xs"><strong>Cashier:</strong> {lastSale.cashier_name}</p>
+                )}
                 <div className="border-t border-b py-2 space-y-1">
                   {lastSale.items.map((item: CartItem) => (
                     <div key={item.product.id} className="flex justify-between">
