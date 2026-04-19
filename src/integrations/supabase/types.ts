@@ -394,28 +394,58 @@ export type Database = {
       }
       devices: {
         Row: {
+          connection_type: string | null
           created_at: string
           device_fingerprint: string
+          device_type: string | null
           full_name: string | null
           id: string
+          ip_address: string | null
+          language: string | null
+          phone_brand: string | null
+          phone_model: string | null
+          platform: string | null
           recovery_code: string | null
+          screen_height: number | null
+          screen_width: number | null
           updated_at: string
+          user_agent: string | null
         }
         Insert: {
+          connection_type?: string | null
           created_at?: string
           device_fingerprint: string
+          device_type?: string | null
           full_name?: string | null
           id?: string
+          ip_address?: string | null
+          language?: string | null
+          phone_brand?: string | null
+          phone_model?: string | null
+          platform?: string | null
           recovery_code?: string | null
+          screen_height?: number | null
+          screen_width?: number | null
           updated_at?: string
+          user_agent?: string | null
         }
         Update: {
+          connection_type?: string | null
           created_at?: string
           device_fingerprint?: string
+          device_type?: string | null
           full_name?: string | null
           id?: string
+          ip_address?: string | null
+          language?: string | null
+          phone_brand?: string | null
+          phone_model?: string | null
+          platform?: string | null
           recovery_code?: string | null
+          screen_height?: number | null
+          screen_width?: number | null
           updated_at?: string
+          user_agent?: string | null
         }
         Relationships: []
       }
@@ -503,6 +533,7 @@ export type Database = {
           id: string
           image_url: string | null
           is_active: boolean
+          link: string | null
           subtitle: string | null
           title: string
           updated_at: string
@@ -516,6 +547,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean
+          link?: string | null
           subtitle?: string | null
           title: string
           updated_at?: string
@@ -529,6 +561,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean
+          link?: string | null
           subtitle?: string | null
           title?: string
           updated_at?: string
@@ -1025,6 +1058,7 @@ export type Database = {
           sku: string | null
           slug: string
           stock_quantity: number | null
+          unit_cost: number | null
           updated_at: string
         }
         Insert: {
@@ -1045,6 +1079,7 @@ export type Database = {
           sku?: string | null
           slug: string
           stock_quantity?: number | null
+          unit_cost?: number | null
           updated_at?: string
         }
         Update: {
@@ -1065,6 +1100,7 @@ export type Database = {
           sku?: string | null
           slug?: string
           stock_quantity?: number | null
+          unit_cost?: number | null
           updated_at?: string
         }
         Relationships: [
@@ -1128,6 +1164,7 @@ export type Database = {
           rating: number | null
           shop_number: string | null
           specializations: string[] | null
+          status: string | null
           total_reviews: number | null
           updated_at: string
           user_id: string
@@ -1146,6 +1183,7 @@ export type Database = {
           rating?: number | null
           shop_number?: string | null
           specializations?: string[] | null
+          status?: string | null
           total_reviews?: number | null
           updated_at?: string
           user_id: string
@@ -1164,6 +1202,7 @@ export type Database = {
           rating?: number | null
           shop_number?: string | null
           specializations?: string[] | null
+          status?: string | null
           total_reviews?: number | null
           updated_at?: string
           user_id?: string
