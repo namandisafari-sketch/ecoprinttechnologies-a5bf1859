@@ -27,6 +27,8 @@ import {
   RefreshCcw,
   DollarSign,
   Image,
+  Shield,
+  IdCard,
 } from "lucide-react";
 
 export interface AdminNavItem {
@@ -60,9 +62,11 @@ export const adminNavItems: AdminNavItem[] = [
   { label: "Broker Pickups", href: "/admin/broker-pickups", icon: PackageCheck },
   { label: "Broker Statement", href: "/admin/broker-statement", icon: ClipboardList },
   { label: "Staff & Roles", href: "/admin/staff", icon: Users2 },
+  { label: "Workers & ID Cards", href: "/admin/workers", icon: IdCard },
   { label: "Attendance", href: "/admin/attendance", icon: Clock },
   { label: "Quotations", href: "/admin/quotations", icon: FileText },
   { label: "Sale History", href: "/admin/sale-history", icon: History },
   { label: "Reports", href: "/admin/reports", icon: BarChart3 },
+  { label: "Audit Log", href: "/admin/audit-log", icon: Shield },
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
