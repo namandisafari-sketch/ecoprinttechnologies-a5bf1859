@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase as supabaseTyped } from '@/integrations/supabase/client';
 const supabase = supabaseTyped as any;
 import { useAuth } from '@/hooks/useAuth';
+import { logAudit } from '@/lib/audit';
 import { Search, Plus, Minus, Trash2, ShoppingCart, Printer, Barcode, ScanLine, Edit2, CalendarIcon, Power } from 'lucide-react';
 import fadyLogo from '@/assets/fady-logo.png';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -491,6 +492,7 @@ const AdminPOS = () => {
       }
 
       setLastSale({ ...sale, items: cart, isCredit: paymentMethod === 'credit', isWallet: paymentMethod === 'wallet' });
+      await logAudit({ action: 'create', entityType: 'sale', entityId: sale.id, description: `POS sale ${sale.receipt_number} — ${cart.length} item(s), total ${total}`, metadata: { payment_method: paymentMethod, total } });
       setShowReceipt(true);
       setCart([]);
       setAmountPaid('');
