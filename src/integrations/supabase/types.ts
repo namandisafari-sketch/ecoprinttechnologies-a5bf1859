@@ -142,27 +142,93 @@ export type Database = {
       }
       devices: {
         Row: {
+          connection_type: string | null
           created_at: string
           device_fingerprint: string
-          full_name: string
+          device_type: string | null
+          full_name: string | null
           id: string
-          recovery_code: string
+          ip_address: string | null
+          language: string | null
+          phone_brand: string | null
+          phone_model: string | null
+          platform: string | null
+          recovery_code: string | null
+          screen_height: number | null
+          screen_width: number | null
+          updated_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          connection_type?: string | null
+          created_at?: string
+          device_fingerprint: string
+          device_type?: string | null
+          full_name?: string | null
+          id?: string
+          ip_address?: string | null
+          language?: string | null
+          phone_brand?: string | null
+          phone_model?: string | null
+          platform?: string | null
+          recovery_code?: string | null
+          screen_height?: number | null
+          screen_width?: number | null
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          connection_type?: string | null
+          created_at?: string
+          device_fingerprint?: string
+          device_type?: string | null
+          full_name?: string | null
+          id?: string
+          ip_address?: string | null
+          language?: string | null
+          phone_brand?: string | null
+          phone_model?: string | null
+          platform?: string | null
+          recovery_code?: string | null
+          screen_height?: number | null
+          screen_width?: number | null
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      hero_slides: {
+        Row: {
+          created_at: string
+          display_order: number | null
+          id: string
+          image_url: string
+          is_active: boolean | null
+          link: string | null
+          subtitle: string | null
+          title: string
           updated_at: string
         }
         Insert: {
           created_at?: string
-          device_fingerprint: string
-          full_name: string
+          display_order?: number | null
           id?: string
-          recovery_code: string
+          image_url: string
+          is_active?: boolean | null
+          link?: string | null
+          subtitle?: string | null
+          title: string
           updated_at?: string
         }
         Update: {
           created_at?: string
-          device_fingerprint?: string
-          full_name?: string
+          display_order?: number | null
           id?: string
-          recovery_code?: string
+          image_url?: string
+          is_active?: boolean | null
+          link?: string | null
+          subtitle?: string | null
+          title?: string
           updated_at?: string
         }
         Relationships: []
@@ -264,6 +330,86 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      newsletter_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_active: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_active?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_active?: boolean | null
+        }
+        Relationships: []
+      }
+      notification_reads: {
+        Row: {
+          created_at: string
+          device_id: string
+          id: string
+          notification_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          id?: string
+          notification_id: string
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          id?: string
+          notification_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_reads_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          link: string | null
+          title: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          link?: string | null
+          title: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          link?: string | null
+          title?: string
+        }
+        Relationships: []
       }
       order_items: {
         Row: {
@@ -673,6 +819,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      store_settings: {
+        Row: {
+          created_at: string
+          id: string
+          key: string
+          updated_at: string
+          value: Json | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key: string
+          updated_at?: string
+          value?: Json | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: Json | null
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
