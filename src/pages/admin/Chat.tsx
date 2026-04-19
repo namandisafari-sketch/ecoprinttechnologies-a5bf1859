@@ -104,12 +104,19 @@ const AdminChat = () => {
   });
 
   useEffect(() => {
+    const channelId = `admin-realtime-${Math.random().toString(36).slice(2)}`;
     const channel = supabase
-      .channel("admin-messages")
+      .channel(channelId)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, (payload) => {
-        queryClient.invalidateQueries({ queryKey: ["admin-messages"] });
+        const newMsg = payload.new as Message;
+        // Live-append to currently open conversation cache
+        if (selectedConversation && newMsg.conversation_id === selectedConversation.id) {
+          queryClient.setQueryData<Message[]>(
+            ["admin-messages", selectedConversation.id],
+            (old = []) => (old.some((m) => m.id === newMsg.id) ? old : [...old, newMsg])
+          );
+        }
         queryClient.invalidateQueries({ queryKey: ["admin-conversations"] });
-        const newMsg = payload.new as { sender_type: string; content: string; conversation_id: string };
         if (newMsg.sender_type === "customer") {
           playSound();
           showNotification("New customer message", newMsg.content.substring(0, 100), () => {
@@ -118,14 +125,22 @@ const AdminChat = () => {
           });
         }
       })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "messages" }, () => {
+        if (selectedConversation) {
+          queryClient.invalidateQueries({ queryKey: ["admin-messages", selectedConversation.id] });
+        }
+      })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "conversations" }, () => {
         queryClient.invalidateQueries({ queryKey: ["admin-conversations"] });
         playSound();
         showNotification("New conversation started", "A customer has started a new chat");
       })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "conversations" }, () => {
+        queryClient.invalidateQueries({ queryKey: ["admin-conversations"] });
+      })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [queryClient, showNotification, conversations]);
+  }, [queryClient, showNotification, playSound, conversations, selectedConversation]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
