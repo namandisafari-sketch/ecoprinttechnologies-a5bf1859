@@ -100,6 +100,8 @@ const Technicians = () => {
 
     const { error } = await supabase.from("service_requests").insert({
       seller_id: selectedSeller.id,
+      customer_id: user.id,
+      title: (formData.get("title") as string) || "Service request",
       description: formData.get("description") as string,
       service_type: formData.get("title") as string,
       customer_phone: formData.get("phone") as string,
