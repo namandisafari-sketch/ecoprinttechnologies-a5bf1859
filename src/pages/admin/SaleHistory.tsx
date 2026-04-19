@@ -26,7 +26,7 @@ const AdminSaleHistory = () => {
     queryFn: async () => {
       let q = supabase
         .from("orders")
-        .select("*, order_items(product_name, quantity, product_price, subtotal)")
+        .select("*, order_items(product_name, quantity, product_price, subtotal, cost_price)")
         .order("created_at", { ascending: false });
 
       if (search) q = q.or(`customer_name.ilike.%${search}%,order_number.ilike.%${search}%,customer_phone.ilike.%${search}%`);
