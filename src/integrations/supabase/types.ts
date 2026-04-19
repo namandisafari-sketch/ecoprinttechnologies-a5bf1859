@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_access_codes: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       brands: {
         Row: {
           created_at: string
@@ -77,6 +104,42 @@ export type Database = {
         }
         Relationships: []
       }
+      conversations: {
+        Row: {
+          created_at: string
+          customer_email: string | null
+          customer_name: string
+          customer_phone: string
+          id: string
+          last_message_at: string | null
+          session_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_email?: string | null
+          customer_name: string
+          customer_phone: string
+          id?: string
+          last_message_at?: string | null
+          session_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string
+          customer_phone?: string
+          id?: string
+          last_message_at?: string | null
+          session_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       devices: {
         Row: {
           created_at: string
@@ -103,6 +166,54 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          is_read: boolean | null
+          product_id: string | null
+          sender_id: string | null
+          sender_type: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          product_id?: string | null
+          sender_id?: string | null
+          sender_type: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          product_id?: string | null
+          sender_id?: string | null
+          sender_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       momo_transactions: {
         Row: {
@@ -280,6 +391,7 @@ export type Database = {
         Row: {
           brand_id: string | null
           category_id: string | null
+          color: string | null
           created_at: string
           description: string | null
           id: string
@@ -289,6 +401,7 @@ export type Database = {
           is_featured: boolean | null
           is_new: boolean | null
           is_on_sale: boolean | null
+          model: string | null
           name: string
           original_price: number | null
           price: number
@@ -300,6 +413,7 @@ export type Database = {
         Insert: {
           brand_id?: string | null
           category_id?: string | null
+          color?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -309,6 +423,7 @@ export type Database = {
           is_featured?: boolean | null
           is_new?: boolean | null
           is_on_sale?: boolean | null
+          model?: string | null
           name: string
           original_price?: number | null
           price: number
@@ -320,6 +435,7 @@ export type Database = {
         Update: {
           brand_id?: string | null
           category_id?: string | null
+          color?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -329,6 +445,7 @@ export type Database = {
           is_featured?: boolean | null
           is_new?: boolean | null
           is_on_sale?: boolean | null
+          model?: string | null
           name?: string
           original_price?: number | null
           price?: number
