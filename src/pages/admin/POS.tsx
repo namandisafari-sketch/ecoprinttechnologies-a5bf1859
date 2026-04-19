@@ -22,6 +22,7 @@ type Product = Tables<"products">;
 interface CartItem {
   product: Product;
   quantity: number;
+  customPrice: number;
 }
 
 interface CustomerInfo {
@@ -113,8 +114,16 @@ const AdminPOS = () => {
             : item
         );
       }
-      return [...prev, { product, quantity: 1 }];
+      return [...prev, { product, quantity: 1, customPrice: Number(product.price) }];
     });
+  };
+
+  const updatePrice = (productId: string, price: number) => {
+    setCart((prev) =>
+      prev.map((item) =>
+        item.product.id === productId ? { ...item, customPrice: Math.max(0, price) } : item
+      )
+    );
   };
 
   const updateQuantity = (productId: string, delta: number) => {
@@ -146,7 +155,7 @@ const AdminPOS = () => {
   };
 
   const subtotal = useMemo(
-    () => cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0),
+    () => cart.reduce((sum, item) => sum + item.customPrice * item.quantity, 0),
     [cart]
   );
 
@@ -204,9 +213,9 @@ const AdminPOS = () => {
         order_id: order.id,
         product_id: item.product.id,
         product_name: item.product.name,
-        product_price: item.product.price,
+        product_price: item.customPrice,
         quantity: item.quantity,
-        subtotal: item.product.price * item.quantity,
+        subtotal: item.customPrice * item.quantity,
       }));
 
       const { error: itemsError } = await supabase
