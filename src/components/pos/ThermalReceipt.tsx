@@ -39,6 +39,9 @@ const ThermalReceipt = ({ order }: ThermalReceiptProps) => {
           <p><strong>Customer:</strong> {order.customer_name}</p>
         )}
         <p><strong>Payment:</strong> {order.payment_method?.replace(/_/g, " ").toUpperCase()}</p>
+        {(order.cashier_name || order.served_by) && (
+          <p><strong>Cashier:</strong> {order.cashier_name || order.served_by}</p>
+        )}
       </div>
 
       <div className="border-t border-dashed border-black my-2" />

@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase as supabaseTyped } from '@/integrations/supabase/client';
 const supabase = supabaseTyped as any;
 import { useAuth } from '@/hooks/useAuth';
+import { logAudit } from '@/lib/audit';
 import { Search, Plus, Minus, Trash2, ShoppingCart, Printer, Barcode, ScanLine, Edit2, CalendarIcon, Power } from 'lucide-react';
 import fadyLogo from '@/assets/fady-logo.png';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -83,6 +84,7 @@ const AdminPOS = () => {
   const [creditNotes, setCreditNotes] = useState('');
   const [endDayDate, setEndDayDate] = useState<Date | undefined>(undefined);
   const [saleDate, setSaleDate] = useState<Date | undefined>(undefined);
+  const [cashierName, setCashierName] = useState<string>('');
 
   useEffect(() => {
     fetchProducts();
@@ -91,6 +93,15 @@ const AdminPOS = () => {
     fetchCashRegisterBalance();
     fetchCustomerWallets();
   }, []);
+
+  useEffect(() => {
+    const fetchCashier = async () => {
+      if (!user) return;
+      const { data } = await supabase.from('profiles').select('full_name').eq('user_id', user.id).maybeSingle();
+      setCashierName(data?.full_name || user.email || 'Staff');
+    };
+    fetchCashier();
+  }, [user]);
 
   const fetchCustomers = async () => {
     const { data } = await supabase
@@ -380,6 +391,8 @@ const AdminPOS = () => {
         amount_paid: actualAmountPaid,
         change_given: paymentMethod === 'cash' ? Math.max(0, change) : 0,
         sold_by: user?.id,
+        cashier_id: user?.id,
+        cashier_name: cashierName,
         notes:
           paymentMethod === 'wallet'
             ? 'Paid from customer wallet'
@@ -479,6 +492,7 @@ const AdminPOS = () => {
       }
 
       setLastSale({ ...sale, items: cart, isCredit: paymentMethod === 'credit', isWallet: paymentMethod === 'wallet' });
+      await logAudit({ action: 'create', entityType: 'sale', entityId: sale.id, description: `POS sale ${sale.receipt_number} — ${cart.length} item(s), total ${total}`, metadata: { payment_method: paymentMethod, total } });
       setShowReceipt(true);
       setCart([]);
       setAmountPaid('');
@@ -982,6 +996,9 @@ const AdminPOS = () => {
 
               <div className="space-y-2">
                 <p><strong>Customer:</strong> {lastSale.customer_name}</p>
+                {lastSale.cashier_name && (
+                  <p className="text-xs"><strong>Cashier:</strong> {lastSale.cashier_name}</p>
+                )}
                 <div className="border-t border-b py-2 space-y-1">
                   {lastSale.items.map((item: CartItem) => (
                     <div key={item.product.id} className="flex justify-between">

@@ -21,6 +21,7 @@ import TrackOrder from "./pages/TrackOrder";
 import Delivery from "./pages/Delivery";
 import Technicians from "./pages/Technicians";
 import Notifications from "./pages/Notifications";
+import WorkerVerify from "./pages/WorkerVerify";
 
 // Admin
 import AdminLayout from "./components/admin/AdminLayout";
@@ -55,6 +56,8 @@ import AdminSettings from "./pages/admin/Settings";
 import AdminHeroSlides from "./pages/admin/HeroSlides";
 import AdminStoreLocation from "./pages/admin/StoreLocation";
 import AdminMore from "./pages/admin/More";
+import AdminAuditLog from "./pages/admin/AuditLog";
+import AdminWorkers from "./pages/admin/Workers";
 
 // Seller
 import SellerLayout from "./components/seller/SellerLayout";
@@ -89,6 +92,7 @@ const App = () => (
             <Route path="/delivery" element={<Delivery />} />
             <Route path="/technicians" element={<Technicians />} />
             <Route path="/notifications" element={<Notifications />} />
+            <Route path="/worker/:id" element={<WorkerVerify />} />
 
             {/* Admin */}
             <Route
@@ -129,6 +133,8 @@ const App = () => (
               <Route path="settings" element={<AdminSettings />} />
               <Route path="hero-slides" element={<AdminHeroSlides />} />
               <Route path="store-location" element={<AdminStoreLocation />} />
+              <Route path="workers" element={<AdminWorkers />} />
+              <Route path="audit-log" element={<AdminAuditLog />} />
               <Route path="more" element={<AdminMore />} />
             </Route>
 

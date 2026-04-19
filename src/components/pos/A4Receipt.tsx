@@ -118,6 +118,12 @@ const A4Receipt = ({ order }: A4ReceiptProps) => {
               {order.payment_method?.replace(/_/g, " ").toUpperCase() || "CASH"}
             </span>
           </div>
+          {(order.cashier_name || order.served_by) && (
+            <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid #999", padding: "1.5mm 0" }}>
+              <span style={{ fontSize: "8pt", fontWeight: 600 }}>Served by:</span>
+              <span style={{ fontSize: "8pt", fontWeight: 600 }}>{order.cashier_name || order.served_by}</span>
+            </div>
+          )}
         </div>
       </div>
 
