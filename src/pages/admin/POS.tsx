@@ -387,32 +387,15 @@ const AdminPOS = () => {
               cart.map((item) => (
                 <div
                   key={item.product.id}
-                  className="flex items-center gap-2 p-2 bg-muted/50 rounded-lg"
+                  className="p-2 bg-muted/50 rounded-lg space-y-2"
                 >
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{item.product.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatPrice(item.product.price)} × {item.quantity}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-7 w-7"
-                      onClick={() => updateQuantity(item.product.id, -1)}
-                    >
-                      <Minus className="h-3 w-3" />
-                    </Button>
-                    <span className="w-6 text-center text-sm">{item.quantity}</span>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-7 w-7"
-                      onClick={() => updateQuantity(item.product.id, 1)}
-                    >
-                      <Plus className="h-3 w-3" />
-                    </Button>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{item.product.name}</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        Default: {formatPrice(Number(item.product.price))}
+                      </p>
+                    </div>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -422,6 +405,40 @@ const AdminPOS = () => {
                       <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1">
+                      <Input
+                        type="number"
+                        min={0}
+                        value={item.customPrice}
+                        onChange={(e) => updatePrice(item.product.id, Number(e.target.value) || 0)}
+                        className="h-8 text-sm"
+                        placeholder="Custom price"
+                      />
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={() => updateQuantity(item.product.id, -1)}
+                      >
+                        <Minus className="h-3 w-3" />
+                      </Button>
+                      <span className="w-6 text-center text-sm">{item.quantity}</span>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={() => updateQuantity(item.product.id, 1)}
+                      >
+                        <Plus className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  <p className="text-xs text-right text-muted-foreground">
+                    Line total: <span className="font-medium text-foreground">{formatPrice(item.customPrice * item.quantity)}</span>
+                  </p>
                 </div>
               ))
             )}
