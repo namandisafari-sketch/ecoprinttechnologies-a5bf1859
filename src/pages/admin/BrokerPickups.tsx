@@ -12,8 +12,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Plus, Search, Calendar, CheckCircle2, PackageCheck, RotateCcw, XCircle, Clock, AlertTriangle } from "lucide-react";
-import { format } from "date-fns";
+import { Plus, Search, Calendar, CheckCircle2, PackageCheck, RotateCcw, XCircle, Clock, AlertTriangle, Printer, MessageCircle, Bell } from "lucide-react";
+import { format, addDays, isAfter, isBefore } from "date-fns";
+import { printPickupSlip } from "@/lib/printPickupSlip";
 
 interface Pickup {
   id: string;
@@ -253,6 +254,13 @@ const BrokerPickups = () => {
     pending: pickups.filter((p) => p.status === "pending").length,
   };
 
+  const dueTomorrow = pickups.filter((p) => {
+    if (p.status !== "released" || !p.expected_return_date) return false;
+    const d = new Date(p.expected_return_date);
+    const tomorrow = addDays(new Date(), 1);
+    return d.toDateString() === tomorrow.toDateString();
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -281,6 +289,30 @@ const BrokerPickups = () => {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input className="pl-9" placeholder="Search pickup # or product…" value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>
+
+      {dueTomorrow.length > 0 && (
+        <Card className="border-amber-500/50 bg-amber-50/50 dark:bg-amber-950/10">
+          <CardContent className="p-4">
+            <p className="font-semibold flex items-center gap-2 text-amber-700"><Bell className="h-4 w-4" /> {dueTomorrow.length} pickup(s) due tomorrow</p>
+            <div className="mt-2 space-y-1.5">
+              {dueTomorrow.map((p) => (
+                <div key={p.id} className="flex items-center justify-between text-sm gap-2 flex-wrap">
+                  <span><strong>{p.brokers?.full_name}</strong> — {p.product_name} ({p.pickup_number})</span>
+                  {p.brokers?.phone && (
+                    <Button size="sm" variant="outline" onClick={() => {
+                      const phone = p.brokers!.phone.replace(/[^0-9]/g, "");
+                      const msg = `Hi ${p.brokers!.full_name}, friendly reminder — ${p.product_name} (Pickup ${p.pickup_number}) is due back tomorrow. Please confirm. Thank you — Eco Print Technologies`;
+                      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
+                    }}>
+                      <MessageCircle className="h-3 w-3" /> Send WhatsApp
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-2">
         {pickups.map((p) => {

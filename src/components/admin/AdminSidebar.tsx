@@ -23,6 +23,9 @@ import {
   History,
   UserCog,
   PackageCheck,
+  ClipboardList,
+  Users2,
+  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -43,6 +46,9 @@ const navItems = [
   { label: "Stickers", href: "/admin/stickers", icon: Tag },
   { label: "Brokers", href: "/admin/brokers", icon: UserCog },
   { label: "Broker Pickups", href: "/admin/broker-pickups", icon: PackageCheck },
+  { label: "Broker Statement", href: "/admin/broker-statement", icon: ClipboardList },
+  { label: "Staff & Roles", href: "/admin/staff", icon: Users2 },
+  { label: "Attendance", href: "/admin/attendance", icon: Clock },
   { label: "Quotations", href: "/admin/quotations", icon: FileText },
   { label: "Sale History", href: "/admin/sale-history", icon: History },
   { label: "Expenses", href: "/admin/expenses", icon: Wallet },

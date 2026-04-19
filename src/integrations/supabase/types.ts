@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      attendance_records: {
+        Row: {
+          check_in_at: string
+          check_in_lat: number | null
+          check_in_lng: number | null
+          check_out_at: string | null
+          check_out_lat: number | null
+          check_out_lng: number | null
+          created_at: string
+          distance_meters: number | null
+          full_name: string | null
+          id: string
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          check_in_at?: string
+          check_in_lat?: number | null
+          check_in_lng?: number | null
+          check_out_at?: string | null
+          check_out_lat?: number | null
+          check_out_lng?: number | null
+          created_at?: string
+          distance_meters?: number | null
+          full_name?: string | null
+          id?: string
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          check_in_at?: string
+          check_in_lat?: number | null
+          check_in_lng?: number | null
+          check_out_at?: string | null
+          check_out_lat?: number | null
+          check_out_lng?: number | null
+          created_at?: string
+          distance_meters?: number | null
+          full_name?: string | null
+          id?: string
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       brands: {
         Row: {
           created_at: string
@@ -62,6 +107,7 @@ export type Database = {
           quantity: number
           released_at: string | null
           released_by: string | null
+          sale_order_id: string | null
           status: string
           total_value: number
           unit_price: number
@@ -87,6 +133,7 @@ export type Database = {
           quantity?: number
           released_at?: string | null
           released_by?: string | null
+          sale_order_id?: string | null
           status?: string
           total_value?: number
           unit_price?: number
@@ -112,6 +159,7 @@ export type Database = {
           quantity?: number
           released_at?: string | null
           released_by?: string | null
+          sale_order_id?: string | null
           status?: string
           total_value?: number
           unit_price?: number
@@ -608,6 +656,7 @@ export type Database = {
       }
       order_items: {
         Row: {
+          cost_price: number | null
           created_at: string
           id: string
           order_id: string
@@ -618,6 +667,7 @@ export type Database = {
           subtotal: number
         }
         Insert: {
+          cost_price?: number | null
           created_at?: string
           id?: string
           order_id: string
@@ -628,6 +678,7 @@ export type Database = {
           subtotal?: number
         }
         Update: {
+          cost_price?: number | null
           created_at?: string
           id?: string
           order_id?: string
@@ -656,6 +707,7 @@ export type Database = {
       }
       orders: {
         Row: {
+          broker_id: string | null
           city: string
           created_at: string
           customer_email: string
@@ -672,6 +724,7 @@ export type Database = {
           payment_method: string | null
           payment_status: string
           shipping_address: string
+          source: string | null
           status: string
           subtotal: number
           total: number
@@ -679,6 +732,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          broker_id?: string | null
           city: string
           created_at?: string
           customer_email: string
@@ -695,6 +749,7 @@ export type Database = {
           payment_method?: string | null
           payment_status?: string
           shipping_address: string
+          source?: string | null
           status?: string
           subtotal?: number
           total?: number
@@ -702,6 +757,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          broker_id?: string | null
           city?: string
           created_at?: string
           customer_email?: string
@@ -718,6 +774,7 @@ export type Database = {
           payment_method?: string | null
           payment_status?: string
           shipping_address?: string
+          source?: string | null
           status?: string
           subtotal?: number
           total?: number
@@ -1111,6 +1168,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      staff_permissions: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          is_active: boolean | null
+          permissions: Json
+          phone: string | null
+          role_label: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          permissions?: Json
+          phone?: string | null
+          role_label?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          permissions?: Json
+          phone?: string | null
+          role_label?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       store_settings: {
         Row: {

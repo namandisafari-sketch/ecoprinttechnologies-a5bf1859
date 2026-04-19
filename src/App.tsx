@@ -47,6 +47,9 @@ import AdminReports from "./pages/admin/Reports";
 import AdminSaleHistory from "./pages/admin/SaleHistory";
 import AdminBrokers from "./pages/admin/Brokers";
 import AdminBrokerPickups from "./pages/admin/BrokerPickups";
+import AdminBrokerStatement from "./pages/admin/BrokerStatement";
+import AdminStaff from "./pages/admin/Staff";
+import AdminAttendance from "./pages/admin/Attendance";
 
 const queryClient = new QueryClient();
 
@@ -123,6 +126,9 @@ const App = () => (
               <Route path="sale-history" element={<AdminSaleHistory />} />
               <Route path="brokers" element={<AdminBrokers />} />
               <Route path="broker-pickups" element={<AdminBrokerPickups />} />
+              <Route path="broker-statement" element={<AdminBrokerStatement />} />
+              <Route path="staff" element={<AdminStaff />} />
+              <Route path="attendance" element={<AdminAttendance />} />
             </Route>
 
             {/* Catch-all */}

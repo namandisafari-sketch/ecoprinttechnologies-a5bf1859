@@ -26,7 +26,7 @@ const AdminSaleHistory = () => {
     queryFn: async () => {
       let q = supabase
         .from("orders")
-        .select("*, order_items(product_name, quantity, product_price, subtotal)")
+        .select("*, order_items(product_name, quantity, product_price, subtotal, cost_price)")
         .order("created_at", { ascending: false });
 
       if (search) q = q.or(`customer_name.ilike.%${search}%,order_number.ilike.%${search}%,customer_phone.ilike.%${search}%`);
@@ -101,7 +101,7 @@ const AdminSaleHistory = () => {
       </div>
 
       {/* Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
@@ -142,6 +142,17 @@ const AdminSaleHistory = () => {
               <div>
                 <p className="text-xs text-muted-foreground">Online Orders</p>
                 <p className="text-xl font-bold text-foreground">{onlineCount}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-emerald-100 rounded-lg"><DollarSign className="h-5 w-5 text-emerald-600" /></div>
+              <div>
+                <p className="text-xs text-muted-foreground">Total Profit</p>
+                <p className={`text-xl font-bold ${totalProfit >= 0 ? "text-emerald-600" : "text-destructive"}`}>UGX {fmt(totalProfit)}</p>
               </div>
             </div>
           </CardContent>
@@ -231,6 +242,15 @@ const AdminSaleHistory = () => {
                     <div>
                       <p className="text-lg font-bold text-foreground">UGX {fmt(o.total)}</p>
                       <p className="text-xs text-muted-foreground">{format(new Date(o.created_at), "MMM dd, yyyy • HH:mm")}</p>
+                      {(() => {
+                        const p = orderProfit(o);
+                        const margin = o.total > 0 ? (p / Number(o.total)) * 100 : 0;
+                        return p !== Number(o.total) ? (
+                          <p className={`text-xs font-medium ${p >= 0 ? "text-emerald-600" : "text-destructive"}`}>
+                            Profit: UGX {fmt(p)} ({margin.toFixed(1)}%)
+                          </p>
+                        ) : null;
+                      })()}
                     </div>
                     <div className="flex gap-1">
                       <Button variant="ghost" size="sm" onClick={() => handleReprint(o)} title="Reprint receipt">
