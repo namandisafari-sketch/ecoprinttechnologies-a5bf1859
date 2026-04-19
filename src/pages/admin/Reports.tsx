@@ -34,7 +34,7 @@ const AdminReports = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("orders")
-        .select("total, subtotal, delivery_fee, created_at, status, payment_status")
+        .select("total, subtotal, delivery_fee, created_at, status, payment_status, order_items(quantity, cost_price, subtotal)")
         .gte("created_at", `${range.start}T00:00:00`)
         .lte("created_at", `${range.end}T23:59:59`)
         .order("created_at", { ascending: false });
@@ -72,12 +72,14 @@ const AdminReports = () => {
     },
   });
 
-  const totalRevenue = (salesData || [])
-    .filter((o: any) => o.status !== "cancelled")
-    .reduce((s: number, o: any) => s + Number(o.total), 0);
+  const completedSales = (salesData || []).filter((o: any) => o.status !== "cancelled");
+  const totalRevenue = completedSales.reduce((s: number, o: any) => s + Number(o.total), 0);
+  const totalCOGS = completedSales.reduce((s: number, o: any) =>
+    s + (o.order_items || []).reduce((cs: number, i: any) => cs + Number(i.cost_price || 0) * Number(i.quantity), 0), 0);
+  const grossProfit = totalRevenue - totalCOGS;
   const totalExpenses = (expensesData || []).reduce((s: number, e: any) => s + Number(e.amount), 0);
-  const netIncome = totalRevenue - totalExpenses;
-  const totalOrders = (salesData || []).filter((o: any) => o.status !== "cancelled").length;
+  const netIncome = grossProfit - totalExpenses;
+  const totalOrders = completedSales.length;
 
   const fmt = (n: number) => new Intl.NumberFormat("en-UG").format(Math.round(n));
 
@@ -178,9 +180,10 @@ const AdminReports = () => {
                 <TableBody>
                   <TableRow><TableCell className="font-bold text-primary">Revenue</TableCell><TableCell /></TableRow>
                   <TableRow><TableCell className="pl-8">Sales Revenue</TableCell><TableCell className="text-right">{fmt(totalRevenue)}</TableCell></TableRow>
-                  <TableRow className="border-t-2"><TableCell className="font-bold">Total Revenue</TableCell><TableCell className="text-right font-bold">{fmt(totalRevenue)}</TableCell></TableRow>
+                  <TableRow><TableCell className="pl-8">Cost of Goods Sold</TableCell><TableCell className="text-right text-destructive">({fmt(totalCOGS)})</TableCell></TableRow>
+                  <TableRow className="border-t"><TableCell className="font-semibold text-emerald-700">Gross Profit ({totalRevenue > 0 ? ((grossProfit/totalRevenue)*100).toFixed(1) : 0}%)</TableCell><TableCell className="text-right font-semibold text-emerald-700">{fmt(grossProfit)}</TableCell></TableRow>
 
-                  <TableRow><TableCell className="font-bold text-destructive pt-4">Expenses</TableCell><TableCell /></TableRow>
+                  <TableRow><TableCell className="font-bold text-destructive pt-4">Operating Expenses</TableCell><TableCell /></TableRow>
                   {(expensesByCategory || []).map((c: any) => (
                     <TableRow key={c.name}><TableCell className="pl-8">{c.name}</TableCell><TableCell className="text-right">{fmt(c.amount)}</TableCell></TableRow>
                   ))}
