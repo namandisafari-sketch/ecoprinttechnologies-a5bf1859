@@ -122,7 +122,7 @@ const SellerRequests = () => {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold">{request.service_type || "Service Request"}</h3>
+                      <h3 className="font-semibold">{request.title || "Service Request"}</h3>
                       <Badge className={getStatusColor(request.status || "pending")}>
                         {request.status}
                       </Badge>

@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase as supabaseTyped } from "@/integrations/supabase/client";
+const supabase = supabaseTyped as any;
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Search, ShoppingBag, TrendingUp, DollarSign, Printer, Store, Globe, Eye } from "lucide-react";
 import { format } from "date-fns";
 import A4Receipt from "@/components/pos/A4Receipt";
+
+const fmt = (n: number) => new Intl.NumberFormat("en-UG", { style: "currency", currency: "UGX", minimumFractionDigits: 0 }).format(n || 0);
 
 const AdminSaleHistory = () => {
   const [search, setSearch] = useState("");

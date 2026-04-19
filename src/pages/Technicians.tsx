@@ -98,7 +98,7 @@ const Technicians = () => {
     setIsSubmitting(true);
     const formData = new FormData(e.currentTarget);
 
-    const { error } = await supabase.from("service_requests").insert({
+    const { error } = await (supabase.from("service_requests") as any).insert({
       seller_id: selectedSeller.id,
       customer_id: user.id,
       title: (formData.get("title") as string) || "Service request",

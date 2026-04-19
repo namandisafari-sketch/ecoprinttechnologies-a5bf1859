@@ -168,7 +168,7 @@ const SellerOverview = () => {
                   className="flex items-center justify-between p-3 bg-muted/50 rounded-xl"
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">{request.service_type || "Service Request"}</p>
+                    <p className="font-medium truncate">{request.title || "Service Request"}</p>
                     <p className="text-sm text-muted-foreground">
                       {request.customer_name}
                     </p>
