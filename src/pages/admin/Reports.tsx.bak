@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { TrendingUp, DollarSign, Calendar as CalendarIcon, Package } from "lucide-react";
-import { format, startOfDay, endOfDay, startOfMonth, endOfMonth, subMonths, startOfYear, endOfYear } from "date-fns";
+import { format, startOfDay, endOfDay, startOfMonth, endOfMonth, subMonths, startOfYear, endOfYear, startOfQuarter } from "date-fns";
 
 type Period = "current" | "last" | "quarter" | "year" | "custom";
 
@@ -43,7 +43,7 @@ const formatCurrency = (value: number) =>
     maximumFractionDigits: 0,
   }).format(Math.round(value));
 
-const getMonthKey = (date: string | Date) => format(new Date(date), "MMM yyyy");
+const getMonthKey = (date: Date) => format(date, "MMM yyyy");
 
 async function fetchAllPages<T>(fetchPage: (from: number, to: number) => Promise<{ data: T[] | null; error: any }>) {
   const rows: T[] = [];
@@ -69,7 +69,6 @@ const Reports = () => {
 
   const getDateRange = () => {
     const now = new Date();
-
     switch (period) {
       case "current":
         return { startDate: startOfMonth(now), endDate: endOfMonth(now) };
@@ -101,6 +100,8 @@ const Reports = () => {
       const rangeEnd = `${format(endOfDay(endDate), "yyyy-MM-dd'T'HH:mm:ss")}`;
       const trendStartDate = startOfMonth(subMonths(new Date(), 5));
       const trendEndDate = endOfMonth(new Date());
+      const trendStart = format(startOfDay(trendStartDate), "yyyy-MM-dd'T'HH:mm:ss");
+      const trendEnd = format(endOfDay(trendEndDate), "yyyy-MM-dd'T'HH:mm:ss");
 
       const orders = await fetchAllPages<any>((from, to) =>
         supabase
@@ -128,8 +129,8 @@ const Reports = () => {
         supabase
           .from("orders")
           .select("id, total, created_at, order_items(quantity, cost_price)")
-          .gte("created_at", `${format(startOfDay(trendStartDate), "yyyy-MM-dd'T'HH:mm:ss")}`)
-          .lte("created_at", `${format(endOfDay(trendEndDate), "yyyy-MM-dd'T'HH:mm:ss")}`)
+          .gte("created_at", trendStart)
+          .lte("created_at", trendEnd)
           .order("created_at", { ascending: true })
           .range(from, to),
       );
@@ -181,20 +182,22 @@ const Reports = () => {
       const monthIndexMap = new Map(months.map((item, index) => [item.month, index]));
 
       allTrendOrders.forEach((order: any) => {
-        const month = getMonthKey(order.created_at);
+        const month = getMonthKey(new Date(order.created_at));
         const index = monthIndexMap.get(month);
-        if (index === undefined) return;
-        const orderRevenue = Number(order.total || 0);
-        const orderCogs = (order.order_items || []).reduce((inner: number, item: any) => inner + Number(item.cost_price || 0) * Number(item.quantity || 0), 0);
-        months[index].revenue += orderRevenue;
-        months[index].cogs += orderCogs;
+        if (index !== undefined) {
+          const orderRevenue = Number(order.total || 0);
+          const orderCogs = (order.order_items || []).reduce((inner: number, item: any) => inner + Number(item.cost_price || 0) * Number(item.quantity || 0), 0);
+          months[index].revenue += orderRevenue;
+          months[index].cogs += orderCogs;
+        }
       });
 
       allTrendExpenses.forEach((expense: any) => {
-        const month = getMonthKey(expense.expense_date);
+        const month = getMonthKey(new Date(expense.expense_date));
         const index = monthIndexMap.get(month);
-        if (index === undefined) return;
-        months[index].expenses += Number(expense.amount || 0);
+        if (index !== undefined) {
+          months[index].expenses += Number(expense.amount || 0);
+        }
       });
 
       months.forEach((month) => {
@@ -208,9 +211,7 @@ const Reports = () => {
         grossProfit,
         expenses: expenseTotal,
         netProfit,
-        expenseByCategory: Object.entries(expenseByCategory)
-          .map(([name, amount]) => ({ name, amount }))
-          .sort((a, b) => b.amount - a.amount),
+        expenseByCategory: Object.entries(expenseByCategory).map(([name, amount]) => ({ name, amount })).sort((a, b) => b.amount - a.amount),
         assets: {
           cash: revenue,
           inventory: inventoryValue,
@@ -222,6 +223,7 @@ const Reports = () => {
         monthlyTrend: months,
       };
     },
+    keepPreviousData: true,
   });
 
   const report = data ?? {
@@ -361,7 +363,7 @@ const Reports = () => {
         <TabsList>
           <TabsTrigger value="income">Income Statement</TabsTrigger>
           <TabsTrigger value="balance">Balance Sheet</TabsTrigger>
-          <TabsTrigger value="trends">Monthly Trends</TabsTrigger>
+          <TabsTrigger value="trends">Trends</TabsTrigger>
         </TabsList>
 
         <TabsContent value="income">

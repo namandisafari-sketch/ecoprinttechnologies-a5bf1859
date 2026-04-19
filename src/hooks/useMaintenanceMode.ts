@@ -16,6 +16,7 @@ export const useMaintenanceMode = () => {
       return data?.value === true;
     },
     refetchInterval: 30000, // Check every 30s
+    retry: false,
   });
 
   const toggleMaintenance = useMutation({

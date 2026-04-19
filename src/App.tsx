@@ -41,6 +41,11 @@ import AdminStoreLocation from "./pages/admin/StoreLocation";
 import AdminDeliveryZones from "./pages/admin/DeliveryZones";
 import AdminDeliveryAccounts from "./pages/admin/DeliveryAccounts";
 import AdminStickers from "./pages/admin/Stickers";
+import AdminBarcodeTracking from "./pages/admin/BarcodeTracking";
+import AdminStockReceiving from "./pages/admin/StockReceiving";
+import AdminReturnsExchanges from "./pages/admin/ReturnsExchanges";
+import AdminPurchaseOrders from "./pages/admin/PurchaseOrders";
+import AdminSuppliersPayments from "./pages/admin/SuppliersPayments";
 import AdminQuotations from "./pages/admin/Quotations";
 import AdminExpenses from "./pages/admin/Expenses";
 import AdminReports from "./pages/admin/Reports";
@@ -63,10 +68,20 @@ const MaintenanceGuard = ({ children }: { children: React.ReactNode }) => {
   const bypassPaths = ["/admin", "/login", "/signup", "/delivery"];
   const isBypassed = bypassPaths.some(p => location.pathname.startsWith(p));
 
-  if (isLoading) return null;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center text-sm text-muted-foreground">
+          Checking site status...
+        </div>
+      </div>
+    );
+  }
+
   if (isMaintenanceMode && !isAdmin && !isBypassed) {
     return <MaintenancePage />;
   }
+
   return <>{children}</>;
 };
 
@@ -106,9 +121,12 @@ const App = () => (
               <Route index element={<AdminDashboard />} />
               <Route path="pos" element={<AdminPOS />} />
               <Route path="products" element={<AdminProducts />} />
-              <Route path="orders" element={<AdminOrders />} />
               <Route path="inventory" element={<AdminInventory />} />
-              <Route path="categories" element={<AdminCategories />} />
+              <Route path="barcode-tracking" element={<AdminBarcodeTracking />} />
+              <Route path="stock-receiving" element={<AdminStockReceiving />} />
+              <Route path="orders" element={<AdminOrders />} />
+              <Route path="returns-exchanges" element={<AdminReturnsExchanges />} />
+              <Route path="purchase-orders" element={<AdminPurchaseOrders />} />
               <Route path="customers" element={<AdminCustomers />} />
               <Route path="chat" element={<AdminChat />} />
               <Route path="settings" element={<AdminSettings />} />

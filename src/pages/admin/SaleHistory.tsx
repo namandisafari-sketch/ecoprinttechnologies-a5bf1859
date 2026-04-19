@@ -49,9 +49,18 @@ const AdminSaleHistory = () => {
 
   const completedOrders = orders.filter((o: any) => o.status !== "cancelled");
   const totalSales = completedOrders.reduce((s: number, o: any) => s + Number(o.total), 0);
-  const storeCount = orders.filter((o: any) => isStoreSale(o)).length;
-  const onlineCount = orders.filter((o: any) => !isStoreSale(o)).length;
-  const fmt = (n: number) => new Intl.NumberFormat("en-UG").format(Math.round(n));
+  const totalTransactions = completedOrders.length;
+  const storeCount = completedOrders.filter((o: any) => isStoreSale(o)).length;
+  const onlineCount = completedOrders.filter((o: any) => !isStoreSale(o)).length;
+  const totalCost = completedOrders.reduce((sum: number, o: any) => {
+    return sum + (o.order_items?.reduce((s: number, i: any) => s + Number(i.cost_price || 0) * Number(i.quantity), 0) || 0);
+  }, 0);
+  const totalProfit = totalSales - totalCost;
+  const totalProfitMargin = totalSales > 0 ? (totalProfit / totalSales) * 100 : 0;
+  const orderProfit = (order: any) => {
+    const cost = order.order_items?.reduce((s: number, i: any) => s + Number(i.cost_price || 0) * Number(i.quantity), 0) || 0;
+    return Number(order.total) - cost;
+  };
 
   const statusColor = (s: string) => {
     switch (s) {
@@ -119,7 +128,18 @@ const AdminSaleHistory = () => {
               <div className="p-2 bg-accent/50 rounded-lg"><ShoppingBag className="h-5 w-5 text-accent-foreground" /></div>
               <div>
                 <p className="text-xs text-muted-foreground">Total Transactions</p>
-                <p className="text-xl font-bold text-foreground">{orders.length}</p>
+                <p className="text-xl font-bold text-foreground">{totalTransactions}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-slate-100 rounded-lg"><TrendingUp className="h-5 w-5 text-slate-600" /></div>
+              <div>
+                <p className="text-xs text-muted-foreground">Cost of Goods Sold</p>
+                <p className="text-xl font-bold text-slate-700">UGX {fmt(totalCost)}</p>
               </div>
             </div>
           </CardContent>
@@ -153,6 +173,17 @@ const AdminSaleHistory = () => {
               <div>
                 <p className="text-xs text-muted-foreground">Total Profit</p>
                 <p className={`text-xl font-bold ${totalProfit >= 0 ? "text-emerald-600" : "text-destructive"}`}>UGX {fmt(totalProfit)}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-emerald-100/20 rounded-lg"><TrendingUp className="h-5 w-5 text-green-700" /></div>
+              <div>
+                <p className="text-xs text-muted-foreground">Profit Margin</p>
+                <p className={`text-xl font-bold ${totalProfitMargin >= 0 ? "text-emerald-600" : "text-destructive"}`}>{totalProfitMargin.toFixed(1)}%</p>
               </div>
             </div>
           </CardContent>

@@ -1,60 +1,10 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import {
-  LayoutDashboard,
-  Package,
-  ShoppingCart,
-  Tags,
-  Users,
-  Boxes,
-  MessageCircle,
-  LogOut,
-  Receipt,
-  Home,
-  Settings,
-  Bell,
-  Mail,
-  Truck,
-  Navigation,
-  Tag,
-  FileText,
-  Wallet,
-  BarChart3,
-  History,
-  UserCog,
-  PackageCheck,
-  ClipboardList,
-  Users2,
-  Clock,
-} from "lucide-react";
+import { Home, LogOut, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { adminNavItems } from "@/components/admin/adminNavItems";
 
-const navItems = [
-  { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { label: "POS", href: "/admin/pos", icon: Receipt },
-  { label: "Products", href: "/admin/products", icon: Package },
-  { label: "Orders", href: "/admin/orders", icon: ShoppingCart },
-  { label: "Inventory", href: "/admin/inventory", icon: Boxes },
-  { label: "Categories", href: "/admin/categories", icon: Tags },
-  { label: "Customers", href: "/admin/customers", icon: Users },
-  { label: "Notifications", href: "/admin/notifications", icon: Bell },
-  { label: "Newsletter", href: "/admin/newsletter", icon: Mail },
-  { label: "Chat", href: "/admin/chat", icon: MessageCircle },
-  { label: "Delivery Zones", href: "/admin/delivery-zones", icon: Truck },
-  { label: "Delivery Accounts", href: "/admin/delivery-accounts", icon: Navigation },
-  { label: "Stickers", href: "/admin/stickers", icon: Tag },
-  { label: "Brokers", href: "/admin/brokers", icon: UserCog },
-  { label: "Broker Pickups", href: "/admin/broker-pickups", icon: PackageCheck },
-  { label: "Broker Statement", href: "/admin/broker-statement", icon: ClipboardList },
-  { label: "Staff & Roles", href: "/admin/staff", icon: Users2 },
-  { label: "Attendance", href: "/admin/attendance", icon: Clock },
-  { label: "Quotations", href: "/admin/quotations", icon: FileText },
-  { label: "Sale History", href: "/admin/sale-history", icon: History },
-  { label: "Expenses", href: "/admin/expenses", icon: Wallet },
-  { label: "Reports", href: "/admin/reports", icon: BarChart3 },
-  { label: "Settings", href: "/admin/settings", icon: Settings },
-];
 
 const AdminSidebar = () => {
   const location = useLocation();
@@ -77,7 +27,7 @@ const AdminSidebar = () => {
 
         {/* Navigation */}
         <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-          {navItems.map((item) => {
+          {adminNavItems.map((item) => {
             const isActive = location.pathname === item.href ||
               (item.href !== "/admin" && location.pathname.startsWith(item.href));
             return (

@@ -1,0 +1,66 @@
+import type { LucideIcon } from "lucide-react";
+import {
+  LayoutDashboard,
+  Package,
+  ShoppingCart,
+  Tags,
+  Users,
+  Boxes,
+  MessageCircle,
+  Receipt,
+  Settings,
+  Bell,
+  Mail,
+  Truck,
+  Navigation,
+  Tag,
+  FileText,
+  Wallet,
+  BarChart3,
+  History,
+  UserCog,
+  PackageCheck,
+  ClipboardList,
+  Users2,
+  Clock,
+  ScanBarcode,
+  RefreshCcw,
+  DollarSign,
+} from "lucide-react";
+
+export interface AdminNavItem {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+}
+
+export const adminNavItems: AdminNavItem[] = [
+  { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { label: "POS", href: "/admin/pos", icon: Receipt },
+  { label: "Products", href: "/admin/products", icon: Package },
+  { label: "Inventory", href: "/admin/inventory", icon: Boxes },
+  { label: "Barcode Tracking", href: "/admin/barcode-tracking", icon: ScanBarcode },
+  { label: "Stock Receiving", href: "/admin/stock-receiving", icon: PackageCheck },
+  { label: "Sales & Refunds", href: "/admin/orders", icon: ShoppingCart },
+  { label: "Returns & Exchanges", href: "/admin/returns-exchanges", icon: RefreshCcw },
+  { label: "Purchase Orders", href: "/admin/purchase-orders", icon: ClipboardList },
+  { label: "Expenses", href: "/admin/expenses", icon: Wallet },
+  { label: "Suppliers & Payments", href: "/admin/suppliers-payments", icon: DollarSign },
+  { label: "Categories", href: "/admin/categories", icon: Tags },
+  { label: "Customers", href: "/admin/customers", icon: Users },
+  { label: "Notifications", href: "/admin/notifications", icon: Bell },
+  { label: "Newsletter", href: "/admin/newsletter", icon: Mail },
+  { label: "Chat", href: "/admin/chat", icon: MessageCircle },
+  { label: "Delivery Zones", href: "/admin/delivery-zones", icon: Truck },
+  { label: "Delivery Accounts", href: "/admin/delivery-accounts", icon: Navigation },
+  { label: "Stickers", href: "/admin/stickers", icon: Tag },
+  { label: "Brokers", href: "/admin/brokers", icon: UserCog },
+  { label: "Broker Pickups", href: "/admin/broker-pickups", icon: PackageCheck },
+  { label: "Broker Statement", href: "/admin/broker-statement", icon: ClipboardList },
+  { label: "Staff & Roles", href: "/admin/staff", icon: Users2 },
+  { label: "Attendance", href: "/admin/attendance", icon: Clock },
+  { label: "Quotations", href: "/admin/quotations", icon: FileText },
+  { label: "Sale History", href: "/admin/sale-history", icon: History },
+  { label: "Reports", href: "/admin/reports", icon: BarChart3 },
+  { label: "Settings", href: "/admin/settings", icon: Settings },
+];
