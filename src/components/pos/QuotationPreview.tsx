@@ -44,45 +44,44 @@ const QuotationPreview = ({ data }: QuotationPreviewProps) => {
   const notes = data.notes.length > 0 ? data.notes : defaultNotes;
 
   return (
-    <div className="quotation-preview" style={{ width: "210mm", height: "297mm", maxHeight: "297mm", overflow: "hidden", padding: "8mm 12mm", fontFamily: "'Segoe UI', Arial, sans-serif", color: "#222", background: "#fff", display: "flex", flexDirection: "column", boxSizing: "border-box" }}>
-      {/* === HEADER === */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1mm" }}>
-        {/* Staircase color blocks */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 0, marginTop: "0" }}>
-          {/* Row 1: 4 blocks */}
-          <div style={{ display: "flex", gap: 0 }}>
-            <div style={{ width: "7mm", height: "8mm", background: "#00ff00" }} />
-            <div style={{ width: "7mm", height: "8mm", background: "#00cc00" }} />
-            <div style={{ width: "7mm", height: "8mm", background: "#006600" }} />
-            <div style={{ width: "7mm", height: "8mm", background: "#00ffcc" }} />
+    <div className="quotation-preview" style={{ width: "210mm", height: "297mm", maxHeight: "297mm", overflow: "hidden", padding: "0", fontFamily: "'Segoe UI', Arial, sans-serif", color: "#1a1a1a", background: "#fff", display: "flex", flexDirection: "column", boxSizing: "border-box", position: "relative" }}>
+      {/* === POLISHED LETTERHEAD === */}
+      <div style={{ position: "relative", padding: "10mm 14mm 6mm", borderBottom: "1px solid #e5e5e5" }}>
+        {/* Subtle corner accent */}
+        <div style={{ position: "absolute", top: 0, left: 0, width: "55mm", height: "3mm", background: "linear-gradient(90deg, #009933 0%, #00b347 60%, transparent 100%)" }} />
+        <div style={{ position: "absolute", top: 0, right: 0, width: "55mm", height: "3mm", background: "linear-gradient(270deg, #cc0000 0%, #e60000 60%, transparent 100%)" }} />
+
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8mm", paddingTop: "3mm" }}>
+          {/* Logo */}
+          <div style={{ flex: "0 0 auto" }}>
+            <img src={ecoprintLogo} alt="Eco Print Technologies Limited" style={{ height: "20mm", width: "auto", display: "block" }} />
           </div>
-          {/* Row 2: 2 blocks */}
-          <div style={{ display: "flex", gap: 0 }}>
-            <div style={{ width: "7mm", height: "10mm", background: "#00ff00" }} />
-            <div style={{ width: "7mm", height: "10mm", background: "#00cc00" }} />
-          </div>
-          {/* Row 3: 2 narrower blocks */}
-          <div style={{ display: "flex", gap: 0 }}>
-            <div style={{ width: "5mm", height: "8mm", background: "#00ff00" }} />
-            <div style={{ width: "5mm", height: "8mm", background: "#00cc00" }} />
+
+          {/* Right: Tagline + contact */}
+          <div style={{ flex: 1, textAlign: "right", borderLeft: "2px solid #009933", paddingLeft: "6mm" }}>
+            <p style={{ fontSize: "9pt", fontWeight: 600, color: "#009933", margin: "0 0 2mm 0", letterSpacing: "0.3px", textTransform: "uppercase" }}>
+              Computer Sales · Repairs · Networking · IT Support
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.8mm" }}>
+              <p style={{ fontSize: "8pt", color: "#444", margin: 0, lineHeight: 1.3 }}>
+                <span style={{ color: "#cc0000", fontWeight: 700 }}>📍</span> F2-4 Suncity Plaza, Kampala Road, Kampala
+              </p>
+              <p style={{ fontSize: "8pt", color: "#444", margin: 0, lineHeight: 1.3 }}>
+                <span style={{ color: "#cc0000", fontWeight: 700 }}>✆</span> +256 702 365176 · +256 783 935721
+              </p>
+              <p style={{ fontSize: "8pt", color: "#444", margin: 0, lineHeight: 1.3 }}>
+                <span style={{ color: "#cc0000", fontWeight: 700 }}>✉</span> ecoprinttechnologies2020@gmail.com
+              </p>
+            </div>
           </div>
         </div>
-        {/* Right: Logo + contact centered */}
-        <div style={{ textAlign: "center", flex: 1 }}>
-          <img src={ecoprintLogo} alt="Eco Print Technologies" style={{ height: "14mm", width: "auto", marginBottom: "1mm" }} />
-          <p style={{ fontSize: "8.5pt", fontWeight: 700, color: "#333", margin: "0" }}>
-            Computer sales, repairs, accessories, networking &amp; IT Support
-          </p>
-          <p style={{ fontSize: "7.5pt", color: "#444", margin: "0" }}>
-            F24 Suncity Plaza, Kampala Road
-          </p>
-          <p style={{ fontSize: "7.5pt", color: "#444", margin: "0" }}>
-            Tel: +256 702 365176 / +256783 935721
-          </p>
-        </div>
+
+        {/* Double rule under header */}
+        <div style={{ marginTop: "5mm", borderTop: "2px solid #009933", borderBottom: "0.5px solid #009933", height: "1mm" }} />
       </div>
 
-      <div style={{ borderBottom: "2px solid #006600", marginBottom: "3mm" }} />
+      {/* === BODY WRAPPER === */}
+      <div style={{ padding: "5mm 14mm 0", display: "flex", flexDirection: "column", flex: 1 }}>
 
       <p style={{ textAlign: "right", fontSize: "8.5pt", marginBottom: "2mm" }}>
         {formatDate(data.date)}
