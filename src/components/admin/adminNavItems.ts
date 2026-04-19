@@ -26,6 +26,7 @@ import {
   ScanBarcode,
   RefreshCcw,
   DollarSign,
+  Image,
 } from "lucide-react";
 
 export interface AdminNavItem {
@@ -47,6 +48,7 @@ export const adminNavItems: AdminNavItem[] = [
   { label: "Expenses", href: "/admin/expenses", icon: Wallet },
   { label: "Suppliers & Payments", href: "/admin/suppliers-payments", icon: DollarSign },
   { label: "Categories", href: "/admin/categories", icon: Tags },
+  { label: "Hero Slides", href: "/admin/hero-slides", icon: Image },
   { label: "Customers", href: "/admin/customers", icon: Users },
   { label: "Notifications", href: "/admin/notifications", icon: Bell },
   { label: "Newsletter", href: "/admin/newsletter", icon: Mail },
