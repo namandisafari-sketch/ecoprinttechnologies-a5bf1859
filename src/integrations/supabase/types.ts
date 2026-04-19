@@ -86,6 +86,48 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          description: string | null
+          entity_id: string | null
+          entity_type: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          user_email: string | null
+          user_id: string | null
+          user_name: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          description?: string | null
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          user_email?: string | null
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          description?: string | null
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          user_email?: string | null
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Relationships: []
+      }
       bank_deposits: {
         Row: {
           account_number: string | null
@@ -2458,6 +2500,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      workers: {
+        Row: {
+          created_at: string
+          date_joined: string | null
+          department: string
+          email: string | null
+          full_name: string
+          id: string
+          national_id: string | null
+          notes: string | null
+          phone: string
+          photo_url: string | null
+          position: string | null
+          residence: string | null
+          status: string
+          updated_at: string
+          validity_date: string | null
+          worker_code: string
+        }
+        Insert: {
+          created_at?: string
+          date_joined?: string | null
+          department: string
+          email?: string | null
+          full_name: string
+          id?: string
+          national_id?: string | null
+          notes?: string | null
+          phone: string
+          photo_url?: string | null
+          position?: string | null
+          residence?: string | null
+          status?: string
+          updated_at?: string
+          validity_date?: string | null
+          worker_code?: string
+        }
+        Update: {
+          created_at?: string
+          date_joined?: string | null
+          department?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          national_id?: string | null
+          notes?: string | null
+          phone?: string
+          photo_url?: string | null
+          position?: string | null
+          residence?: string | null
+          status?: string
+          updated_at?: string
+          validity_date?: string | null
+          worker_code?: string
+        }
+        Relationships: []
       }
     }
     Views: {
