@@ -12,6 +12,8 @@ import { Search, ShoppingBag, TrendingUp, DollarSign, Printer, Store, Globe, Eye
 import { format } from "date-fns";
 import A4Receipt from "@/components/pos/A4Receipt";
 
+const fmt = (n: number) => new Intl.NumberFormat("en-UG", { style: "currency", currency: "UGX", minimumFractionDigits: 0 }).format(n || 0);
+
 const AdminSaleHistory = () => {
   const [search, setSearch] = useState("");
   const [sourceFilter, setSourceFilter] = useState("all");
