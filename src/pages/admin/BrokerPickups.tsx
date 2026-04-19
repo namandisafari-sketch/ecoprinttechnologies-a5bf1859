@@ -12,8 +12,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Plus, Search, Calendar, CheckCircle2, PackageCheck, RotateCcw, XCircle, Clock, AlertTriangle } from "lucide-react";
-import { format } from "date-fns";
+import { Plus, Search, Calendar, CheckCircle2, PackageCheck, RotateCcw, XCircle, Clock, AlertTriangle, Printer, MessageCircle, Bell } from "lucide-react";
+import { format, addDays, isAfter, isBefore } from "date-fns";
+import { printPickupSlip } from "@/lib/printPickupSlip";
 
 interface Pickup {
   id: string;
