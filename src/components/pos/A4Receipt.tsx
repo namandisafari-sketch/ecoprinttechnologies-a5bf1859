@@ -140,19 +140,33 @@ const A4Receipt = ({ order }: A4ReceiptProps) => {
         <tbody>
           {items.map((item: any, index: number) => {
             const product = item.product;
+            const addons = item.addons || product.addons || [];
+            const addonsTotal = addons.reduce((s: number, a: any) => s + (Number(a.price) || 0), 0);
             const desc = [
               product.name,
               product.model ? `Model: ${product.model}` : "",
               product.color ? `Color: ${product.color}` : "",
               product.sku ? `SKU: ${product.sku}` : "",
             ].filter(Boolean).join(", ");
+            const unitWithAddons = product.price + addonsTotal;
 
             return (
               <tr key={index}>
                 <td style={tdStyle({ textAlign: "center" })}>{String(item.quantity).padStart(2, "0")}</td>
-                <td style={tdStyle({ textAlign: "left", fontWeight: 500 })}>{desc}</td>
-                <td style={tdStyle({})}>{formatPrice(product.price)}/=</td>
-                <td style={tdStyle({})}>{formatPrice(product.price * item.quantity)}/=</td>
+                <td style={tdStyle({ textAlign: "left", fontWeight: 500 })}>
+                  {desc}
+                  {addons.length > 0 && (
+                    <div style={{ marginTop: "1mm", paddingLeft: "3mm", borderLeft: "2px solid #006600" }}>
+                      {addons.map((a: any, i: number) => (
+                        <div key={i} style={{ fontSize: "8pt", fontStyle: "italic", color: "#444" }}>
+                          + {a.name} {Number(a.price) > 0 ? `(${formatPrice(Number(a.price))}/=)` : "(included)"}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </td>
+                <td style={tdStyle({})}>{formatPrice(unitWithAddons)}/=</td>
+                <td style={tdStyle({})}>{formatPrice(unitWithAddons * item.quantity)}/=</td>
               </tr>
             );
           })}

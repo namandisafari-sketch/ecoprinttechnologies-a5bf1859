@@ -118,17 +118,11 @@ const FlashSales = ({ onAddToCart }: FlashSalesProps) => {
                       UGX {product.originalPrice.toLocaleString()}
                     </p>
                   )}
-                  <div className="mt-1.5">
-                    <div className="w-full bg-border rounded-full h-1 md:h-1.5">
-                      <div
-                        className="bg-accent h-1 md:h-1.5 rounded-full transition-all duration-300"
-                        style={{ width: `${Math.min(100, Math.max(10, (product.stockQuantity / 50) * 100))}%` }}
-                      />
-                    </div>
-                    <p className="text-[8px] md:text-[10px] text-muted-foreground mt-0.5">
-                      {product.stockQuantity > 0 ? `${product.stockQuantity} left` : "Sold out"}
+                  {product.stockQuantity === 0 && (
+                    <p className="text-[8px] md:text-[10px] text-destructive font-medium mt-1">
+                      Sold out
                     </p>
-                  </div>
+                  )}
                 </div>
               </div>
             </div>

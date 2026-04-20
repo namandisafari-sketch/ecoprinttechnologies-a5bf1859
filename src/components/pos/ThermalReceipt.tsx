@@ -52,15 +52,31 @@ const ThermalReceipt = ({ order }: ThermalReceiptProps) => {
           <span>Item</span>
           <span>Amount</span>
         </div>
-        {order.items.map((item: any, index: number) => (
-          <div key={index} className="mb-1">
-            <p className="truncate">{item.product.name}</p>
-            <div className="flex justify-between text-[10px] pl-2">
-              <span>{item.quantity} × {formatPrice(item.product.price)}</span>
-              <span>{formatPrice(item.product.price * item.quantity)}</span>
+        {order.items.map((item: any, index: number) => {
+          const addons = item.addons || (item.product && item.product.addons) || [];
+          const addonsTotal = addons.reduce((s: number, a: any) => s + (Number(a.price) || 0), 0);
+          const baseUnit = item.product.price;
+          const lineTotal = (baseUnit + addonsTotal) * item.quantity;
+          return (
+            <div key={index} className="mb-1">
+              <p className="truncate">{item.product.name}</p>
+              <div className="flex justify-between text-[10px] pl-2">
+                <span>{item.quantity} × {formatPrice(baseUnit)}</span>
+                <span>{formatPrice(baseUnit * item.quantity)}</span>
+              </div>
+              {addons.length > 0 && (
+                <div className="pl-3 mt-0.5 space-y-0.5">
+                  {addons.map((a: any, i: number) => (
+                    <div key={i} className="flex justify-between text-[9px] italic">
+                      <span>+ {a.name}</span>
+                      <span>{formatPrice((Number(a.price) || 0) * item.quantity)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="border-t border-dashed border-black my-2" />

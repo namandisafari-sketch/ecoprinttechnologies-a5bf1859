@@ -11,7 +11,7 @@ import { supabase as supabaseTyped } from '@/integrations/supabase/client';
 const supabase = supabaseTyped as any;
 import { useAuth } from '@/hooks/useAuth';
 import { logAudit } from '@/lib/audit';
-import { Search, Plus, Minus, Trash2, ShoppingCart, Printer, Barcode, ScanLine, Edit2, CalendarIcon, Power } from 'lucide-react';
+import { Search, Plus, Minus, Trash2, ShoppingCart, Printer, Barcode, ScanLine, Edit2, CalendarIcon, Power, Sparkles, X } from 'lucide-react';
 import fadyLogo from '@/assets/fady-logo.png';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { formatCurrency } from '@/lib/currency';
@@ -20,6 +20,7 @@ import { format } from 'date-fns';
 import { cn, getUgandaDateString, formatUgandaDateTime } from '@/lib/utils';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import AddOnPicker from '@/components/pos/AddOnPicker';
 
 interface Product {
   id: string;
@@ -31,10 +32,17 @@ interface Product {
   image_url?: string | null;
 }
 
+interface AddOn {
+  name: string;
+  price: number;
+  product_id?: string | null;
+}
+
 interface CartItem {
   product: Product;
   quantity: number;
   customPrice?: number;
+  addons?: AddOn[];
 }
 
 interface Customer {
@@ -334,8 +342,32 @@ const AdminPOS = () => {
   };
 
   const getItemPrice = (item: CartItem) => item.customPrice ?? item.product.price;
+  const getAddonsTotal = (item: CartItem) =>
+    (item.addons || []).reduce((s, a) => s + (Number(a.price) || 0), 0);
+  const getLineTotal = (item: CartItem) =>
+    getItemPrice(item) * item.quantity + getAddonsTotal(item) * item.quantity;
 
-  const subtotal = cart.reduce((sum, item) => sum + getItemPrice(item) * item.quantity, 0);
+  const addAddon = (productId: string, addon: AddOn) => {
+    setCart((prev) =>
+      prev.map((item) =>
+        item.product.id === productId
+          ? { ...item, addons: [...(item.addons || []), addon] }
+          : item
+      )
+    );
+  };
+
+  const removeAddon = (productId: string, idx: number) => {
+    setCart((prev) =>
+      prev.map((item) =>
+        item.product.id === productId
+          ? { ...item, addons: (item.addons || []).filter((_, i) => i !== idx) }
+          : item
+      )
+    );
+  };
+
+  const subtotal = cart.reduce((sum, item) => sum + getLineTotal(item), 0);
   const discountAmount = parseFloat(discount) || 0;
   const total = subtotal - discountAmount;
   const change = (parseFloat(amountPaid) || 0) - total;
@@ -415,14 +447,20 @@ const AdminPOS = () => {
 
       if (saleError) throw saleError;
 
-      const saleItems = cart.map((item) => ({
-        sale_id: sale.id,
-        product_id: item.product.id,
-        product_name: item.product.name,
-        quantity: item.quantity,
-        unit_price: getItemPrice(item),
-        total_price: getItemPrice(item) * item.quantity,
-      }));
+      const saleItems = cart.map((item) => {
+        const addonsTotal = getAddonsTotal(item);
+        const lineUnitPrice = getItemPrice(item) + addonsTotal;
+        return {
+          sale_id: sale.id,
+          product_id: item.product.id,
+          product_name: item.product.name,
+          quantity: item.quantity,
+          unit_price: lineUnitPrice,
+          subtotal: lineUnitPrice * item.quantity,
+          total_price: lineUnitPrice * item.quantity,
+          addons: item.addons && item.addons.length > 0 ? item.addons : [],
+        };
+      });
 
       const { error: itemsError } = await supabase.from('sale_items').insert(saleItems);
       if (itemsError) throw itemsError;
@@ -735,7 +773,7 @@ const AdminPOS = () => {
               {cart.length === 0 ? (
                 <p className="text-center text-muted-foreground py-8">Cart is empty</p>
               ) : (
-                <div className="space-y-3 max-h-64 overflow-y-auto">
+                <div className="space-y-3 max-h-96 overflow-y-auto">
                   {cart.map((item) => (
                     <div key={item.product.id} className="flex flex-col gap-2 p-2 bg-secondary/50 rounded-lg">
                       <div className="flex items-center justify-between gap-2">
@@ -771,6 +809,37 @@ const AdminPOS = () => {
                           = {formatCurrency(getItemPrice(item) * item.quantity)}
                         </span>
                       </div>
+
+                      {/* Add-ons / upgrades */}
+                      {item.addons && item.addons.length > 0 && (
+                        <div className="space-y-1 pl-2 border-l-2 border-primary/30">
+                          {item.addons.map((addon, idx) => (
+                            <div key={idx} className="flex items-center justify-between gap-2 text-xs">
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                <Sparkles className="h-3 w-3 text-primary flex-shrink-0" />
+                                <span className="truncate">{addon.name}</span>
+                              </div>
+                              <div className="flex items-center gap-1 flex-shrink-0">
+                                <span className="font-mono text-primary">+{formatCurrency(addon.price)}</span>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  className="h-5 w-5 text-destructive"
+                                  onClick={() => removeAddon(item.product.id, idx)}
+                                >
+                                  <X className="h-2.5 w-2.5" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      <AddOnPicker
+                        products={products
+                          .filter((p) => p.id !== item.product.id)
+                          .map((p) => ({ id: p.id, name: p.name, price: p.price }))}
+                        onAdd={(addon) => addAddon(item.product.id, addon)}
+                      />
                     </div>
                   ))}
                 </div>
