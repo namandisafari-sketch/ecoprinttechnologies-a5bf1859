@@ -1,170 +1,172 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, ShoppingCart, DollarSign, TrendingUp, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Calendar, Wallet, CreditCard, Receipt, PiggyBank, ArrowLeftRight, RefreshCw, HandCoins } from "lucide-react";
+import { format } from "date-fns";
 
 const AdminDashboard = () => {
+  const today = new Date();
+  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
+  const todayEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1).toISOString();
+
   const { data: stats } = useQuery({
-    queryKey: ["admin-stats"],
+    queryKey: ["admin-dashboard-stats", todayStart],
     queryFn: async () => {
-      const [productsResult, ordersResult] = await Promise.all([
-        supabase.from("products").select("id", { count: "exact" }),
-        supabase.from("orders").select("id, total, status", { count: "exact" }),
+      const [salesRes, creditRes, expensesRes, exchangesRes, refundsRes, paymentsRes] = await Promise.all([
+        supabase.from("sales").select("total, payment_method, payment_status").gte("created_at", todayStart).lt("created_at", todayEnd),
+        supabase.from("credit_sales").select("balance, total_amount, amount_paid"),
+        supabase.from("expenses").select("amount").gte("expense_date", todayStart.split("T")[0]).lt("expense_date", todayEnd.split("T")[0]),
+        supabase.from("exchanges").select("difference_amount, created_at").gte("created_at", todayStart).lt("created_at", todayEnd),
+        supabase.from("refunds").select("amount, created_at").gte("created_at", todayStart).lt("created_at", todayEnd),
+        supabase.from("credit_payments").select("amount, created_at").gte("created_at", todayStart).lt("created_at", todayEnd),
       ]);
 
-      const products = productsResult.count || 0;
-      const orders = ordersResult.data || [];
-      const totalRevenue = orders.reduce((sum, order) => sum + Number(order.total || 0), 0);
-      const pendingOrders = orders.filter((o) => o.status === "pending").length;
+      const sales = salesRes.data || [];
+      const cashSales = sales.reduce((s, x) => s + Number(x.total || 0), 0);
+      const cashCount = sales.length;
+
+      const credits = creditRes.data || [];
+      const creditOutstanding = credits.reduce((s, x) => s + Number(x.balance || 0), 0);
+      const uncollectedBalance = credits.filter((c) => Number(c.balance) > 0).reduce((s, x) => s + Number(x.balance || 0), 0);
+      const customersOwe = credits.filter((c) => Number(c.balance) > 0).length;
+
+      const expenses = (expensesRes.data || []).reduce((s, x) => s + Number(x.amount || 0), 0);
+
+      const exchanges = exchangesRes.data || [];
+      const exchangeTopups = exchanges.filter((e) => Number(e.difference_amount) > 0).reduce((s, x) => s + Number(x.difference_amount || 0), 0);
+      const exchangeRefunds = exchanges.filter((e) => Number(e.difference_amount) < 0).reduce((s, x) => s + Math.abs(Number(x.difference_amount || 0)), 0);
+
+      const refunds = (refundsRes.data || []).reduce((s, x) => s + Number(x.amount || 0), 0);
+      const creditPayments = (paymentsRes.data || []).reduce((s, x) => s + Number(x.amount || 0), 0);
+      const creditPaymentsCount = (paymentsRes.data || []).length;
 
       return {
-        products,
-        orders: orders.length,
-        revenue: totalRevenue,
-        pendingOrders,
+        cashSales,
+        cashCount,
+        creditOutstanding,
+        expenses,
+        uncollectedBalance,
+        customersOwe,
+        exchangeTopups,
+        exchangeCount: exchanges.length,
+        exchangeRefunds: exchangeRefunds + refunds,
+        creditPayments,
+        creditPaymentsCount,
       };
     },
   });
 
-  const { data: recentOrders } = useQuery({
-    queryKey: ["recent-orders"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("orders")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(5);
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat("en-UG", { maximumFractionDigits: 0 }).format(price);
 
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-UG", {
-      style: "currency",
-      currency: "UGX",
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
-
-  const statCards = [
+  const cards = [
     {
-      title: "Total Products",
-      value: stats?.products || 0,
-      icon: Package,
-      change: "+12%",
-      isPositive: true,
+      title: "Today's Cash Sales",
+      value: `USh ${formatPrice(stats?.cashSales || 0)}`,
+      sub: `${stats?.cashCount || 0} cash transactions`,
+      hint: "Sales paid by cash, card, mobile money, bank transfer",
+      icon: Wallet,
+      bg: "bg-emerald-50 dark:bg-emerald-950/30",
+      border: "border-emerald-200 dark:border-emerald-900",
+      text: "text-emerald-700 dark:text-emerald-400",
+      iconColor: "text-emerald-600",
     },
     {
-      title: "Total Orders",
-      value: stats?.orders || 0,
-      icon: ShoppingCart,
-      change: "+8%",
-      isPositive: true,
+      title: "Today's Credit Outstanding",
+      value: `USh ${formatPrice(stats?.creditOutstanding || 0)}`,
+      sub: "All collected",
+      hint: "Credit sales still awaiting payment",
+      icon: CreditCard,
+      bg: "bg-amber-50 dark:bg-amber-950/30",
+      border: "border-amber-200 dark:border-amber-900",
+      text: "text-amber-700 dark:text-amber-400",
+      iconColor: "text-amber-600",
     },
     {
-      title: "Total Revenue",
-      value: formatPrice(stats?.revenue || 0),
-      icon: DollarSign,
-      change: "+23%",
-      isPositive: true,
+      title: "Today's Expenses",
+      value: `USh ${formatPrice(stats?.expenses || 0)}`,
+      sub: "Deducted from operations",
+      hint: "Total business expenses for the day",
+      icon: Receipt,
+      bg: "bg-rose-50 dark:bg-rose-950/30",
+      border: "border-rose-200 dark:border-rose-900",
+      text: "text-rose-700 dark:text-rose-400",
+      iconColor: "text-rose-600",
     },
     {
-      title: "Pending Orders",
-      value: stats?.pendingOrders || 0,
-      icon: TrendingUp,
-      change: "-5%",
-      isPositive: false,
+      title: "Uncollected Balances",
+      value: `USh ${formatPrice(stats?.uncollectedBalance || 0)}`,
+      sub: `${stats?.customersOwe || 0} customers owe`,
+      hint: "Total outstanding credit from all customers",
+      icon: PiggyBank,
+      bg: "bg-orange-50 dark:bg-orange-950/30",
+      border: "border-orange-200 dark:border-orange-900",
+      text: "text-orange-700 dark:text-orange-400",
+      iconColor: "text-orange-600",
+    },
+    {
+      title: "Today's Exchange Top-ups",
+      value: `USh ${formatPrice(stats?.exchangeTopups || 0)}`,
+      sub: `${stats?.exchangeCount || 0} exchanges processed`,
+      hint: "Extra payments collected from product exchanges",
+      icon: ArrowLeftRight,
+      bg: "bg-sky-50 dark:bg-sky-950/30",
+      border: "border-sky-200 dark:border-sky-900",
+      text: "text-sky-700 dark:text-sky-400",
+      iconColor: "text-sky-600",
+    },
+    {
+      title: "Today's Exchange Refunds",
+      value: `USh ${formatPrice(stats?.exchangeRefunds || 0)}`,
+      sub: "Given back to customers",
+      hint: "Refunds given for exchanges/returns",
+      icon: RefreshCw,
+      bg: "bg-pink-50 dark:bg-pink-950/30",
+      border: "border-pink-200 dark:border-pink-900",
+      text: "text-pink-700 dark:text-pink-400",
+      iconColor: "text-pink-600",
+    },
+    {
+      title: "Today's Credit Payments",
+      value: `USh ${formatPrice(stats?.creditPayments || 0)}`,
+      sub: `${stats?.creditPaymentsCount || 0} payments received`,
+      hint: "Payments collected from credit customers",
+      icon: HandCoins,
+      bg: "bg-green-50 dark:bg-green-950/30",
+      border: "border-green-200 dark:border-green-900",
+      text: "text-green-700 dark:text-green-400",
+      iconColor: "text-green-600",
     },
   ];
 
-  const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-      pending: "bg-yellow-100 text-yellow-800",
-      confirmed: "bg-blue-100 text-blue-800",
-      processing: "bg-purple-100 text-purple-800",
-      shipped: "bg-indigo-100 text-indigo-800",
-      delivered: "bg-primary/10 text-primary",
-      cancelled: "bg-destructive/10 text-destructive",
-    };
-    return colors[status] || "bg-muted text-muted-foreground";
-  };
-
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome back! Here's your store overview.</p>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground">Welcome to Eco Print Technologies Admin</p>
+        </div>
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border bg-card shadow-sm">
+          <Calendar className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-medium">{format(today, "MMMM do, yyyy")}</span>
+        </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {statCards.map((stat) => (
-          <Card key={stat.title}>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                {stat.title}
-              </CardTitle>
-              <stat.icon className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                {stat.isPositive ? (
-                  <ArrowUpRight className="h-3 w-3 text-primary" />
-                ) : (
-                  <ArrowDownRight className="h-3 w-3 text-destructive" />
-                )}
-                <span className={stat.isPositive ? "text-primary" : "text-destructive"}>
-                  {stat.change}
-                </span>
-                <span>from last month</span>
-              </p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {cards.map((c) => (
+          <Card key={c.title} className={`${c.bg} ${c.border} border-2 shadow-sm hover:shadow-md transition-shadow`}>
+            <CardContent className="p-5 space-y-3">
+              <div className="flex items-start justify-between">
+                <p className="text-sm font-medium text-foreground/70">{c.title}</p>
+                <c.icon className={`h-5 w-5 ${c.iconColor}`} />
+              </div>
+              <p className={`text-3xl font-bold ${c.text}`}>{c.value}</p>
+              <p className="text-sm text-foreground/60">{c.sub}</p>
+              <p className="text-xs text-muted-foreground pt-2 border-t border-foreground/10">{c.hint}</p>
             </CardContent>
           </Card>
         ))}
       </div>
-
-      {/* Recent Orders */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Orders</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {recentOrders && recentOrders.length > 0 ? (
-            <div className="space-y-4">
-              {recentOrders.map((order) => (
-                <div
-                  key={order.id}
-                  className="flex items-center justify-between p-4 bg-muted/50 rounded-lg"
-                >
-                  <div>
-                    <p className="font-medium text-foreground">{order.order_number}</p>
-                    <p className="text-sm text-muted-foreground">{order.customer_name}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-foreground">
-                      {formatPrice(Number(order.total))}
-                    </p>
-                    <span
-                      className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                        order.status || "pending"
-                      )}`}
-                    >
-                      {order.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-muted-foreground text-center py-8">
-              No orders yet. Orders will appear here once customers start ordering.
-            </p>
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 };
