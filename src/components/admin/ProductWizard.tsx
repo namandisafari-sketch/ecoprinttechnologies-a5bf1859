@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { addWatermark } from "@/lib/watermark";
@@ -381,10 +381,45 @@ const ProductWizard = ({ editingProduct, onClose }: ProductWizardProps) => {
     enabled: !!editingProduct?.id,
   });
 
-  // Get selected category slug for dynamic specs
+  // Get selected category slug for dynamic specs (with aliases for related slugs)
+  const SLUG_ALIASES: Record<string, string> = {
+    "chargers-cables": "chargers",
+    "laptop-screens": "spare-parts",
+    "laptop-cases": "accessories",
+    "phone": "phones",
+    "laptop": "laptops",
+    "tablet": "tablets",
+    "tv": "tvs",
+    "printer": "printers",
+    "monitor": "monitors",
+    "desktop": "desktops",
+    "audio-speakers": "audio",
+    "headphones": "audio",
+    "speakers": "audio",
+    "cameras": "accessories",
+    "battery": "batteries",
+    "charger": "chargers",
+  };
   const selectedCategory = categories?.find((c) => c.id === formData.category_id);
-  const categorySlug = selectedCategory?.slug?.toLowerCase() || "";
+  const rawSlug = selectedCategory?.slug?.toLowerCase() || "";
+  const categorySlug = SLUG_ALIASES[rawSlug] || rawSlug;
   const suggestedSpecs = CATEGORY_SPECS[categorySlug] || CATEGORY_SPECS["accessories"] || [];
+
+  // Auto-populate spec fields whenever category changes (only if no user-entered values yet)
+  const lastAutoCategory = useRef<string>("");
+  useEffect(() => {
+    if (!formData.category_id || !suggestedSpecs.length) return;
+    if (lastAutoCategory.current === formData.category_id) return;
+
+    // Only auto-fill if specs are empty OR contain only previously-auto-loaded empty fields
+    const hasUserData = specifications.some(s => s.spec_value.trim() !== "");
+    if (hasUserData && lastAutoCategory.current !== "") return;
+
+    const templateSpecs = suggestedSpecs.map(s => ({ spec_key: s.key, spec_value: "" }));
+    setSpecifications(templateSpecs);
+    lastAutoCategory.current = formData.category_id;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.category_id, categorySlug]);
 
   // ── Mutations ──────────────────────────────────────────────────────
   const createProduct = useMutation({

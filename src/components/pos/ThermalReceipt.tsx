@@ -3,73 +3,147 @@ interface ThermalReceiptProps {
 }
 
 const ThermalReceipt = ({ order }: ThermalReceiptProps) => {
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-UG", {
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat("en-UG", {
       style: "currency",
       currency: "UGX",
       minimumFractionDigits: 0,
     }).format(price);
-  };
 
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleString("en-UG", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    const d = new Date(date);
+    return {
+      date: d.toLocaleDateString("en-UG", { year: "numeric", month: "short", day: "2-digit" }),
+      time: d.toLocaleTimeString("en-UG", { hour: "2-digit", minute: "2-digit", hour12: false }),
+    };
   };
 
+  const { date, time } = formatDate(order.created_at);
+  const cashier = order.cashier_name || order.served_by || "—";
+
   return (
-    <div className="receipt p-4 font-mono text-xs text-black" style={{ width: "80mm" }}>
-      {/* Header */}
-      <div className="text-center mb-4">
-        <h1 className="text-lg font-bold">ECO PRINT TECHNOLOGIES</h1>
-        <p className="text-[10px]">Laptops & Tech Services</p>
-        <p className="text-[10px]">Tel: +256 705 154 828</p>
-        <div className="border-t border-dashed border-black my-2" />
-      </div>
-
-      {/* Order Info */}
-      <div className="mb-3">
-        <p><strong>Receipt #:</strong> {order.order_number}</p>
-        <p><strong>Date:</strong> {formatDate(order.created_at)}</p>
-        {order.customer_name && order.customer_name !== "Walk-in Customer" && (
-          <p><strong>Customer:</strong> {order.customer_name}</p>
-        )}
-        <p><strong>Payment:</strong> {order.payment_method?.replace(/_/g, " ").toUpperCase()}</p>
-        {(order.cashier_name || order.served_by) && (
-          <p><strong>Cashier:</strong> {order.cashier_name || order.served_by}</p>
-        )}
-      </div>
-
-      <div className="border-t border-dashed border-black my-2" />
-
-      {/* Items */}
-      <div className="mb-3">
-        <div className="flex justify-between font-bold mb-1">
-          <span>Item</span>
-          <span>Amount</span>
+    <div
+      className="receipt font-mono text-black bg-white"
+      style={{ width: "80mm", padding: "6mm 4mm", fontSize: "11px", lineHeight: 1.45 }}
+    >
+      {/* ── Brand Header ─────────────────────────────────── */}
+      <div className="text-center" style={{ marginBottom: "8px" }}>
+        <div
+          style={{
+            display: "inline-block",
+            border: "2px solid #000",
+            borderRadius: "6px",
+            padding: "4px 12px",
+            marginBottom: "6px",
+            fontWeight: 900,
+            letterSpacing: "1px",
+            fontSize: "13px",
+          }}
+        >
+          ECO PRINT
         </div>
+        <p style={{ fontSize: "10px", fontWeight: 600, letterSpacing: "0.5px" }}>
+          TECHNOLOGIES LTD
+        </p>
+        <p style={{ fontSize: "9px", marginTop: "3px" }}>Suncity Mall, Kampala</p>
+        <p style={{ fontSize: "9px" }}>Tel: +256 705 154 828</p>
+      </div>
+
+      {/* Solid divider */}
+      <div style={{ borderTop: "2px solid #000", margin: "6px 0" }} />
+
+      {/* ── Receipt label ───────────────────────────────── */}
+      <div className="text-center" style={{ marginBottom: "6px" }}>
+        <p style={{ fontSize: "10px", letterSpacing: "3px", fontWeight: 700 }}>
+          SALES RECEIPT
+        </p>
+      </div>
+
+      {/* ── Meta block: 2-column grid ────────────────────── */}
+      <div style={{ fontSize: "10px", marginBottom: "6px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span style={{ color: "#444" }}>Receipt #</span>
+          <span style={{ fontWeight: 700 }}>{order.order_number}</span>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span style={{ color: "#444" }}>Date</span>
+          <span>{date} • {time}</span>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span style={{ color: "#444" }}>Cashier</span>
+          <span style={{ fontWeight: 600 }}>{cashier}</span>
+        </div>
+        {order.customer_name && order.customer_name !== "Walk-in Customer" && (
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <span style={{ color: "#444" }}>Customer</span>
+            <span>{order.customer_name}</span>
+          </div>
+        )}
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span style={{ color: "#444" }}>Payment</span>
+          <span style={{ fontWeight: 600, textTransform: "uppercase" }}>
+            {order.payment_method?.replace(/_/g, " ") || "CASH"}
+          </span>
+        </div>
+      </div>
+
+      <div style={{ borderTop: "1px dashed #000", margin: "6px 0" }} />
+
+      {/* ── Items header ─────────────────────────────────── */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          fontSize: "9px",
+          fontWeight: 700,
+          letterSpacing: "1px",
+          textTransform: "uppercase",
+          paddingBottom: "3px",
+          borderBottom: "1px solid #000",
+        }}
+      >
+        <span>Item / Qty × Price</span>
+        <span>Amount</span>
+      </div>
+
+      {/* ── Items ─────────────────────────────────────────── */}
+      <div style={{ marginTop: "4px" }}>
         {order.items.map((item: any, index: number) => {
           const addons = item.addons || (item.product && item.product.addons) || [];
-          const addonsTotal = addons.reduce((s: number, a: any) => s + (Number(a.price) || 0), 0);
           const baseUnit = item.product.price;
-          const lineTotal = (baseUnit + addonsTotal) * item.quantity;
           return (
-            <div key={index} className="mb-1">
-              <p className="truncate">{item.product.name}</p>
-              <div className="flex justify-between text-[10px] pl-2">
-                <span>{item.quantity} × {formatPrice(baseUnit)}</span>
-                <span>{formatPrice(baseUnit * item.quantity)}</span>
+            <div key={index} style={{ marginBottom: "6px" }}>
+              <p style={{ fontWeight: 700, fontSize: "11px", marginBottom: "1px" }}>
+                {item.product.name}
+              </p>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: "10px",
+                }}
+              >
+                <span style={{ color: "#333" }}>
+                  {item.quantity} × {formatPrice(baseUnit)}
+                </span>
+                <span style={{ fontWeight: 600 }}>
+                  {formatPrice(baseUnit * item.quantity)}
+                </span>
               </div>
               {addons.length > 0 && (
-                <div className="pl-3 mt-0.5 space-y-0.5">
+                <div style={{ paddingLeft: "8px", marginTop: "2px" }}>
                   {addons.map((a: any, i: number) => (
-                    <div key={i} className="flex justify-between text-[9px] italic">
-                      <span>+ {a.name}</span>
-                      <span>{formatPrice((Number(a.price) || 0) * item.quantity)}</span>
+                    <div
+                      key={i}
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        fontSize: "9px",
+                        color: "#333",
+                      }}
+                    >
+                      <span>↳ {a.name}</span>
+                      <span>+{formatPrice((Number(a.price) || 0) * item.quantity)}</span>
                     </div>
                   ))}
                 </div>
@@ -79,34 +153,86 @@ const ThermalReceipt = ({ order }: ThermalReceiptProps) => {
         })}
       </div>
 
-      <div className="border-t border-dashed border-black my-2" />
+      <div style={{ borderTop: "1px dashed #000", margin: "6px 0" }} />
 
-      {/* Totals */}
-      <div className="mb-3">
-        <div className="flex justify-between">
-          <span>Subtotal:</span>
+      {/* ── Totals ───────────────────────────────────────── */}
+      <div style={{ fontSize: "10px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "2px" }}>
+          <span>Subtotal</span>
           <span>{formatPrice(order.subtotal)}</span>
         </div>
         {order.discount > 0 && (
-          <div className="flex justify-between">
-            <span>Discount ({order.discount}%):</span>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "2px" }}>
+            <span>Discount ({order.discount}%)</span>
             <span>-{formatPrice(order.discountAmount)}</span>
           </div>
         )}
-        <div className="flex justify-between font-bold text-sm mt-1">
-          <span>TOTAL:</span>
-          <span>{formatPrice(order.total)}</span>
-        </div>
+        {order.tax > 0 && (
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "2px" }}>
+            <span>Tax</span>
+            <span>{formatPrice(order.tax)}</span>
+          </div>
+        )}
       </div>
 
-      <div className="border-t border-dashed border-black my-2" />
+      {/* GRAND TOTAL — bold inverted bar */}
+      <div
+        style={{
+          background: "#000",
+          color: "#fff",
+          padding: "6px 8px",
+          marginTop: "6px",
+          marginBottom: "6px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          fontWeight: 900,
+          fontSize: "13px",
+          letterSpacing: "0.5px",
+        }}
+      >
+        <span>TOTAL</span>
+        <span>{formatPrice(order.total)}</span>
+      </div>
 
-      {/* Footer */}
-      <div className="text-center text-[10px]">
-        <p className="font-bold mb-1">PAID - THANK YOU!</p>
-        <p>Keep this receipt for your records</p>
-        <p>Visit us again at Eco Print Technologies</p>
-        <p className="mt-2">Suncity Mall, Kampala</p>
+      {order.amount_paid != null && order.amount_paid > 0 && (
+        <div style={{ fontSize: "10px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <span>Paid</span>
+            <span>{formatPrice(order.amount_paid)}</span>
+          </div>
+          {order.change_amount > 0 && (
+            <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700 }}>
+              <span>Change</span>
+              <span>{formatPrice(order.change_amount)}</span>
+            </div>
+          )}
+        </div>
+      )}
+
+      <div style={{ borderTop: "2px solid #000", margin: "8px 0 6px" }} />
+
+      {/* ── Footer ───────────────────────────────────────── */}
+      <div className="text-center" style={{ fontSize: "9px", lineHeight: 1.6 }}>
+        <p style={{ fontWeight: 900, fontSize: "11px", letterSpacing: "2px" }}>
+          ✓ THANK YOU
+        </p>
+        <p style={{ marginTop: "2px" }}>For shopping with us</p>
+        <p style={{ marginTop: "6px", fontStyle: "italic" }}>
+          Returns accepted within 7 days
+        </p>
+        <p>with original receipt</p>
+        <p style={{ marginTop: "6px", letterSpacing: "1px", fontWeight: 600 }}>
+          ecoprinttech.com
+        </p>
+        <p style={{ marginTop: "4px", fontSize: "8px", color: "#555" }}>
+          Powered by Eco Print POS
+        </p>
+      </div>
+
+      {/* End-of-receipt cut indicator */}
+      <div className="text-center" style={{ marginTop: "8px", fontSize: "8px", color: "#888" }}>
+        ✂ - - - - - - - - - - - - - - - - - - - -
       </div>
     </div>
   );
