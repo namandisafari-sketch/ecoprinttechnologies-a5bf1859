@@ -873,19 +873,24 @@ const ProductWizard = ({ editingProduct, onClose }: ProductWizardProps) => {
               {/* Pricing */}
               <Card>
                 <CardContent className="pt-6 space-y-4">
-                  <h2 className="font-semibold text-foreground text-lg">Pricing</h2>
+                  <h2 className="font-semibold text-foreground text-lg">Pricing Tiers</h2>
+                  <p className="text-xs text-muted-foreground -mt-2">
+                    Wholesale and Internal prices are visible to admins only — never shown on the storefront.
+                  </p>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Regular Price (UGX) *</Label>
+                      <Label>Original / RRP (UGX)</Label>
                       <Input
                         type="number"
                         value={formData.original_price}
                         onChange={(e) => setFormData({ ...formData, original_price: e.target.value })}
                         placeholder="e.g., 3,500,000"
                       />
+                      <p className="text-[11px] text-muted-foreground">Crossed-out price for promotions (optional)</p>
                     </div>
                     <div className="space-y-2">
-                      <Label>Sale Price (UGX) *</Label>
+                      <Label>Retail Price (UGX) *</Label>
                       <div className="relative">
                         <Input
                           type="number"
@@ -900,20 +905,56 @@ const ProductWizard = ({ editingProduct, onClose }: ProductWizardProps) => {
                           </Badge>
                         )}
                       </div>
-                      {discountPercent > 0 && (
-                        <p className="text-xs text-muted-foreground">
-                          Customer saves UGX {(parseFloat(formData.original_price) - parseFloat(formData.price)).toLocaleString()}
-                        </p>
-                      )}
+                      <p className="text-[11px] text-muted-foreground">Public price shown to all customers</p>
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label>Stock Quantity</Label>
-                    <Input
-                      type="number"
-                      value={formData.stock_quantity}
-                      onChange={(e) => setFormData({ ...formData, stock_quantity: e.target.value })}
-                    />
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-dashed border-border">
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-1.5">
+                        Wholesale Price (UGX)
+                        <Badge variant="outline" className="text-[9px] px-1 py-0">Admin only</Badge>
+                      </Label>
+                      <Input
+                        type="number"
+                        value={formData.wholesale_price}
+                        onChange={(e) => setFormData({ ...formData, wholesale_price: e.target.value })}
+                        placeholder="Bulk / reseller price"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-1.5">
+                        Internal Price (UGX)
+                        <Badge variant="outline" className="text-[9px] px-1 py-0">Admin only</Badge>
+                      </Label>
+                      <Input
+                        type="number"
+                        value={formData.internal_price}
+                        onChange={(e) => setFormData({ ...formData, internal_price: e.target.value })}
+                        placeholder="Trusted partner price"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-dashed border-border">
+                    <div className="space-y-2">
+                      <Label>Unit Cost (UGX)</Label>
+                      <Input
+                        type="number"
+                        value={formData.unit_cost}
+                        onChange={(e) => setFormData({ ...formData, unit_cost: e.target.value })}
+                        placeholder="What you pay per unit"
+                      />
+                      <p className="text-[11px] text-muted-foreground">Used to calculate profit margin</p>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Stock Quantity</Label>
+                      <Input
+                        type="number"
+                        value={formData.stock_quantity}
+                        onChange={(e) => setFormData({ ...formData, stock_quantity: e.target.value })}
+                      />
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -1002,8 +1043,8 @@ const ProductWizard = ({ editingProduct, onClose }: ProductWizardProps) => {
               </Card>
             </div>
 
-            {/* Price Preview Sidebar */}
-            <div>
+            {/* Price Preview & Margin Sidebar */}
+            <div className="space-y-6">
               <Card className="sticky top-32">
                 <CardContent className="pt-6 space-y-3">
                   <h2 className="font-semibold text-foreground">Price Preview</h2>
@@ -1026,6 +1067,14 @@ const ProductWizard = ({ editingProduct, onClose }: ProductWizardProps) => {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Profit Margin Calculator */}
+              <ProfitMarginCard
+                cost={parseFloat(formData.unit_cost) || 0}
+                retail={parseFloat(formData.price) || 0}
+                wholesale={parseFloat(formData.wholesale_price) || 0}
+                internal={parseFloat(formData.internal_price) || 0}
+              />
             </div>
           </div>
         )}
