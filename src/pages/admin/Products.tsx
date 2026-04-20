@@ -173,18 +173,48 @@ const AdminProducts = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between mb-3">
-                    <div>
-                      <p className="font-semibold text-primary">{formatPrice(Number(product.price))}</p>
-                      {product.original_price && (
-                        <div className="flex items-center gap-1">
-                          <p className="text-xs text-muted-foreground line-through">{formatPrice(Number(product.original_price))}</p>
-                          {discount > 0 && <Badge variant="destructive" className="text-[10px] px-1 py-0">-{discount}%</Badge>}
-                        </div>
-                      )}
+                  <div className="space-y-1.5 mb-3">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">Retail</span>
+                      <span className="font-semibold text-primary">{formatPrice(Number(product.price))}</span>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium">Stock: {product.stock_quantity ?? 0}</p>
+                    {product.original_price && (
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-muted-foreground">RRP</span>
+                        <div className="flex items-center gap-1">
+                          <span className="text-muted-foreground line-through">{formatPrice(Number(product.original_price))}</span>
+                          {discount > 0 && <Badge variant="destructive" className="text-[9px] px-1 py-0">-{discount}%</Badge>}
+                        </div>
+                      </div>
+                    )}
+                    {product.wholesale_price && (
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-muted-foreground">Wholesale</span>
+                        <span className="font-medium text-blue-600">{formatPrice(Number(product.wholesale_price))}</span>
+                      </div>
+                    )}
+                    {product.internal_price && (
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-muted-foreground flex items-center gap-1">
+                          Internal
+                          <Badge variant="outline" className="text-[8px] px-1 py-0">Admin</Badge>
+                        </span>
+                        <span className="font-medium text-amber-600">{formatPrice(Number(product.internal_price))}</span>
+                      </div>
+                    )}
+                    {product.unit_cost > 0 && product.price > 0 && (
+                      <div className="flex items-center justify-between text-[11px] pt-1 border-t border-dashed border-border">
+                        <span className="text-muted-foreground">Margin</span>
+                        <Badge
+                          variant={product.price - product.unit_cost > 0 ? "default" : "destructive"}
+                          className="text-[9px] px-1.5 py-0 font-mono"
+                        >
+                          {(((product.price - product.unit_cost) / product.price) * 100).toFixed(1)}%
+                        </Badge>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between pt-1 border-t border-border">
+                      <span className="text-xs text-muted-foreground">Stock: {product.stock_quantity ?? 0}</span>
                       <Badge variant={product.is_active ? "default" : "secondary"} className="text-[10px]">
                         {product.is_active ? "Active" : "Inactive"}
                       </Badge>

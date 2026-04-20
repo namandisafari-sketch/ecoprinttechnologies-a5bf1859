@@ -20,6 +20,7 @@ import {
   ArrowLeft, ArrowRight, Check, Loader2, Upload, X, Plus, Trash2,
   Image as ImageIcon, GripVertical, Package, Tag, Settings2, Camera, ClipboardPaste,
 } from "lucide-react";
+import ProfitMarginCard from "@/components/admin/ProfitMarginCard";
 
 // ── Types ──────────────────────────────────────────────────────────────
 interface Variant {
