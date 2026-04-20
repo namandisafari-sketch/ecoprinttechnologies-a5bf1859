@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Wallet, CreditCard, Receipt, PiggyBank, ArrowLeftRight, RefreshCw, HandCoins } from "lucide-react";
+import { Calendar, Wallet, CreditCard, Receipt, Users, ArrowLeftRight, RefreshCw, HandCoins } from "lucide-react";
 import { format } from "date-fns";
 
 const AdminDashboard = () => {
