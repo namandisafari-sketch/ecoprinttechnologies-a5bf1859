@@ -487,7 +487,6 @@ const AdminPOS = () => {
               credit_sale_id: creditSale.id,
               amount: actualAmountPaid,
               payment_method: 'cash',
-              received_by: user?.id,
               notes: 'Initial deposit',
             });
           }
@@ -500,13 +499,12 @@ const AdminPOS = () => {
           const newBalance = wallet.balance - total;
           await supabase.from('customer_wallets').update({ balance: newBalance }).eq('id', wallet.id);
           await supabase.from('wallet_transactions').insert({
+            wallet_id: wallet.id,
             customer_id: selectedWalletCustomerId,
-            transaction_type: 'purchase',
+            type: 'purchase',
             amount: -total,
-            balance_after: newBalance,
-            sale_id: sale.id,
+            reference: sale.sale_number,
             notes: `Purchase - Receipt #${sale.sale_number}`,
-            created_by: user?.id,
           });
         }
       }
@@ -516,12 +514,12 @@ const AdminPOS = () => {
         await supabase.from('products').update({ stock_quantity: newStock }).eq('id', item.product.id);
         await supabase.from('inventory_transactions').insert({
           product_id: item.product.id,
-          transaction_type: 'sale',
+          type: 'sale',
           quantity: -item.quantity,
-          previous_stock: item.product.stock_quantity,
-          new_stock: newStock,
+          performed_by: user?.id,
+          reference: sale.sale_number,
           reference_id: sale.id,
-          created_by: user?.id,
+          notes: `Stock reduced from ${item.product.stock_quantity} to ${newStock}`,
         });
       }
 
