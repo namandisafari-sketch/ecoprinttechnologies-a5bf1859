@@ -454,7 +454,6 @@ const AdminPOS = () => {
           quantity: item.quantity,
           unit_price: lineUnitPrice,
           subtotal: lineUnitPrice * item.quantity,
-          total_price: lineUnitPrice * item.quantity,
           addons: item.addons && item.addons.length > 0 ? item.addons : [],
         };
       });
