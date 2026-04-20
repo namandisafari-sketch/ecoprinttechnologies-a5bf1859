@@ -506,7 +506,7 @@ const AdminPOS = () => {
             amount: -total,
             balance_after: newBalance,
             sale_id: sale.id,
-            notes: `Purchase - Receipt #${receiptNumber}`,
+            notes: `Purchase - Receipt #${sale.sale_number}`,
             created_by: user?.id,
           });
         }
