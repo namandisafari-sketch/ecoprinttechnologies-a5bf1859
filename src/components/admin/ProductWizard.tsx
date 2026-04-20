@@ -40,8 +40,11 @@ interface Specification {
 interface ProductFormData {
   name: string;
   description: string;
-  price: string;
-  original_price: string;
+  price: string;             // Retail price (shown on storefront)
+  original_price: string;    // Crossed-out / before-discount price
+  wholesale_price: string;   // Bulk price (admin only)
+  internal_price: string;    // Trusted-partner price (admin only)
+  unit_cost: string;         // Cost of goods (for margin calc)
   category_id: string;
   brand_id: string;
   image_url: string;
@@ -229,6 +232,9 @@ const ProductWizard = ({ editingProduct, onClose }: ProductWizardProps) => {
     description: editingProduct?.description || "",
     price: editingProduct ? String(editingProduct.price) : "",
     original_price: editingProduct?.original_price ? String(editingProduct.original_price) : "",
+    wholesale_price: editingProduct?.wholesale_price ? String(editingProduct.wholesale_price) : "",
+    internal_price: editingProduct?.internal_price ? String(editingProduct.internal_price) : "",
+    unit_cost: editingProduct?.unit_cost ? String(editingProduct.unit_cost) : "",
     category_id: editingProduct?.category_id || "",
     brand_id: editingProduct?.brand_id || "",
     image_url: editingProduct?.image_url || "",
@@ -497,11 +503,14 @@ const ProductWizard = ({ editingProduct, onClose }: ProductWizardProps) => {
     }
 
     try {
-      const productData = {
+      const productData: any = {
         name: formData.name,
         description: formData.description || null,
         price: parseFloat(formData.price),
         original_price: formData.original_price ? parseFloat(formData.original_price) : null,
+        wholesale_price: formData.wholesale_price ? parseFloat(formData.wholesale_price) : null,
+        internal_price: formData.internal_price ? parseFloat(formData.internal_price) : null,
+        unit_cost: formData.unit_cost ? parseFloat(formData.unit_cost) : 0,
         category_id: formData.category_id || null,
         brand_id: formData.brand_id || null,
         image_url: formData.image_url || null,
