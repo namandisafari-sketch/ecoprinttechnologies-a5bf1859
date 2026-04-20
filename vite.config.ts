@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["pwa-icon-192.png", "pwa-icon-512.png", "logo.png"],
+      includeAssets: ["app-icon.png", "pwa-icon-192.png", "pwa-icon-512.png", "splash.png", "logo.png"],
       workbox: {
         navigateFallbackDenylist: [/^\/~oauth/],
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
@@ -36,16 +36,22 @@ export default defineConfig(({ mode }) => ({
         scope: "/",
         icons: [
           {
-            src: "/pwa-icon-192.png",
+            src: "/app-icon.png",
             sizes: "192x192",
             type: "image/png",
-            purpose: "any maskable",
+            purpose: "any",
+          },
+          {
+            src: "/app-icon.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "any",
           },
           {
             src: "/pwa-icon-512.png",
             sizes: "512x512",
             type: "image/png",
-            purpose: "any maskable",
+            purpose: "maskable",
           },
         ],
         categories: ["shopping", "business"],
