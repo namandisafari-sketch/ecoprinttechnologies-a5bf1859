@@ -1475,6 +1475,7 @@ export type Database = {
           id: string
           image_url: string | null
           images: string[] | null
+          internal_price: number | null
           is_active: boolean | null
           is_featured: boolean | null
           is_new: boolean | null
@@ -1488,6 +1489,7 @@ export type Database = {
           stock_quantity: number | null
           unit_cost: number | null
           updated_at: string
+          wholesale_price: number | null
         }
         Insert: {
           brand_id?: string | null
@@ -1498,6 +1500,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           images?: string[] | null
+          internal_price?: number | null
           is_active?: boolean | null
           is_featured?: boolean | null
           is_new?: boolean | null
@@ -1511,6 +1514,7 @@ export type Database = {
           stock_quantity?: number | null
           unit_cost?: number | null
           updated_at?: string
+          wholesale_price?: number | null
         }
         Update: {
           brand_id?: string | null
@@ -1521,6 +1525,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           images?: string[] | null
+          internal_price?: number | null
           is_active?: boolean | null
           is_featured?: boolean | null
           is_new?: boolean | null
@@ -1534,6 +1539,7 @@ export type Database = {
           stock_quantity?: number | null
           unit_cost?: number | null
           updated_at?: string
+          wholesale_price?: number | null
         }
         Relationships: [
           {
@@ -1823,6 +1829,7 @@ export type Database = {
       }
       sale_items: {
         Row: {
+          addons: Json | null
           created_at: string
           discount: number | null
           id: string
@@ -1835,6 +1842,7 @@ export type Database = {
           unit_price: number
         }
         Insert: {
+          addons?: Json | null
           created_at?: string
           discount?: number | null
           id?: string
@@ -1847,6 +1855,7 @@ export type Database = {
           unit_price: number
         }
         Update: {
+          addons?: Json | null
           created_at?: string
           discount?: number | null
           id?: string
