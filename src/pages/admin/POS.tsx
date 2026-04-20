@@ -11,7 +11,7 @@ import { supabase as supabaseTyped } from '@/integrations/supabase/client';
 const supabase = supabaseTyped as any;
 import { useAuth } from '@/hooks/useAuth';
 import { logAudit } from '@/lib/audit';
-import { Search, Plus, Minus, Trash2, ShoppingCart, Printer, Barcode, ScanLine, Edit2, CalendarIcon, Power } from 'lucide-react';
+import { Search, Plus, Minus, Trash2, ShoppingCart, Printer, Barcode, ScanLine, Edit2, CalendarIcon, Power, Sparkles, X } from 'lucide-react';
 import fadyLogo from '@/assets/fady-logo.png';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { formatCurrency } from '@/lib/currency';
@@ -31,10 +31,17 @@ interface Product {
   image_url?: string | null;
 }
 
+interface AddOn {
+  name: string;
+  price: number;
+  product_id?: string | null;
+}
+
 interface CartItem {
   product: Product;
   quantity: number;
   customPrice?: number;
+  addons?: AddOn[];
 }
 
 interface Customer {
