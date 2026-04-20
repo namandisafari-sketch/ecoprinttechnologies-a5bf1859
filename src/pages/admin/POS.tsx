@@ -20,6 +20,7 @@ import { format } from 'date-fns';
 import { cn, getUgandaDateString, formatUgandaDateTime } from '@/lib/utils';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import AddOnPicker from '@/components/pos/AddOnPicker';
 
 interface Product {
   id: string;
