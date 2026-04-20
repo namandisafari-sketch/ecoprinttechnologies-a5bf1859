@@ -63,11 +63,11 @@ const SplashScreen = () => {
         backgroundColor: "#0a2818", // matches splash dark green so letterboxing blends
       }}
     >
-      {/* Background image — contain so it never stretches/crops */}
+      {/* Background image — cover so it fills the entire screen */}
       <img
         src={splashImage}
         alt="Eco Print Technologies"
-        className="absolute inset-0 h-full w-full object-contain"
+        className="absolute inset-0 h-full w-full object-cover"
         draggable={false}
       />
 
