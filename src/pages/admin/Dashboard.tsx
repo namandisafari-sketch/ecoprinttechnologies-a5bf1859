@@ -98,7 +98,7 @@ const AdminDashboard = () => {
       value: `USh ${formatPrice(stats?.uncollectedBalance || 0)}`,
       sub: `${stats?.customersOwe || 0} customers owe`,
       hint: "Total outstanding credit from all customers",
-      icon: PiggyBank,
+      icon: Users,
       bg: "bg-orange-50 dark:bg-orange-950/30",
       border: "border-orange-200 dark:border-orange-900",
       text: "text-orange-700 dark:text-orange-400",
