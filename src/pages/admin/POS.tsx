@@ -341,8 +341,32 @@ const AdminPOS = () => {
   };
 
   const getItemPrice = (item: CartItem) => item.customPrice ?? item.product.price;
+  const getAddonsTotal = (item: CartItem) =>
+    (item.addons || []).reduce((s, a) => s + (Number(a.price) || 0), 0);
+  const getLineTotal = (item: CartItem) =>
+    getItemPrice(item) * item.quantity + getAddonsTotal(item) * item.quantity;
 
-  const subtotal = cart.reduce((sum, item) => sum + getItemPrice(item) * item.quantity, 0);
+  const addAddon = (productId: string, addon: AddOn) => {
+    setCart((prev) =>
+      prev.map((item) =>
+        item.product.id === productId
+          ? { ...item, addons: [...(item.addons || []), addon] }
+          : item
+      )
+    );
+  };
+
+  const removeAddon = (productId: string, idx: number) => {
+    setCart((prev) =>
+      prev.map((item) =>
+        item.product.id === productId
+          ? { ...item, addons: (item.addons || []).filter((_, i) => i !== idx) }
+          : item
+      )
+    );
+  };
+
+  const subtotal = cart.reduce((sum, item) => sum + getLineTotal(item), 0);
   const discountAmount = parseFloat(discount) || 0;
   const total = subtotal - discountAmount;
   const change = (parseFloat(amountPaid) || 0) - total;
