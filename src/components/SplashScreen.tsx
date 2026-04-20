@@ -55,26 +55,26 @@ const SplashScreen = () => {
 
   return (
     <div
-      className={`fixed inset-0 z-[9999] flex items-end justify-center bg-background transition-opacity duration-400 ${
+      className={`fixed inset-0 z-[9999] flex items-end justify-center transition-opacity duration-500 ${
         fadingOut ? "opacity-0" : "opacity-100"
       }`}
-      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      style={{
+        paddingBottom: "env(safe-area-inset-bottom)",
+        backgroundColor: "#0a2818", // matches splash dark green so letterboxing blends
+      }}
     >
-      {/* Background image fills the entire screen */}
+      {/* Background image — contain so it never stretches/crops */}
       <img
         src={splashImage}
         alt="Eco Print Technologies"
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-contain"
         draggable={false}
       />
-
-      {/* Subtle bottom gradient so the button always stands out */}
-      <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
 
       {/* Start Shopping button */}
       <button
         onClick={handleStart}
-        className="relative z-10 mb-16 inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-base font-semibold text-primary-foreground shadow-2xl shadow-primary/40 ring-1 ring-primary-foreground/20 transition-all duration-200 hover:scale-105 hover:bg-primary/90 active:scale-95 sm:mb-20 sm:px-10 sm:py-5 sm:text-lg"
+        className="relative z-10 mb-12 inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-base font-semibold text-primary-foreground shadow-2xl shadow-primary/40 ring-1 ring-primary-foreground/20 transition-all duration-200 hover:scale-105 hover:bg-primary/90 active:scale-95 sm:mb-16 sm:px-10 sm:py-5 sm:text-lg"
         aria-label="Start Shopping"
       >
         <ShoppingBag className="h-5 w-5" />
