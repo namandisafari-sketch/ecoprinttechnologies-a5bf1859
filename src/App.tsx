@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import ScrollToTop from "./components/ScrollToTop";
+import SplashScreen from "./components/SplashScreen";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import SellerProtectedRoute from "./components/auth/SellerProtectedRoute";
 import Index from "./pages/Index";
@@ -76,6 +77,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <SplashScreen />
           <ScrollToTop />
           <Routes>
             {/* Public */}
