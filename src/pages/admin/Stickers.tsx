@@ -345,6 +345,45 @@ const AdminStickers = () => {
         </div>
       </div>
 
+      {/* Built-in templates quick pick */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Tag className="h-4 w-4" /> Built-in Brand Templates
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">
+            Pre-configured layouts with logos & footer badges. Just edit the specs — everything else is locked in.
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {BUILT_IN_TEMPLATES.map((tpl) => (
+              <div key={tpl.id} className="border rounded-lg p-3 bg-muted/20">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="font-semibold text-sm">{tpl.name}</p>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">
+                    {tpl.brand}
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {stickers.map((_, i) => (
+                    <Button
+                      key={i}
+                      size="sm"
+                      variant="outline"
+                      className="h-7 text-xs"
+                      onClick={() => applyBuiltIn(tpl.id, i)}
+                    >
+                      Apply → Sticker {i + 1}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Sticker Forms */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {stickers.map((sticker, stickerIdx) => (
