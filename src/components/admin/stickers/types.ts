@@ -23,6 +23,10 @@ export interface StickerLayout {
   footerImageHeightMm: number;
   footerGapMm: number;
   footerLayout: "row" | "grid";
+  /** Spacing between body content and footer in mm. 0 = footer hugs the bottom (auto-fill). */
+  bodyFooterGapMm: number;
+  /** When true, this column is split horizontally to hold 2 stickers stacked top/bottom. */
+  splitTwoUp: boolean;
 }
 
 export interface StickerData {
@@ -59,6 +63,8 @@ export const DEFAULT_LAYOUT: StickerLayout = {
   footerImageHeightMm: 12,
   footerGapMm: 3,
   footerLayout: "row",
+  bodyFooterGapMm: 0,
+  splitTwoUp: false,
 };
 
 export const DEFAULT_DISCLAIMERS = `For storage drive, GB a billion bytes TB =1 trillion bytes. Actual formatted capacity is less. Up to 35GB of system disk is reserved for system recovery software.
