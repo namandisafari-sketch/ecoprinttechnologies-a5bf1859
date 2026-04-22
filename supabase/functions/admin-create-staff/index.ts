@@ -37,19 +37,23 @@ Deno.serve(async (req) => {
       });
     }
 
-    const userClient = createClient(SUPABASE_URL, ANON_KEY, {
-      global: { headers: { Authorization: authHeader } },
-    });
     const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: callerErr } = await userClient.auth.getClaims(token);
-    const callerId = claimsData?.claims?.sub as string | undefined;
-    if (callerErr || !callerId) {
+    const callerId = decodeJwtSub(token);
+    if (!callerId) {
       return new Response(JSON.stringify({ error: "Invalid session" }), {
         status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     const admin = createClient(SUPABASE_URL, SERVICE_ROLE);
+
+    // Verify user actually exists (this validates the token via the admin API)
+    const { data: userCheck, error: userCheckErr } = await admin.auth.admin.getUserById(callerId);
+    if (userCheckErr || !userCheck?.user) {
+      return new Response(JSON.stringify({ error: "Invalid session" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     // Check caller is admin in staff_permissions OR is the very first user (bootstrap)
     const { data: callerStaff } = await admin
