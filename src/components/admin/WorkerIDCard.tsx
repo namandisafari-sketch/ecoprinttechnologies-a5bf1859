@@ -1,6 +1,8 @@
 import { QRCodeSVG } from "qrcode.react";
 import ecoprintLogo from "@/assets/ecoprint-logo.png";
+import signature from "@/assets/signature.png";
 import { format } from "date-fns";
+import { COMPANY } from "@/lib/companyInfo";
 
 interface WorkerIDCardProps {
   worker: any;
@@ -26,6 +28,7 @@ const cardShell: React.CSSProperties = {
   position: "relative",
   fontFamily: "'Segoe UI', Arial, sans-serif",
   border: "1px solid #e5e7eb",
+  background: "#fff",
 };
 
 const WorkerIDCard = ({ worker, side = "front" }: WorkerIDCardProps) => {
@@ -34,12 +37,12 @@ const WorkerIDCard = ({ worker, side = "front" }: WorkerIDCardProps) => {
 
   if (side === "back") {
     return (
-      <div className="bg-white shadow-xl" style={cardShell}>
-        {/* Header strip (mirrored) */}
+      <div className="shadow-xl" style={cardShell}>
+        {/* Header strip */}
         <div
           style={{
             background: "linear-gradient(90deg, #cc0000 0%, #009933 40%, #006600 100%)",
-            height: "8mm",
+            height: "7mm",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -47,14 +50,14 @@ const WorkerIDCard = ({ worker, side = "front" }: WorkerIDCardProps) => {
           }}
         >
           <p style={{ fontSize: "6.5pt", fontWeight: 700, letterSpacing: "0.5px", margin: 0 }}>
-            ECO PRINT TECHNOLOGIES — TERMS OF USE
+            {COMPANY.shortName.toUpperCase()} — TERMS OF USE
           </p>
         </div>
 
         {/* Body */}
-        <div style={{ padding: "2mm 3mm", height: "calc(100% - 8mm - 6mm)", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+        <div style={{ padding: "2mm 3mm", height: "calc(100% - 7mm - 6mm)", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
           <ol style={{ fontSize: "5pt", color: "#333", lineHeight: 1.4, paddingLeft: "3mm", margin: 0 }}>
-            <li>This card remains the property of Eco Print Technologies and must be returned upon request.</li>
+            <li>This card remains the property of {COMPANY.shortName} and must be returned upon request.</li>
             <li>The holder must present this card on entry and at all times while on duty.</li>
             <li>Loss or damage must be reported immediately to management.</li>
             <li>Misuse, alteration or transfer of this card is strictly prohibited.</li>
@@ -62,11 +65,12 @@ const WorkerIDCard = ({ worker, side = "front" }: WorkerIDCardProps) => {
           </ol>
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: "2mm" }}>
-            <div style={{ fontSize: "5pt", color: "#444", lineHeight: 1.3 }}>
+            <div style={{ fontSize: "4.8pt", color: "#444", lineHeight: 1.35 }}>
               <p style={{ margin: 0, fontWeight: 700, color: "#006600" }}>HEAD OFFICE</p>
-              <p style={{ margin: 0 }}>Plot 12, Industrial Area, Kampala</p>
-              <p style={{ margin: 0 }}>Tel: +256 700 000 000</p>
-              <p style={{ margin: 0 }}>info@ecoprint.ug · ecoprint.ug</p>
+              <p style={{ margin: 0 }}>{COMPANY.address}</p>
+              <p style={{ margin: 0 }}>Tel: {COMPANY.phone}</p>
+              <p style={{ margin: 0 }}>{COMPANY.email}</p>
+              <p style={{ margin: 0 }}>{COMPANY.website}</p>
             </div>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
               <div style={{ background: "#fff", padding: "0.5mm", border: "1px solid #e5e7eb" }}>
@@ -102,33 +106,51 @@ const WorkerIDCard = ({ worker, side = "front" }: WorkerIDCardProps) => {
 
   // FRONT
   return (
-    <div className="bg-white shadow-xl" style={cardShell}>
-      {/* Header strip */}
+    <div className="shadow-xl" style={cardShell}>
+      {/* Edge-to-edge logo strip — 5x bigger logo */}
       <div
         style={{
           background: "linear-gradient(90deg, #006600 0%, #009933 60%, #cc0000 100%)",
-          height: "10mm",
+          height: "13mm",
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between",
-          padding: "0 3mm",
+          padding: "0 2mm",
           color: "#fff",
+          gap: "2mm",
         }}
       >
-        <img src={ecoprintLogo} alt="Eco Print" style={{ height: "7mm", width: "auto", filter: "brightness(0) invert(1)" }} />
-        <div style={{ textAlign: "right", lineHeight: 1 }}>
-          <p style={{ fontSize: "7pt", fontWeight: 700, margin: 0, letterSpacing: "0.5px" }}>ECO PRINT TECHNOLOGIES</p>
-          <p style={{ fontSize: "5pt", margin: "0.5mm 0 0", opacity: 0.9 }}>STAFF IDENTIFICATION</p>
+        <img
+          src={ecoprintLogo}
+          alt="Eco Print"
+          style={{
+            height: "12mm",
+            width: "auto",
+            objectFit: "contain",
+            background: "#fff",
+            padding: "0.5mm",
+            borderRadius: "1mm",
+          }}
+        />
+        <div style={{ flex: 1, textAlign: "right", lineHeight: 1.05 }}>
+          <p style={{ fontSize: "8pt", fontWeight: 800, margin: 0, letterSpacing: "0.4px" }}>
+            {COMPANY.shortName.toUpperCase()}
+          </p>
+          <p style={{ fontSize: "4.5pt", margin: "0.3mm 0 0", opacity: 0.95 }}>
+            {COMPANY.tagline}
+          </p>
+          <p style={{ fontSize: "5pt", margin: "0.5mm 0 0", fontWeight: 600 }}>
+            STAFF IDENTIFICATION
+          </p>
         </div>
       </div>
 
       {/* Body */}
-      <div style={{ display: "flex", padding: "3mm", gap: "3mm", height: "calc(100% - 10mm - 6mm)" }}>
+      <div style={{ display: "flex", padding: "2.5mm", gap: "2.5mm", height: "calc(100% - 13mm - 6mm)" }}>
         {/* Photo */}
         <div
           style={{
-            width: "22mm",
-            height: "26mm",
+            width: "20mm",
+            height: "24mm",
             border: "1.5px solid #006600",
             borderRadius: "1.5mm",
             overflow: "hidden",
@@ -157,7 +179,7 @@ const WorkerIDCard = ({ worker, side = "front" }: WorkerIDCardProps) => {
             <p style={{ fontSize: "6.5pt", color: "#006600", fontWeight: 600, margin: "0.5mm 0 0" }}>
               {worker.position || worker.department}
             </p>
-            <div style={{ marginTop: "1.5mm", fontSize: "5.5pt", color: "#444", lineHeight: 1.4 }}>
+            <div style={{ marginTop: "1mm", fontSize: "5.2pt", color: "#444", lineHeight: 1.4 }}>
               <p style={{ margin: 0 }}><strong>ID:</strong> {worker.worker_code}</p>
               <p style={{ margin: 0 }}><strong>Dept:</strong> {worker.department}</p>
               <p style={{ margin: 0 }}><strong>Tel:</strong> {worker.phone}</p>
@@ -170,7 +192,7 @@ const WorkerIDCard = ({ worker, side = "front" }: WorkerIDCardProps) => {
               fontSize: "6.5pt",
               fontWeight: 800,
               textAlign: "center",
-              padding: "1mm 2mm",
+              padding: "0.8mm 2mm",
               borderRadius: "1mm",
               letterSpacing: "0.5px",
             }}
@@ -179,14 +201,26 @@ const WorkerIDCard = ({ worker, side = "front" }: WorkerIDCardProps) => {
           </div>
         </div>
 
-        {/* QR */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <div style={{ background: "#fff", padding: "1mm", border: "1px solid #e5e7eb" }}>
-            <QRCodeSVG value={verifyUrl} size={68} level="M" />
+        {/* QR + signature */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+          <div style={{ background: "#fff", padding: "0.5mm", border: "1px solid #e5e7eb" }}>
+            <QRCodeSVG value={verifyUrl} size={56} level="M" />
           </div>
-          <p style={{ fontSize: "4.5pt", color: "#666", margin: "1mm 0 0", textAlign: "center" }}>
+          <p style={{ fontSize: "4pt", color: "#666", margin: "0.5mm 0 0", textAlign: "center" }}>
             SCAN TO VERIFY
           </p>
+          {/* Authorising signature */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "0.8mm" }}>
+            <img
+              src={signature}
+              alt="Authorised signature"
+              style={{ height: "5mm", width: "auto", objectFit: "contain" }}
+              crossOrigin="anonymous"
+            />
+            <p style={{ fontSize: "3.8pt", color: "#666", margin: 0, borderTop: "0.3mm solid #999", paddingTop: "0.3mm", width: "18mm", textAlign: "center" }}>
+              Authorised
+            </p>
+          </div>
         </div>
       </div>
 
@@ -201,13 +235,13 @@ const WorkerIDCard = ({ worker, side = "front" }: WorkerIDCardProps) => {
           padding: "1mm 3mm",
           display: "flex",
           justifyContent: "space-between",
-          fontSize: "5pt",
+          fontSize: "4.8pt",
           color: "#666",
           borderTop: "1px solid #e5e7eb",
         }}
       >
         <span>Valid until: <strong>{worker.validity_date ? format(new Date(worker.validity_date), "dd MMM yyyy") : "—"}</strong></span>
-        <span>ecoprint.ug</span>
+        <span>{COMPANY.website}</span>
       </div>
     </div>
   );

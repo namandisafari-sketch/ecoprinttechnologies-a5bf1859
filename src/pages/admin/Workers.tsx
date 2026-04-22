@@ -10,12 +10,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Search, Edit2, Trash2, Printer, IdCard, Eye } from "lucide-react";
+import { Plus, Search, Edit2, Trash2, Printer, IdCard, Eye, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import WorkerIDCard from "@/components/admin/WorkerIDCard";
 import ImageUpload from "@/components/ImageUpload";
 import { logAudit } from "@/lib/audit";
 import { format } from "date-fns";
+import { toPng } from "html-to-image";
 
 const STATUS_OPTIONS = [
   { value: "active", label: "Active" },
@@ -56,6 +57,8 @@ const Workers = () => {
   const [form, setForm] = useState<any>(empty);
   const [previewWorker, setPreviewWorker] = useState<any>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+  const frontRef = useRef<HTMLDivElement>(null);
+  const backRef = useRef<HTMLDivElement>(null);
 
   const { data: workers = [] } = useQuery({
     queryKey: ["workers", search, statusFilter],
@@ -140,6 +143,26 @@ const Workers = () => {
     w.document.close();
     w.focus();
     setTimeout(() => { w.print(); w.close(); }, 400);
+  };
+
+  const downloadSide = async (side: "front" | "back") => {
+    const node = side === "front" ? frontRef.current : backRef.current;
+    if (!node || !previewWorker) return;
+    try {
+      const dataUrl = await toPng(node, {
+        pixelRatio: 4,
+        cacheBust: true,
+        backgroundColor: "#ffffff",
+      });
+      const link = document.createElement("a");
+      const safeName = (previewWorker.full_name || "worker").replace(/\s+/g, "_");
+      link.download = `${safeName}_ID_${side}.png`;
+      link.href = dataUrl;
+      link.click();
+      toast({ title: `${side === "front" ? "Front" : "Back"} downloaded` });
+    } catch (e: any) {
+      toast({ title: "Export failed", description: e?.message, variant: "destructive" });
+    }
   };
 
   return (
@@ -294,25 +317,37 @@ const Workers = () => {
 
       {/* ID Card Preview (front + back) */}
       <Dialog open={!!previewWorker} onOpenChange={(o) => !o && setPreviewWorker(null)}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
-            <DialogTitle className="flex items-center justify-between">
-              <span>Worker ID Card — Front & Back</span>
-              <Button size="sm" onClick={printCard}>
-                <Printer className="h-4 w-4 mr-1" /> Print Both
-              </Button>
+            <DialogTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <span className="text-base sm:text-lg">Worker ID Card — Front & Back</span>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={() => downloadSide("front")}>
+                  <Download className="h-4 w-4 mr-1" /> Front PNG
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => downloadSide("back")}>
+                  <Download className="h-4 w-4 mr-1" /> Back PNG
+                </Button>
+                <Button size="sm" onClick={printCard}>
+                  <Printer className="h-4 w-4 mr-1" /> Print Both
+                </Button>
+              </div>
             </DialogTitle>
           </DialogHeader>
           {previewWorker && (
-            <div className="flex flex-wrap justify-center gap-6 p-4 bg-muted/30 rounded-lg">
-              <div ref={cardRef} className="flex flex-wrap gap-6 justify-center">
+            <div className="p-2 sm:p-4 bg-muted/30 rounded-lg overflow-x-auto">
+              <div ref={cardRef} className="flex flex-wrap gap-4 sm:gap-6 justify-center min-w-fit">
                 <div className="flex flex-col items-center gap-2">
                   <span className="text-xs font-medium text-muted-foreground">FRONT</span>
-                  <WorkerIDCard worker={previewWorker} side="front" />
+                  <div ref={frontRef} className="origin-top scale-[0.85] sm:scale-100">
+                    <WorkerIDCard worker={previewWorker} side="front" />
+                  </div>
                 </div>
                 <div className="flex flex-col items-center gap-2">
                   <span className="text-xs font-medium text-muted-foreground">BACK</span>
-                  <WorkerIDCard worker={previewWorker} side="back" />
+                  <div ref={backRef} className="origin-top scale-[0.85] sm:scale-100">
+                    <WorkerIDCard worker={previewWorker} side="back" />
+                  </div>
                 </div>
               </div>
             </div>
