@@ -61,7 +61,7 @@ const ROLE_TEMPLATES: Record<string, PermMap> = {
   staff: PAGES.reduce((a, p) => ({ ...a, [p.key]: { view: p.key === "dashboard" || p.key === "attendance", create: p.key === "attendance", edit: false, delete: false } }), {} as PermMap),
 };
 
-const emptyForm = { user_id: "", full_name: "", email: "", phone: "", role_label: "staff", is_active: true, permissions: ROLE_TEMPLATES.staff };
+const emptyForm = { user_id: "", full_name: "", email: "", phone: "", password: "", role_label: "staff", is_active: true, permissions: ROLE_TEMPLATES.staff };
 
 const Staff = () => {
   const qc = useQueryClient();
@@ -80,26 +80,44 @@ const Staff = () => {
 
   const save = useMutation({
     mutationFn: async () => {
-      const payload = {
-        user_id: form.user_id.trim(),
-        full_name: form.full_name.trim(),
-        email: form.email.trim() || null,
-        phone: form.phone.trim() || null,
-        role_label: form.role_label,
-        is_active: form.is_active,
-        permissions: form.permissions,
-      };
       if (editing) {
+        const payload = {
+          full_name: form.full_name.trim(),
+          email: form.email.trim() || null,
+          phone: form.phone.trim() || null,
+          role_label: form.role_label,
+          is_active: form.is_active,
+          permissions: form.permissions,
+        };
         const { error } = await supabase.from("staff_permissions").update(payload).eq("id", editing);
         if (error) throw error;
-      } else {
-        const { error } = await supabase.from("staff_permissions").insert(payload);
-        if (error) throw error;
+        return;
       }
+
+      // Create flow: provision auth user + permission row in one call
+      if (!form.email.trim() || !form.password.trim()) {
+        throw new Error("Email and password are required to create a staff account");
+      }
+      if (form.password.length < 6) {
+        throw new Error("Password must be at least 6 characters");
+      }
+      const { data, error } = await supabase.functions.invoke("admin-create-staff", {
+        body: {
+          email: form.email.trim(),
+          password: form.password,
+          full_name: form.full_name.trim(),
+          phone: form.phone.trim() || null,
+          role_label: form.role_label,
+          is_active: form.is_active,
+          permissions: form.permissions,
+        },
+      });
+      if (error) throw new Error(error.message);
+      if ((data as any)?.error) throw new Error((data as any).error);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["staff_permissions"] });
-      toast.success(editing ? "Staff updated" : "Staff added");
+      toast.success(editing ? "Staff updated" : "Staff account created — they can log in now");
       setOpen(false);
       setEditing(null);
       setForm(emptyForm);
