@@ -54,11 +54,11 @@ const Header = ({ cartCount, onCartClick }: HeaderProps) => {
       </div>
 
       {/* Main header */}
-      <div className="container mx-auto px-4 py-4">
+      <div className="container mx-auto px-4 py-1">
         <div className="flex items-center justify-between gap-4">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-            <img src="/logo.png" alt="Co Print Technologies" className="h-20 w-auto object-contain" />
+          <Link to="/" className="flex items-center gap-2 flex-shrink-0 -my-2">
+            <img src="/logo.png" alt="Eco Print Technologies" className="h-24 md:h-28 w-auto object-contain" />
           </Link>
 
           {/* Search bar */}
