@@ -45,8 +45,9 @@ const ThermalReceipt = ({ order }: ThermalReceiptProps) => {
         <p style={{ fontSize: "10px", fontWeight: 600, letterSpacing: "0.5px" }}>
           TECHNOLOGIES LTD
         </p>
-        <p style={{ fontSize: "9px", marginTop: "3px" }}>Suncity Mall, Kampala</p>
-        <p style={{ fontSize: "9px" }}>Tel: +256 705 154 828</p>
+        <p style={{ fontSize: "9px", marginTop: "3px" }}>F2-4 Suncity Plaza, Kampala Rd</p>
+        <p style={{ fontSize: "9px" }}>Tel: +256 702 365 176 / +256 783 393 721</p>
+        <p style={{ fontSize: "9px" }}>ecoprinttechnologies2020@gmail.com</p>
       </div>
 
       {/* Solid divider */}

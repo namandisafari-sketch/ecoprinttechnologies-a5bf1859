@@ -1,6 +1,6 @@
 import quotationHeader from "@/assets/quotation-header.jpg";
 import quotationFooter from "@/assets/quotation-footer.jpg";
-import signatureImg from "@/assets/signature.jpg";
+import signatureImg from "@/assets/signature.png";
 
 interface QuotationItem {
   description: string;

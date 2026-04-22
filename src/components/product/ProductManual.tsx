@@ -61,12 +61,12 @@ const ProductManual = forwardRef<HTMLDivElement, ProductManualProps>(
               ECO PRINT TECHNOLOGIES
             </h1>
             <p style={{ fontSize: "9px", margin: "2px 0 0", color: "#555" }}>
-              Laptops & Tech Services | Suncity Mall, Kampala
+              Computer Sales, Repairs & IT Support | F2-4 Suncity Plaza, Kampala Road
             </p>
           </div>
           <div style={{ textAlign: "right", fontSize: "9px", color: "#555" }}>
-            <p style={{ margin: 0 }}>Tel: +256 705 154 828</p>
-            <p style={{ margin: 0 }}>ecoprintug.com</p>
+            <p style={{ margin: 0 }}>Tel: +256 702 365 176 / +256 783 393 721</p>
+            <p style={{ margin: 0 }}>www.ecoprinttechnologies.com</p>
           </div>
         </div>
 
@@ -307,7 +307,7 @@ const ProductManual = forwardRef<HTMLDivElement, ProductManualProps>(
             <strong style={{ color: "#333" }}>Eco Print Technologies</strong> — Your Trusted Tech Partner
           </div>
           <div style={{ textAlign: "right" }}>
-            <span>Suncity Mall, Kampala | +256 705 154 828</span>
+            <span>F2-4 Suncity Plaza, Kampala Rd | +256 702 365 176 / +256 783 393 721</span>
           </div>
         </div>
       </div>
