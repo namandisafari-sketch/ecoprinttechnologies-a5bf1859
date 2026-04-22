@@ -10,12 +10,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Search, Edit2, Trash2, Printer, IdCard, Eye } from "lucide-react";
+import { Plus, Search, Edit2, Trash2, Printer, IdCard, Eye, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import WorkerIDCard from "@/components/admin/WorkerIDCard";
 import ImageUpload from "@/components/ImageUpload";
 import { logAudit } from "@/lib/audit";
 import { format } from "date-fns";
+import { toPng } from "html-to-image";
 
 const STATUS_OPTIONS = [
   { value: "active", label: "Active" },
