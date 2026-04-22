@@ -61,7 +61,7 @@ const ROLE_TEMPLATES: Record<string, PermMap> = {
   staff: PAGES.reduce((a, p) => ({ ...a, [p.key]: { view: p.key === "dashboard" || p.key === "attendance", create: p.key === "attendance", edit: false, delete: false } }), {} as PermMap),
 };
 
-const emptyForm = { user_id: "", full_name: "", email: "", phone: "", role_label: "staff", is_active: true, permissions: ROLE_TEMPLATES.staff };
+const emptyForm = { user_id: "", full_name: "", email: "", phone: "", password: "", role_label: "staff", is_active: true, permissions: ROLE_TEMPLATES.staff };
 
 const Staff = () => {
   const qc = useQueryClient();
@@ -80,26 +80,44 @@ const Staff = () => {
 
   const save = useMutation({
     mutationFn: async () => {
-      const payload = {
-        user_id: form.user_id.trim(),
-        full_name: form.full_name.trim(),
-        email: form.email.trim() || null,
-        phone: form.phone.trim() || null,
-        role_label: form.role_label,
-        is_active: form.is_active,
-        permissions: form.permissions,
-      };
       if (editing) {
+        const payload = {
+          full_name: form.full_name.trim(),
+          email: form.email.trim() || null,
+          phone: form.phone.trim() || null,
+          role_label: form.role_label,
+          is_active: form.is_active,
+          permissions: form.permissions,
+        };
         const { error } = await supabase.from("staff_permissions").update(payload).eq("id", editing);
         if (error) throw error;
-      } else {
-        const { error } = await supabase.from("staff_permissions").insert(payload);
-        if (error) throw error;
+        return;
       }
+
+      // Create flow: provision auth user + permission row in one call
+      if (!form.email.trim() || !form.password.trim()) {
+        throw new Error("Email and password are required to create a staff account");
+      }
+      if (form.password.length < 6) {
+        throw new Error("Password must be at least 6 characters");
+      }
+      const { data, error } = await supabase.functions.invoke("admin-create-staff", {
+        body: {
+          email: form.email.trim(),
+          password: form.password,
+          full_name: form.full_name.trim(),
+          phone: form.phone.trim() || null,
+          role_label: form.role_label,
+          is_active: form.is_active,
+          permissions: form.permissions,
+        },
+      });
+      if (error) throw new Error(error.message);
+      if ((data as any)?.error) throw new Error((data as any).error);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["staff_permissions"] });
-      toast.success(editing ? "Staff updated" : "Staff added");
+      toast.success(editing ? "Staff updated" : "Staff account created — they can log in now");
       setOpen(false);
       setEditing(null);
       setForm(emptyForm);
@@ -125,6 +143,7 @@ const Staff = () => {
       full_name: s.full_name || "",
       email: s.email || "",
       phone: s.phone || "",
+      password: "",
       role_label: s.role_label,
       is_active: s.is_active,
       permissions: { ...ROLE_TEMPLATES.staff, ...(s.permissions || {}) },
@@ -159,12 +178,12 @@ const Staff = () => {
       </div>
 
       <Card>
-        <CardContent className="p-4 text-sm bg-amber-50 dark:bg-amber-950/20 border-l-4 border-amber-500">
-          <p className="font-medium">How to add a staff account</p>
+        <CardContent className="p-4 text-sm bg-muted/50 border-l-4 border-primary">
+          <p className="font-medium">How staff accounts work</p>
           <ol className="list-decimal pl-5 mt-1 text-muted-foreground space-y-0.5">
-            <li>Have the staff member sign up at <code>/signup</code> with their email & password.</li>
-            <li>Copy their User ID from the Customers page (or ask them).</li>
-            <li>Add them here, pick a role template, then fine-tune access per page.</li>
+            <li>Click <strong>Add Staff</strong> and enter their email + a starter password.</li>
+            <li>Pick a role template, then fine-tune per-page access if needed.</li>
+            <li>Hand the credentials to the staff member — they can log in immediately at <code>/login</code>.</li>
           </ol>
         </CardContent>
       </Card>
@@ -207,17 +226,32 @@ const Staff = () => {
           <div className="space-y-4">
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <Label>User ID (auth UID) *</Label>
-                <Input value={form.user_id} onChange={(e) => setForm({ ...form, user_id: e.target.value })} placeholder="UUID from auth" disabled={!!editing} />
-              </div>
-              <div>
                 <Label>Full Name *</Label>
                 <Input value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
               </div>
               <div>
-                <Label>Email</Label>
-                <Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+                <Label>Email *</Label>
+                <Input
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  disabled={!!editing}
+                  placeholder="staff@example.com"
+                />
               </div>
+              {!editing && (
+                <div>
+                  <Label>Starter Password *</Label>
+                  <Input
+                    type="text"
+                    value={form.password}
+                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    placeholder="At least 6 characters"
+                    autoComplete="new-password"
+                  />
+                  <p className="text-[11px] text-muted-foreground mt-1">Share this with the staff member — they can change it after first login.</p>
+                </div>
+              )}
               <div>
                 <Label>Phone</Label>
                 <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
@@ -271,8 +305,16 @@ const Staff = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button onClick={() => save.mutate()} disabled={!form.user_id || !form.full_name || save.isPending}>
-              {save.isPending ? "Saving…" : "Save Staff"}
+            <Button
+              onClick={() => save.mutate()}
+              disabled={
+                !form.full_name ||
+                !form.email ||
+                (!editing && !form.password) ||
+                save.isPending
+              }
+            >
+              {save.isPending ? "Saving…" : editing ? "Save Changes" : "Create Account"}
             </Button>
           </DialogFooter>
         </DialogContent>

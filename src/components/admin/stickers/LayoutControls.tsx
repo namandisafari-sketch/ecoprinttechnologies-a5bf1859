@@ -45,6 +45,20 @@ const LayoutControls = ({ layout, onChange }: LayoutControlsProps) => {
       <SliderRow label="Side Padding" value={layout.paddingHorizontalMm} min={2} max={15} step={1} unit="mm" onChange={(v) => update("paddingHorizontalMm", v)} />
       <SliderRow label="Footer Img Height" value={layout.footerImageHeightMm} min={6} max={30} step={1} unit="mm" onChange={(v) => update("footerImageHeightMm", v)} />
       <SliderRow label="Footer Gap" value={layout.footerGapMm} min={1} max={10} step={0.5} unit="mm" onChange={(v) => update("footerGapMm", v)} />
+      <SliderRow label="Body↔Footer Gap" value={layout.bodyFooterGapMm} min={0} max={80} step={1} unit="mm" onChange={(v) => update("bodyFooterGapMm", v)} />
+
+      <div className="flex items-center gap-2">
+        <Label className="text-xs w-28 shrink-0">Split 2-up</Label>
+        <div className="flex-1 flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={layout.splitTwoUp}
+            onChange={(e) => update("splitTwoUp", e.target.checked)}
+            className="h-4 w-4"
+          />
+          <span className="text-xs text-muted-foreground">Stack 2 identical stickers in this column</span>
+        </div>
+      </div>
 
       <div className="flex items-center gap-2">
         <Label className="text-xs w-28 shrink-0">Title Align</Label>
