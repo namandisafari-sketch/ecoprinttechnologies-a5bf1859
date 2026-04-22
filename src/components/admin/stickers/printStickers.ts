@@ -104,6 +104,41 @@ export const printStickers = (stickers: StickerData[]) => {
   `);
 
   printWindow.document.close();
-  printWindow.onload = () => setTimeout(() => printWindow.print(), 400);
+
+  const triggerPrint = () => {
+    try {
+      const imgs = Array.from(printWindow.document.images);
+      const pending = imgs.filter((img) => !img.complete);
+      if (pending.length === 0) {
+        printWindow.focus();
+        printWindow.print();
+        return;
+      }
+      let remaining = pending.length;
+      const done = () => {
+        remaining -= 1;
+        if (remaining <= 0) {
+          printWindow.focus();
+          printWindow.print();
+        }
+      };
+      pending.forEach((img) => {
+        img.addEventListener("load", done);
+        img.addEventListener("error", done);
+      });
+      // Safety fallback in case some images stall
+      setTimeout(() => {
+        try { printWindow.focus(); printWindow.print(); } catch { /* noop */ }
+      }, 3000);
+    } catch (err) {
+      console.error("Print error", err);
+    }
+  };
+
+  if (printWindow.document.readyState === "complete") {
+    triggerPrint();
+  } else {
+    printWindow.addEventListener("load", triggerPrint);
+  }
   return true;
 };
