@@ -64,6 +64,23 @@ const ChatWidget = () => {
     }
   }, []);
 
+  // Listen for global "open chat with product" requests
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<ProductContext>).detail;
+      if (detail) {
+        setPendingProduct(detail);
+        const prefill = `Hi, I'm interested in ${detail.name}. Could you share more details?`;
+        if (!showForm && conversationId) {
+          setNewMessage(prefill);
+        }
+      }
+      setIsOpen(true);
+    };
+    window.addEventListener("eco-chat:open", handler);
+    return () => window.removeEventListener("eco-chat:open", handler);
+  }, [showForm, conversationId]);
+
   useEffect(() => {
     if (conversationId) {
       const channel = supabase
