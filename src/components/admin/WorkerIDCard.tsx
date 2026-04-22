@@ -4,6 +4,7 @@ import { format } from "date-fns";
 
 interface WorkerIDCardProps {
   worker: any;
+  side?: "front" | "back";
 }
 
 const statusStyle = (status: string) => {
@@ -17,23 +18,91 @@ const statusStyle = (status: string) => {
   return { bg: "#6b7280", label: s.toUpperCase() };
 };
 
-const WorkerIDCard = ({ worker }: WorkerIDCardProps) => {
+const cardShell: React.CSSProperties = {
+  width: "85.6mm",
+  height: "53.98mm",
+  borderRadius: "3mm",
+  overflow: "hidden",
+  position: "relative",
+  fontFamily: "'Segoe UI', Arial, sans-serif",
+  border: "1px solid #e5e7eb",
+};
+
+const WorkerIDCard = ({ worker, side = "front" }: WorkerIDCardProps) => {
   const verifyUrl = `${window.location.origin}/worker/${worker.id}`;
   const status = statusStyle(worker.status);
 
+  if (side === "back") {
+    return (
+      <div className="bg-white shadow-xl" style={cardShell}>
+        {/* Header strip (mirrored) */}
+        <div
+          style={{
+            background: "linear-gradient(90deg, #cc0000 0%, #009933 40%, #006600 100%)",
+            height: "8mm",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#fff",
+          }}
+        >
+          <p style={{ fontSize: "6.5pt", fontWeight: 700, letterSpacing: "0.5px", margin: 0 }}>
+            ECO PRINT TECHNOLOGIES — TERMS OF USE
+          </p>
+        </div>
+
+        {/* Body */}
+        <div style={{ padding: "2mm 3mm", height: "calc(100% - 8mm - 6mm)", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+          <ol style={{ fontSize: "5pt", color: "#333", lineHeight: 1.4, paddingLeft: "3mm", margin: 0 }}>
+            <li>This card remains the property of Eco Print Technologies and must be returned upon request.</li>
+            <li>The holder must present this card on entry and at all times while on duty.</li>
+            <li>Loss or damage must be reported immediately to management.</li>
+            <li>Misuse, alteration or transfer of this card is strictly prohibited.</li>
+            <li>If found, please return to the address below — reward applies.</li>
+          </ol>
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: "2mm" }}>
+            <div style={{ fontSize: "5pt", color: "#444", lineHeight: 1.3 }}>
+              <p style={{ margin: 0, fontWeight: 700, color: "#006600" }}>HEAD OFFICE</p>
+              <p style={{ margin: 0 }}>Plot 12, Industrial Area, Kampala</p>
+              <p style={{ margin: 0 }}>Tel: +256 700 000 000</p>
+              <p style={{ margin: 0 }}>info@ecoprint.ug · ecoprint.ug</p>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <div style={{ background: "#fff", padding: "0.5mm", border: "1px solid #e5e7eb" }}>
+                <QRCodeSVG value={verifyUrl} size={48} level="M" />
+              </div>
+              <p style={{ fontSize: "4pt", color: "#666", margin: "0.5mm 0 0" }}>VERIFY HOLDER</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            background: "#f3f4f6",
+            padding: "1mm 3mm",
+            display: "flex",
+            justifyContent: "space-between",
+            fontSize: "5pt",
+            color: "#666",
+            borderTop: "1px solid #e5e7eb",
+          }}
+        >
+          <span>Holder signature: ___________________</span>
+          <span>{worker.worker_code}</span>
+        </div>
+      </div>
+    );
+  }
+
+  // FRONT
   return (
-    <div
-      className="bg-white shadow-xl"
-      style={{
-        width: "85.6mm",
-        height: "53.98mm",
-        borderRadius: "3mm",
-        overflow: "hidden",
-        position: "relative",
-        fontFamily: "'Segoe UI', Arial, sans-serif",
-        border: "1px solid #e5e7eb",
-      }}
-    >
+    <div className="bg-white shadow-xl" style={cardShell}>
       {/* Header strip */}
       <div
         style={{
