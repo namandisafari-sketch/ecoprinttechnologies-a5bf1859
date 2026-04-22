@@ -39,12 +39,13 @@ const MobileHeader = () => {
       {/* Main header */}
       <div className="flex items-stretch justify-between pr-4 min-h-[5rem]">
         {/* Menu */}
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-9 w-9">
-              <Menu className="h-5 w-5" />
-            </Button>
-          </SheetTrigger>
+        <div className="flex items-center pl-2">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-9 w-9">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
           <SheetContent side="left" className="w-[280px]">
             <SheetHeader>
               <SheetTitle className="flex items-center gap-2">
