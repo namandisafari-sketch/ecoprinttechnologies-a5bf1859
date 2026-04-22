@@ -145,6 +145,26 @@ const Workers = () => {
     setTimeout(() => { w.print(); w.close(); }, 400);
   };
 
+  const downloadSide = async (side: "front" | "back") => {
+    const node = side === "front" ? frontRef.current : backRef.current;
+    if (!node || !previewWorker) return;
+    try {
+      const dataUrl = await toPng(node, {
+        pixelRatio: 4,
+        cacheBust: true,
+        backgroundColor: "#ffffff",
+      });
+      const link = document.createElement("a");
+      const safeName = (previewWorker.full_name || "worker").replace(/\s+/g, "_");
+      link.download = `${safeName}_ID_${side}.png`;
+      link.href = dataUrl;
+      link.click();
+      toast({ title: `${side === "front" ? "Front" : "Back"} downloaded` });
+    } catch (e: any) {
+      toast({ title: "Export failed", description: e?.message, variant: "destructive" });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
