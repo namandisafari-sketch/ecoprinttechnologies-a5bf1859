@@ -135,11 +135,11 @@ const Workers = () => {
     const w = window.open("", "_blank");
     if (!w) return;
     w.document.write(`<!DOCTYPE html><html><head><title>ID Card</title>
-      <style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:'Segoe UI',Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#f3f4f6;}@page{size:auto;margin:10mm;}@media print{body{background:#fff;}}</style>
+      <style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:'Segoe UI',Arial,sans-serif;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10mm;min-height:100vh;background:#f3f4f6;padding:10mm;}@page{size:auto;margin:10mm;}@media print{body{background:#fff;}}</style>
     </head><body>${el.innerHTML}</body></html>`);
     w.document.close();
     w.focus();
-    setTimeout(() => { w.print(); w.close(); }, 300);
+    setTimeout(() => { w.print(); w.close(); }, 400);
   };
 
   return (
@@ -292,21 +292,28 @@ const Workers = () => {
         </DialogContent>
       </Dialog>
 
-      {/* ID Card Preview */}
+      {/* ID Card Preview (front + back) */}
       <Dialog open={!!previewWorker} onOpenChange={(o) => !o && setPreviewWorker(null)}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center justify-between">
-              <span>Worker ID Card</span>
+              <span>Worker ID Card — Front & Back</span>
               <Button size="sm" onClick={printCard}>
-                <Printer className="h-4 w-4 mr-1" /> Print
+                <Printer className="h-4 w-4 mr-1" /> Print Both
               </Button>
             </DialogTitle>
           </DialogHeader>
           {previewWorker && (
-            <div className="flex justify-center p-4 bg-muted/30 rounded-lg">
-              <div ref={cardRef}>
-                <WorkerIDCard worker={previewWorker} />
+            <div className="flex flex-wrap justify-center gap-6 p-4 bg-muted/30 rounded-lg">
+              <div ref={cardRef} className="flex flex-wrap gap-6 justify-center">
+                <div className="flex flex-col items-center gap-2">
+                  <span className="text-xs font-medium text-muted-foreground">FRONT</span>
+                  <WorkerIDCard worker={previewWorker} side="front" />
+                </div>
+                <div className="flex flex-col items-center gap-2">
+                  <span className="text-xs font-medium text-muted-foreground">BACK</span>
+                  <WorkerIDCard worker={previewWorker} side="back" />
+                </div>
               </div>
             </div>
           )}
