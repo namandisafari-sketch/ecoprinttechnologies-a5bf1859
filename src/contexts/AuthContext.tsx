@@ -38,6 +38,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isSeller, setIsSeller] = useState(false);
   const [userRole, setUserRole] = useState<UserRole>(null);
+  const [staffPermissions, setStaffPermissions] = useState<StaffPermissions | null>(null);
+  const [staffActive, setStaffActive] = useState<boolean>(true);
+
+  const loadStaffPermissions = async (userId: string) => {
+    try {
+      const { data } = await supabase
+        .from("staff_permissions")
+        .select("permissions, is_active, role_label")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (data) {
+        setStaffPermissions((data.permissions || {}) as StaffPermissions);
+        setStaffActive(data.is_active !== false);
+      } else {
+        setStaffPermissions(null);
+        setStaffActive(true);
+      }
+    } catch {
+      setStaffPermissions(null);
+      setStaffActive(true);
+    }
+  };
 
   const checkUserRole = async (userId: string): Promise<{ isAdmin: boolean; isSeller: boolean; role: UserRole }> => {
     try {
