@@ -44,7 +44,7 @@ Deno.serve(async (req) => {
     const { data: callerStaff } = await admin
       .from("staff_permissions")
       .select("role_label, is_active")
-      .eq("user_id", caller.id)
+      .eq("user_id", callerId)
       .maybeSingle();
 
     const { count: staffCount } = await admin
