@@ -1,6 +1,6 @@
 
 -- Product specifications table for dynamic attributes per product
-CREATE TABLE public.product_specifications (
+CREATE TABLE IF NOT EXISTS public.product_specifications (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   product_id UUID NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,
   spec_key TEXT NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE public.product_specifications (
 );
 
 -- Product variants table (e.g., Color/Storage combos with own SKU/price/stock)
-CREATE TABLE public.product_variants (
+CREATE TABLE IF NOT EXISTS public.product_variants (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   product_id UUID NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,
   variant_name TEXT NOT NULL,

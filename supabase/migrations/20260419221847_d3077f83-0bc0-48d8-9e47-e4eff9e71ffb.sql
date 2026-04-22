@@ -3,7 +3,7 @@ RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS
   SELECT EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = _user_id AND role = 'seller')
 $$;
 
-CREATE TABLE public.seller_profiles (
+CREATE TABLE IF NOT EXISTS public.seller_profiles (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL UNIQUE,
     business_name text NOT NULL,
@@ -25,7 +25,7 @@ ALTER TABLE public.seller_profiles ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Sellers can manage own profile" ON public.seller_profiles FOR ALL USING (auth.uid() = user_id);
 CREATE POLICY "Anyone can view active seller profiles" ON public.seller_profiles FOR SELECT USING (is_active = true OR auth.uid() = user_id OR is_admin_or_manager(auth.uid()));
 
-CREATE TABLE public.seller_services (
+CREATE TABLE IF NOT EXISTS public.seller_services (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     seller_id uuid REFERENCES public.seller_profiles(id) ON DELETE CASCADE NOT NULL,
     title text NOT NULL,
@@ -41,7 +41,7 @@ ALTER TABLE public.seller_services ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Sellers can manage own services" ON public.seller_services FOR ALL USING (EXISTS (SELECT 1 FROM public.seller_profiles sp WHERE sp.id = seller_services.seller_id AND sp.user_id = auth.uid()));
 CREATE POLICY "Anyone can view active services" ON public.seller_services FOR SELECT USING (is_active = true OR EXISTS (SELECT 1 FROM public.seller_profiles sp WHERE sp.id = seller_services.seller_id AND sp.user_id = auth.uid()) OR is_admin_or_manager(auth.uid()));
 
-CREATE TABLE public.service_requests (
+CREATE TABLE IF NOT EXISTS public.service_requests (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     customer_id uuid REFERENCES auth.users(id) NOT NULL,
     seller_id uuid REFERENCES public.seller_profiles(id) NOT NULL,
@@ -70,7 +70,7 @@ CREATE TRIGGER update_service_requests_updated_at BEFORE UPDATE ON public.servic
 CREATE POLICY "Users can view own roles" ON public.user_roles FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Anyone can view orders by order_number" ON public.orders FOR SELECT USING (true);
 
-CREATE TABLE public.devices (
+CREATE TABLE IF NOT EXISTS public.devices (
   id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   device_fingerprint text NOT NULL UNIQUE,
   full_name text NOT NULL,
@@ -101,7 +101,7 @@ $$ LANGUAGE plpgsql SET search_path = public;
 
 CREATE TRIGGER set_delivery_code BEFORE INSERT ON public.orders FOR EACH ROW EXECUTE FUNCTION public.generate_delivery_code();
 
-CREATE TABLE public.momo_transactions (
+CREATE TABLE IF NOT EXISTS public.momo_transactions (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   order_id UUID NOT NULL REFERENCES public.orders(id) ON DELETE CASCADE,
   reference_id TEXT NOT NULL UNIQUE,

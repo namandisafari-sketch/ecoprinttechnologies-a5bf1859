@@ -1,6 +1,6 @@
 
 -- Store settings table for admin-configurable values like store location
-CREATE TABLE public.store_settings (
+CREATE TABLE IF NOT EXISTS public.store_settings (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     key text NOT NULL UNIQUE,
     value jsonb NOT NULL DEFAULT '{}'::jsonb,

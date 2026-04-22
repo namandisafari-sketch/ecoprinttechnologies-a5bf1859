@@ -1,6 +1,6 @@
 
 -- Product reviews table
-CREATE TABLE public.product_reviews (
+CREATE TABLE IF NOT EXISTS public.product_reviews (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   product_id uuid NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,
   device_id uuid NOT NULL REFERENCES public.devices(id),
@@ -25,7 +25,7 @@ CREATE POLICY "Admins can manage reviews" ON public.product_reviews
   FOR ALL USING (is_admin(auth.uid()));
 
 -- Delivery accounts table
-CREATE TABLE public.delivery_accounts (
+CREATE TABLE IF NOT EXISTS public.delivery_accounts (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   full_name text NOT NULL,
   phone text NOT NULL,

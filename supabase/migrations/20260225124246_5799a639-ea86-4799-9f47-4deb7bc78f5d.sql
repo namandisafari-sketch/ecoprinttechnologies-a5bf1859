@@ -1,6 +1,6 @@
 
 -- Create delivery zones table for admin to set delivery prices per area
-CREATE TABLE public.delivery_zones (
+CREATE TABLE IF NOT EXISTS public.delivery_zones (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   zone_name TEXT NOT NULL,
   district TEXT NOT NULL,

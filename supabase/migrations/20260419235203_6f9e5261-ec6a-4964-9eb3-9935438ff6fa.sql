@@ -1,6 +1,6 @@
 
 -- Audit log table
-CREATE TABLE public.audit_logs (
+CREATE TABLE IF NOT EXISTS public.audit_logs (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID,
   user_name TEXT,
@@ -29,7 +29,7 @@ CREATE INDEX idx_audit_logs_user_id ON public.audit_logs(user_id);
 CREATE INDEX idx_audit_logs_entity ON public.audit_logs(entity_type, entity_id);
 
 -- Workers table
-CREATE TABLE public.workers (
+CREATE TABLE IF NOT EXISTS public.workers (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   worker_code TEXT NOT NULL UNIQUE DEFAULT ('EPT-' || lpad(floor(random() * 100000)::text, 5, '0')),
   full_name TEXT NOT NULL,

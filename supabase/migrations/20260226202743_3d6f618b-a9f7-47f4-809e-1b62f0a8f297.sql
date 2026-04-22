@@ -9,7 +9,7 @@ END;
 $$ LANGUAGE plpgsql SET search_path = public;
 
 -- PROFILES
-CREATE TABLE public.profiles (
+CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID NOT NULL UNIQUE,
   full_name TEXT,
@@ -39,7 +39,7 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 -- USER ROLES
-CREATE TABLE public.user_roles (
+CREATE TABLE IF NOT EXISTS public.user_roles (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID NOT NULL,
   role TEXT NOT NULL DEFAULT 'customer',
@@ -53,7 +53,7 @@ CREATE POLICY "Admins can read all roles" ON public.user_roles FOR SELECT USING 
 );
 
 -- CATEGORIES
-CREATE TABLE public.categories (
+CREATE TABLE IF NOT EXISTS public.categories (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
@@ -72,7 +72,7 @@ CREATE POLICY "Admins can manage categories" ON public.categories FOR ALL USING 
 CREATE TRIGGER update_categories_updated_at BEFORE UPDATE ON public.categories FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 -- BRANDS
-CREATE TABLE public.brands (
+CREATE TABLE IF NOT EXISTS public.brands (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
@@ -87,7 +87,7 @@ CREATE POLICY "Admins can manage brands" ON public.brands FOR ALL USING (
 );
 
 -- PRODUCTS
-CREATE TABLE public.products (
+CREATE TABLE IF NOT EXISTS public.products (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
@@ -117,7 +117,7 @@ CREATE POLICY "Admins can manage products" ON public.products FOR ALL USING (
 CREATE TRIGGER update_products_updated_at BEFORE UPDATE ON public.products FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 -- PRODUCT SPECIFICATIONS
-CREATE TABLE public.product_specifications (
+CREATE TABLE IF NOT EXISTS public.product_specifications (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   product_id UUID NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,
   spec_key TEXT NOT NULL,
@@ -132,7 +132,7 @@ CREATE POLICY "Admins can manage specs" ON public.product_specifications FOR ALL
 );
 
 -- PRODUCT VARIANTS
-CREATE TABLE public.product_variants (
+CREATE TABLE IF NOT EXISTS public.product_variants (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   product_id UUID NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,
   variant_name TEXT NOT NULL,
@@ -149,7 +149,7 @@ CREATE POLICY "Admins can manage variants" ON public.product_variants FOR ALL US
 );
 
 -- DEVICES
-CREATE TABLE public.devices (
+CREATE TABLE IF NOT EXISTS public.devices (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   device_fingerprint TEXT NOT NULL,
   full_name TEXT,
@@ -172,7 +172,7 @@ CREATE POLICY "Anyone can update devices" ON public.devices FOR UPDATE USING (tr
 CREATE TRIGGER update_devices_updated_at BEFORE UPDATE ON public.devices FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 -- ORDERS
-CREATE TABLE public.orders (
+CREATE TABLE IF NOT EXISTS public.orders (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   order_number TEXT NOT NULL UNIQUE,
   user_id UUID,
@@ -213,7 +213,7 @@ $$ LANGUAGE plpgsql SET search_path = public;
 CREATE TRIGGER set_delivery_code BEFORE INSERT ON public.orders FOR EACH ROW EXECUTE FUNCTION public.generate_delivery_code();
 
 -- ORDER ITEMS
-CREATE TABLE public.order_items (
+CREATE TABLE IF NOT EXISTS public.order_items (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   order_id UUID NOT NULL REFERENCES public.orders(id) ON DELETE CASCADE,
   product_id UUID REFERENCES public.products(id) ON DELETE SET NULL,
@@ -231,7 +231,7 @@ CREATE POLICY "Admins can manage order items" ON public.order_items FOR ALL USIN
 );
 
 -- HERO SLIDES
-CREATE TABLE public.hero_slides (
+CREATE TABLE IF NOT EXISTS public.hero_slides (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   title TEXT NOT NULL,
   subtitle TEXT,
@@ -249,7 +249,7 @@ CREATE POLICY "Admins can manage hero slides" ON public.hero_slides FOR ALL USIN
 );
 
 -- NOTIFICATIONS
-CREATE TABLE public.notifications (
+CREATE TABLE IF NOT EXISTS public.notifications (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   title TEXT NOT NULL,
   body TEXT NOT NULL,
@@ -266,7 +266,7 @@ CREATE POLICY "Admins can manage notifications" ON public.notifications FOR ALL 
 );
 
 -- NOTIFICATION READS
-CREATE TABLE public.notification_reads (
+CREATE TABLE IF NOT EXISTS public.notification_reads (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   notification_id UUID NOT NULL REFERENCES public.notifications(id) ON DELETE CASCADE,
   device_id UUID NOT NULL REFERENCES public.devices(id) ON DELETE CASCADE,
@@ -278,7 +278,7 @@ CREATE POLICY "Notification reads are publicly accessible" ON public.notificatio
 CREATE POLICY "Anyone can insert notification reads" ON public.notification_reads FOR INSERT WITH CHECK (true);
 
 -- NEWSLETTER SUBSCRIBERS
-CREATE TABLE public.newsletter_subscribers (
+CREATE TABLE IF NOT EXISTS public.newsletter_subscribers (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   email TEXT NOT NULL UNIQUE,
   is_active BOOLEAN DEFAULT true,
@@ -294,7 +294,7 @@ CREATE POLICY "Admins can manage subscribers" ON public.newsletter_subscribers F
 );
 
 -- CONVERSATIONS
-CREATE TABLE public.conversations (
+CREATE TABLE IF NOT EXISTS public.conversations (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   customer_name TEXT NOT NULL,
   customer_phone TEXT NOT NULL,
@@ -312,7 +312,7 @@ CREATE POLICY "Admins can manage conversations" ON public.conversations FOR ALL 
 );
 
 -- MESSAGES
-CREATE TABLE public.messages (
+CREATE TABLE IF NOT EXISTS public.messages (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   conversation_id UUID NOT NULL REFERENCES public.conversations(id) ON DELETE CASCADE,
   sender_type TEXT NOT NULL DEFAULT 'customer',
@@ -338,7 +338,7 @@ $$ LANGUAGE plpgsql SET search_path = public;
 CREATE TRIGGER on_new_message AFTER INSERT ON public.messages FOR EACH ROW EXECUTE FUNCTION public.update_conversation_last_message();
 
 -- DELIVERY ZONES
-CREATE TABLE public.delivery_zones (
+CREATE TABLE IF NOT EXISTS public.delivery_zones (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   zone_name TEXT NOT NULL,
   district TEXT NOT NULL,
@@ -355,7 +355,7 @@ CREATE POLICY "Admins can manage delivery zones" ON public.delivery_zones FOR AL
 );
 
 -- SELLER PROFILES
-CREATE TABLE public.seller_profiles (
+CREATE TABLE IF NOT EXISTS public.seller_profiles (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID NOT NULL UNIQUE,
   business_name TEXT,
@@ -376,7 +376,7 @@ CREATE POLICY "Admins can read all seller profiles" ON public.seller_profiles FO
 CREATE TRIGGER update_seller_profiles_updated_at BEFORE UPDATE ON public.seller_profiles FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 -- SELLER SERVICES
-CREATE TABLE public.seller_services (
+CREATE TABLE IF NOT EXISTS public.seller_services (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   seller_id UUID NOT NULL REFERENCES public.seller_profiles(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
@@ -396,7 +396,7 @@ CREATE POLICY "Sellers can manage own services" ON public.seller_services FOR AL
 );
 
 -- SERVICE REQUESTS
-CREATE TABLE public.service_requests (
+CREATE TABLE IF NOT EXISTS public.service_requests (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   seller_id UUID NOT NULL REFERENCES public.seller_profiles(id) ON DELETE CASCADE,
   customer_name TEXT NOT NULL,
@@ -417,7 +417,7 @@ CREATE POLICY "Sellers can manage own requests" ON public.service_requests FOR A
 CREATE TRIGGER update_service_requests_updated_at BEFORE UPDATE ON public.service_requests FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 -- STORE SETTINGS
-CREATE TABLE public.store_settings (
+CREATE TABLE IF NOT EXISTS public.store_settings (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   key TEXT NOT NULL UNIQUE,
   value JSONB,
@@ -432,7 +432,7 @@ CREATE POLICY "Admins can manage store settings" ON public.store_settings FOR AL
 CREATE TRIGGER update_store_settings_updated_at BEFORE UPDATE ON public.store_settings FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 -- WISHLIST
-CREATE TABLE public.wishlist (
+CREATE TABLE IF NOT EXISTS public.wishlist (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   device_id UUID NOT NULL REFERENCES public.devices(id) ON DELETE CASCADE,
   product_id UUID NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,

@@ -1,6 +1,6 @@
 
 -- Table to track device identities
-CREATE TABLE public.devices (
+CREATE TABLE IF NOT EXISTS public.devices (
   id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   device_fingerprint text NOT NULL UNIQUE,
   full_name text NOT NULL,

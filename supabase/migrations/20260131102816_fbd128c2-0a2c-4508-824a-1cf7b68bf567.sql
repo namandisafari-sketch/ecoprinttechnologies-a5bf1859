@@ -20,7 +20,7 @@ ON storage.objects FOR DELETE
 USING (bucket_id = 'product-images' AND is_admin_or_manager(auth.uid()));
 
 -- Create conversations table for chat feature
-CREATE TABLE public.conversations (
+CREATE TABLE IF NOT EXISTS public.conversations (
     id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
     customer_name TEXT NOT NULL,
     customer_phone TEXT NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE public.conversations (
 );
 
 -- Create messages table for chat
-CREATE TABLE public.messages (
+CREATE TABLE IF NOT EXISTS public.messages (
     id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
     conversation_id UUID NOT NULL REFERENCES public.conversations(id) ON DELETE CASCADE,
     sender_type TEXT NOT NULL CHECK (sender_type IN ('customer', 'admin')),

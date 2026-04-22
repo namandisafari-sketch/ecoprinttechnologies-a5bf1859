@@ -1,5 +1,5 @@
 -- Brokers table
-CREATE TABLE public.brokers (
+CREATE TABLE IF NOT EXISTS public.brokers (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   full_name TEXT NOT NULL,
   phone TEXT NOT NULL,
@@ -25,7 +25,7 @@ CREATE TRIGGER update_brokers_updated_at
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 -- Broker pickups table
-CREATE TABLE public.broker_pickups (
+CREATE TABLE IF NOT EXISTS public.broker_pickups (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   pickup_number TEXT NOT NULL UNIQUE,
   broker_id UUID NOT NULL REFERENCES public.brokers(id) ON DELETE RESTRICT,

@@ -1,9 +1,9 @@
 
 -- Create app_role enum for admin access
-CREATE TYPE public.app_role AS ENUM ('admin', 'manager', 'user');
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'app_role') THEN CREATE TYPE public.app_role AS ENUM ('admin', 'manager', 'user'); END IF; END $$;
 
 -- Create user_roles table
-CREATE TABLE public.user_roles (
+CREATE TABLE IF NOT EXISTS public.user_roles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
     role app_role NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE public.user_roles (
 ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
 
 -- Create profiles table
-CREATE TABLE public.profiles (
+CREATE TABLE IF NOT EXISTS public.profiles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL UNIQUE,
     full_name TEXT,
@@ -25,7 +25,7 @@ CREATE TABLE public.profiles (
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
 -- Create categories table
-CREATE TABLE public.categories (
+CREATE TABLE IF NOT EXISTS public.categories (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL UNIQUE,
     slug TEXT NOT NULL UNIQUE,
@@ -39,7 +39,7 @@ CREATE TABLE public.categories (
 ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
 
 -- Create brands table
-CREATE TABLE public.brands (
+CREATE TABLE IF NOT EXISTS public.brands (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL UNIQUE,
     slug TEXT NOT NULL UNIQUE,
@@ -50,7 +50,7 @@ CREATE TABLE public.brands (
 ALTER TABLE public.brands ENABLE ROW LEVEL SECURITY;
 
 -- Create products table
-CREATE TABLE public.products (
+CREATE TABLE IF NOT EXISTS public.products (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
     slug TEXT NOT NULL UNIQUE,
@@ -75,11 +75,11 @@ CREATE TABLE public.products (
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 
 -- Create enums
-CREATE TYPE public.order_status AS ENUM ('pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded');
-CREATE TYPE public.payment_status AS ENUM ('pending', 'paid', 'failed', 'refunded');
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'order_status') THEN CREATE TYPE public.order_status AS ENUM ('pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'); END IF; END $$;
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'payment_status') THEN CREATE TYPE public.payment_status AS ENUM ('pending', 'paid', 'failed', 'refunded'); END IF; END $$;
 
 -- Create orders table
-CREATE TABLE public.orders (
+CREATE TABLE IF NOT EXISTS public.orders (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     order_number TEXT NOT NULL UNIQUE,
     user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
@@ -103,7 +103,7 @@ CREATE TABLE public.orders (
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 
 -- Create order_items table
-CREATE TABLE public.order_items (
+CREATE TABLE IF NOT EXISTS public.order_items (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     order_id UUID REFERENCES public.orders(id) ON DELETE CASCADE NOT NULL,
     product_id UUID REFERENCES public.products(id) ON DELETE SET NULL,
@@ -116,7 +116,7 @@ CREATE TABLE public.order_items (
 ALTER TABLE public.order_items ENABLE ROW LEVEL SECURITY;
 
 -- Create conversations table
-CREATE TABLE public.conversations (
+CREATE TABLE IF NOT EXISTS public.conversations (
     id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
     customer_name TEXT NOT NULL,
     customer_phone TEXT NOT NULL,
@@ -130,7 +130,7 @@ CREATE TABLE public.conversations (
 ALTER TABLE public.conversations ENABLE ROW LEVEL SECURITY;
 
 -- Create messages table
-CREATE TABLE public.messages (
+CREATE TABLE IF NOT EXISTS public.messages (
     id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
     conversation_id UUID NOT NULL REFERENCES public.conversations(id) ON DELETE CASCADE,
     sender_type TEXT NOT NULL CHECK (sender_type IN ('customer', 'admin')),
@@ -143,7 +143,7 @@ CREATE TABLE public.messages (
 ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
 
 -- Create admin_access_codes table
-CREATE TABLE public.admin_access_codes (
+CREATE TABLE IF NOT EXISTS public.admin_access_codes (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     code TEXT NOT NULL DEFAULT '',
     description TEXT,
@@ -154,7 +154,7 @@ CREATE TABLE public.admin_access_codes (
 ALTER TABLE public.admin_access_codes ENABLE ROW LEVEL SECURITY;
 
 -- Create devices table
-CREATE TABLE public.devices (
+CREATE TABLE IF NOT EXISTS public.devices (
     id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
     device_fingerprint text NOT NULL UNIQUE,
     full_name text NOT NULL,
@@ -172,7 +172,7 @@ ALTER TYPE public.app_role ADD VALUE IF NOT EXISTS 'seller';
 ALTER TYPE public.app_role ADD VALUE IF NOT EXISTS 'customer';
 
 -- Create seller_profiles table
-CREATE TABLE public.seller_profiles (
+CREATE TABLE IF NOT EXISTS public.seller_profiles (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL UNIQUE,
     business_name text NOT NULL,
@@ -193,7 +193,7 @@ CREATE TABLE public.seller_profiles (
 ALTER TABLE public.seller_profiles ENABLE ROW LEVEL SECURITY;
 
 -- Create seller_services table
-CREATE TABLE public.seller_services (
+CREATE TABLE IF NOT EXISTS public.seller_services (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     seller_id uuid REFERENCES public.seller_profiles(id) ON DELETE CASCADE NOT NULL,
     title text NOT NULL,
@@ -208,7 +208,7 @@ CREATE TABLE public.seller_services (
 ALTER TABLE public.seller_services ENABLE ROW LEVEL SECURITY;
 
 -- Create service_requests table
-CREATE TABLE public.service_requests (
+CREATE TABLE IF NOT EXISTS public.service_requests (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     customer_id uuid REFERENCES auth.users(id) NOT NULL,
     seller_id uuid REFERENCES public.seller_profiles(id) NOT NULL,
@@ -228,7 +228,7 @@ CREATE TABLE public.service_requests (
 ALTER TABLE public.service_requests ENABLE ROW LEVEL SECURITY;
 
 -- Create momo_transactions table
-CREATE TABLE public.momo_transactions (
+CREATE TABLE IF NOT EXISTS public.momo_transactions (
     id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
     order_id UUID NOT NULL REFERENCES public.orders(id) ON DELETE CASCADE,
     reference_id TEXT NOT NULL UNIQUE,

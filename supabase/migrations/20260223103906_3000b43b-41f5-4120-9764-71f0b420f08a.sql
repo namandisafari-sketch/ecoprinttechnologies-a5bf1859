@@ -1,6 +1,6 @@
 
 -- Create momo_transactions table
-CREATE TABLE public.momo_transactions (
+CREATE TABLE IF NOT EXISTS public.momo_transactions (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   order_id UUID NOT NULL REFERENCES public.orders(id) ON DELETE CASCADE,
   reference_id TEXT NOT NULL UNIQUE,

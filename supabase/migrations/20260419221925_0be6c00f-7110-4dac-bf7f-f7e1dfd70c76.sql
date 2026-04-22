@@ -3,7 +3,7 @@ ALTER TABLE public.products ADD COLUMN IF NOT EXISTS color TEXT;
 ALTER TABLE public.products ADD COLUMN IF NOT EXISTS model TEXT;
 
 -- Conversations table
-CREATE TABLE public.conversations (
+CREATE TABLE IF NOT EXISTS public.conversations (
     id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
     customer_name TEXT NOT NULL,
     customer_phone TEXT NOT NULL,
@@ -21,7 +21,7 @@ CREATE POLICY "Admins can update conversations" ON public.conversations FOR UPDA
 CREATE TRIGGER update_conversations_updated_at BEFORE UPDATE ON public.conversations FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 -- Messages table
-CREATE TABLE public.messages (
+CREATE TABLE IF NOT EXISTS public.messages (
     id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
     conversation_id UUID NOT NULL REFERENCES public.conversations(id) ON DELETE CASCADE,
     sender_type TEXT NOT NULL CHECK (sender_type IN ('customer', 'admin')),
@@ -37,7 +37,7 @@ CREATE POLICY "Anyone can view messages" ON public.messages FOR SELECT USING (tr
 CREATE POLICY "Admins can update messages" ON public.messages FOR UPDATE USING (is_admin_or_manager(auth.uid()));
 
 -- Admin access codes
-CREATE TABLE public.admin_access_codes (
+CREATE TABLE IF NOT EXISTS public.admin_access_codes (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     code TEXT NOT NULL DEFAULT '',
     description TEXT,

@@ -1,6 +1,6 @@
 
 -- Expense categories table
-CREATE TABLE public.expense_categories (
+CREATE TABLE IF NOT EXISTS public.expense_categories (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL,
   description TEXT,
@@ -29,7 +29,7 @@ INSERT INTO public.expense_categories (name, is_default) VALUES
   ('Miscellaneous', true);
 
 -- Expenses table
-CREATE TABLE public.expenses (
+CREATE TABLE IF NOT EXISTS public.expenses (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   category_id UUID REFERENCES public.expense_categories(id),
   amount NUMERIC NOT NULL DEFAULT 0,

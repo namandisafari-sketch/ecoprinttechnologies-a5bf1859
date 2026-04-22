@@ -1,6 +1,6 @@
 
 -- Create hero_slides table for admin-managed hero carousel
-CREATE TABLE public.hero_slides (
+CREATE TABLE IF NOT EXISTS public.hero_slides (
   id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   title text NOT NULL,
   subtitle text,

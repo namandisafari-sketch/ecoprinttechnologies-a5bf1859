@@ -15,7 +15,7 @@ AS $$
 $$;
 
 -- Create seller_profiles table for technician/seller information
-CREATE TABLE public.seller_profiles (
+CREATE TABLE IF NOT EXISTS public.seller_profiles (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL UNIQUE,
     business_name text NOT NULL,
@@ -46,7 +46,7 @@ ON public.seller_profiles FOR SELECT
 USING (is_active = true OR auth.uid() = user_id OR is_admin_or_manager(auth.uid()));
 
 -- Create seller_services table for services offered by sellers
-CREATE TABLE public.seller_services (
+CREATE TABLE IF NOT EXISTS public.seller_services (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     seller_id uuid REFERENCES public.seller_profiles(id) ON DELETE CASCADE NOT NULL,
     title text NOT NULL,
@@ -84,7 +84,7 @@ USING (
 );
 
 -- Create service_requests table for customers hiring sellers
-CREATE TABLE public.service_requests (
+CREATE TABLE IF NOT EXISTS public.service_requests (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     customer_id uuid REFERENCES auth.users(id) NOT NULL,
     seller_id uuid REFERENCES public.seller_profiles(id) NOT NULL,

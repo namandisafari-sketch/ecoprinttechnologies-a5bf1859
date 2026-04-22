@@ -1,6 +1,6 @@
 
 -- Wishlist table
-CREATE TABLE public.wishlist (
+CREATE TABLE IF NOT EXISTS public.wishlist (
   id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   device_id uuid REFERENCES public.devices(id) ON DELETE CASCADE,
   user_id uuid,
@@ -22,7 +22,7 @@ CREATE POLICY "Anyone can remove from wishlist" ON public.wishlist
   FOR DELETE USING (true);
 
 -- Notifications table (admin broadcasts)
-CREATE TABLE public.notifications (
+CREATE TABLE IF NOT EXISTS public.notifications (
   id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   title text NOT NULL,
   body text NOT NULL,
@@ -42,7 +42,7 @@ CREATE POLICY "Admins can manage notifications" ON public.notifications
   FOR ALL USING (is_admin_or_manager(auth.uid()));
 
 -- User notification reads (track which notifications each device/user has seen)
-CREATE TABLE public.notification_reads (
+CREATE TABLE IF NOT EXISTS public.notification_reads (
   id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   notification_id uuid NOT NULL REFERENCES public.notifications(id) ON DELETE CASCADE,
   device_id uuid REFERENCES public.devices(id) ON DELETE CASCADE,

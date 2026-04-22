@@ -1,5 +1,5 @@
 -- Create table for admin access codes
-CREATE TABLE public.admin_access_codes (
+CREATE TABLE IF NOT EXISTS public.admin_access_codes (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     code_hash TEXT NOT NULL,
     description TEXT,

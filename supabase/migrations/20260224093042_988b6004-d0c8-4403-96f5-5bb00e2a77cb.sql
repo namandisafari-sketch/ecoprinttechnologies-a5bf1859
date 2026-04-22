@@ -1,6 +1,6 @@
 
 -- Create newsletter_subscribers table
-CREATE TABLE public.newsletter_subscribers (
+CREATE TABLE IF NOT EXISTS public.newsletter_subscribers (
   id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   email text NOT NULL UNIQUE,
   is_active boolean NOT NULL DEFAULT true,
