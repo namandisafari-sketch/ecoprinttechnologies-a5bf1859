@@ -1,4 +1,5 @@
-import ecoprintLogo from "@/assets/ecoprint-logo-text.png";
+import quotationHeader from "@/assets/quotation-header.jpg";
+import quotationFooter from "@/assets/quotation-footer.jpg";
 import signatureImg from "@/assets/signature.jpg";
 
 interface QuotationItem {
@@ -21,52 +22,6 @@ interface QuotationData {
 interface QuotationPreviewProps {
   data: QuotationData;
 }
-
-// === Decorative green corner bars (matches the PDF) ===
-const CornerBars = ({ position }: { position: "top" | "bottom" }) => {
-  const isTop = position === "top";
-  // Stack of vertical green bars of varying heights and shades
-  const bars = isTop
-    ? [
-        { left: "0mm", width: "8mm", height: "55mm", color: "#00e64d" },
-        { left: "8mm", width: "10mm", height: "42mm", color: "#00b33c" },
-        { left: "18mm", width: "8mm", height: "30mm", color: "#008f2e" },
-        { left: "26mm", width: "6mm", height: "18mm", color: "#33ff66" },
-      ]
-    : [
-        { right: "0mm", width: "8mm", height: "55mm", color: "#00e64d" },
-        { right: "8mm", width: "10mm", height: "42mm", color: "#00b33c" },
-        { right: "18mm", width: "8mm", height: "30mm", color: "#475569" },
-        { right: "26mm", width: "6mm", height: "18mm", color: "#33ff66" },
-      ];
-
-  return (
-    <div
-      style={{
-        position: "absolute",
-        [isTop ? "top" : "bottom"]: 0,
-        [isTop ? "left" : "right"]: 0,
-        height: "55mm",
-        width: "32mm",
-        pointerEvents: "none",
-      }}
-    >
-      {bars.map((bar, i) => (
-        <div
-          key={i}
-          style={{
-            position: "absolute",
-            [isTop ? "top" : "bottom"]: 0,
-            ...(isTop ? { left: bar.left } : { right: bar.right }),
-            width: bar.width,
-            height: bar.height,
-            background: bar.color,
-          }}
-        />
-      ))}
-    </div>
-  );
-};
 
 const QuotationPreview = ({ data }: QuotationPreviewProps) => {
   const formatPrice = (price: number) =>
@@ -105,38 +60,20 @@ const QuotationPreview = ({ data }: QuotationPreviewProps) => {
         background: "#fff",
         position: "relative",
         boxSizing: "border-box",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
-      {/* === TOP-LEFT GREEN BARS === */}
-      <CornerBars position="top" />
-
-      {/* === HEADER === */}
-      <div style={{ padding: "8mm 12mm 0 40mm", position: "relative" }}>
-        <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "flex-start" }}>
-          <img
-            src={ecoprintLogo}
-            alt="Ecoprint Technologies Ltd"
-            style={{ height: "28mm", width: "auto", display: "block" }}
-          />
-        </div>
-        <div style={{ textAlign: "right", marginTop: "2mm" }}>
-          <p style={{ fontSize: "11pt", fontWeight: 700, margin: 0, color: "#000" }}>
-            Computer sales, repairs, accessories, networking &amp; IT Support
-          </p>
-          <p style={{ fontSize: "11pt", margin: "1mm 0 0", color: "#000" }}>
-            F2-4 Suncity Plaza, Kampala Road
-          </p>
-          <p style={{ fontSize: "11pt", margin: "1mm 0 0", color: "#000" }}>
-            Tel: +256 702 365 176/ +256 783 393 721
-          </p>
-        </div>
-        {/* Blue underline rule */}
-        <div style={{ marginTop: "3mm", borderBottom: "1px solid #4a90e2" }} />
-      </div>
+      {/* === HEADER IMAGE (from original PDF) === */}
+      <img
+        src={quotationHeader}
+        alt="Ecoprint Technologies Ltd Header"
+        style={{ width: "100%", display: "block" }}
+      />
 
       {/* === BODY === */}
-      <div style={{ padding: "8mm 14mm 0 14mm", minHeight: "200mm" }}>
-        {/* Date - right aligned */}
+      <div style={{ padding: "5mm 14mm 0 14mm", flex: 1 }}>
+        {/* Date */}
         <p style={{ textAlign: "center", fontSize: "12pt", margin: "0 0 8mm 0" }}>
           {formatDate(data.date)}
         </p>
@@ -147,7 +84,7 @@ const QuotationPreview = ({ data }: QuotationPreviewProps) => {
         </p>
 
         {/* RE: */}
-        <p style={{ fontSize: "12pt", margin: "0 0 4mm 0" }}>
+        <p style={{ fontSize: "12pt", margin: "0 0 4mm 0", fontWeight: 700 }}>
           RE:&nbsp;&nbsp;{data.subject || "QUOTATION FOR SALE OF LAPTOP COMPUTER"}
         </p>
 
@@ -221,9 +158,7 @@ const QuotationPreview = ({ data }: QuotationPreviewProps) => {
                   position: "relative",
                 }}
               >
-                <span style={{ position: "absolute", left: "2mm", top: 0, color: "#000", fontSize: "11pt" }}>
-                  ▪
-                </span>
+                <span style={{ position: "absolute", left: "2mm", top: 0, color: "#000" }}>▪</span>
                 {note}
               </li>
             ))}
@@ -231,7 +166,7 @@ const QuotationPreview = ({ data }: QuotationPreviewProps) => {
         </div>
 
         {/* Signature block */}
-        <div style={{ marginTop: "10mm" }}>
+        <div style={{ marginTop: "10mm", marginBottom: "8mm" }}>
           <p style={{ fontSize: "12pt", margin: "0 0 2mm 0" }}>Kind regards,</p>
           <img
             src={signatureImg}
@@ -242,32 +177,12 @@ const QuotationPreview = ({ data }: QuotationPreviewProps) => {
         </div>
       </div>
 
-      {/* === FOOTER === */}
-      <div style={{ position: "relative", marginTop: "auto", paddingTop: "10mm" }}>
-        {/* Bottom-right green bars */}
-        <CornerBars position="bottom" />
-
-        <div style={{ padding: "0 40mm 12mm 14mm", textAlign: "right" }}>
-          <p style={{ fontSize: "11pt", margin: "0 0 2mm 0", color: "#000" }}>
-            +256 702 365 176/ +256 783 393721 &nbsp;<span style={{ color: "#000" }}>📞</span>
-          </p>
-          <p style={{ fontSize: "11pt", margin: "0 0 2mm 0" }}>
-            <a href="mailto:ecoprinttechnologies2020@gmail.com" style={{ color: "#1155cc", textDecoration: "underline" }}>
-              ecoprinttechnologies2020@gmail.com
-            </a>
-            &nbsp;<span>✉️</span>
-          </p>
-          <p style={{ fontSize: "11pt", margin: "0 0 2mm 0" }}>
-            <a href="http://www.ecoprinttechnologies.com" style={{ color: "#1155cc", textDecoration: "underline" }}>
-              www.ecoprinttechnologies.com
-            </a>
-            &nbsp;<span>🌐</span>
-          </p>
-          <p style={{ fontSize: "11pt", margin: 0, color: "#000" }}>
-            F2-4 Suncity Plaza Kampala Road, Kampala &nbsp;<span>🏠</span>
-          </p>
-        </div>
-      </div>
+      {/* === FOOTER IMAGE (from original PDF) === */}
+      <img
+        src={quotationFooter}
+        alt="Ecoprint Technologies Ltd Footer"
+        style={{ width: "100%", display: "block", marginTop: "auto" }}
+      />
     </div>
   );
 };
