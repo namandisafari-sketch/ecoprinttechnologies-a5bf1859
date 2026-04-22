@@ -1,6 +1,17 @@
 // Admin endpoint to create staff auth users with email+password
 // Uses the service role key, requires the caller to be an admin in staff_permissions
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.104.0";
+
+function decodeJwtSub(token: string): string | null {
+  try {
+    const payload = token.split(".")[1];
+    const padded = payload + "=".repeat((4 - (payload.length % 4)) % 4);
+    const json = atob(padded.replace(/-/g, "+").replace(/_/g, "/"));
+    return JSON.parse(json)?.sub ?? null;
+  } catch {
+    return null;
+  }
+}
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -26,19 +37,23 @@ Deno.serve(async (req) => {
       });
     }
 
-    const userClient = createClient(SUPABASE_URL, ANON_KEY, {
-      global: { headers: { Authorization: authHeader } },
-    });
     const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: callerErr } = await userClient.auth.getClaims(token);
-    const callerId = claimsData?.claims?.sub as string | undefined;
-    if (callerErr || !callerId) {
+    const callerId = decodeJwtSub(token);
+    if (!callerId) {
       return new Response(JSON.stringify({ error: "Invalid session" }), {
         status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     const admin = createClient(SUPABASE_URL, SERVICE_ROLE);
+
+    // Verify user actually exists (this validates the token via the admin API)
+    const { data: userCheck, error: userCheckErr } = await admin.auth.admin.getUserById(callerId);
+    if (userCheckErr || !userCheck?.user) {
+      return new Response(JSON.stringify({ error: "Invalid session" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     // Check caller is admin in staff_permissions OR is the very first user (bootstrap)
     const { data: callerStaff } = await admin
