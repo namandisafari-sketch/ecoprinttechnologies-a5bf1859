@@ -7,6 +7,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import ScrollToTop from "./components/ScrollToTop";
 import SplashScreen from "./components/SplashScreen";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import PermissionGate from "./components/auth/PermissionGate";
 import SellerProtectedRoute from "./components/auth/SellerProtectedRoute";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
