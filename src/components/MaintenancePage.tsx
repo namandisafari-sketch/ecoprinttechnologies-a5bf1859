@@ -24,12 +24,12 @@ const MaintenancePage = () => {
         </div>
         <div className="pt-2">
           <a
-            href="https://www.kabejjasystems.store"
+            href="https://tennahubapps.com"
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs text-muted-foreground/60 hover:text-primary transition-colors"
           >
-            Powered by Kabejja Systems
+            Powered by Tennahub Technologies Limited
           </a>
         </div>
       </div>

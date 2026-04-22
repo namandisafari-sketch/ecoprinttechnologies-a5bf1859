@@ -61,12 +61,12 @@ const MobileFooter = () => {
             © 2025 Eco Print Technologies Ltd. All rights reserved.
           </p>
           <a
-            href="https://www.kabejjasystems.store"
+            href="https://tennahubapps.com"
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs text-secondary-foreground/40 hover:text-primary transition-colors inline-block"
           >
-            Powered by Kabejja Systems
+            Powered by Tennahub Technologies Limited
           </a>
         </div>
       </div>
