@@ -305,8 +305,16 @@ const Staff = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button onClick={() => save.mutate()} disabled={!form.user_id || !form.full_name || save.isPending}>
-              {save.isPending ? "Saving…" : "Save Staff"}
+            <Button
+              onClick={() => save.mutate()}
+              disabled={
+                !form.full_name ||
+                !form.email ||
+                (!editing && !form.password) ||
+                save.isPending
+              }
+            >
+              {save.isPending ? "Saving…" : editing ? "Save Changes" : "Create Account"}
             </Button>
           </DialogFooter>
         </DialogContent>
