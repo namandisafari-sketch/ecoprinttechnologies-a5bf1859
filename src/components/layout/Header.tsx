@@ -38,13 +38,13 @@ const Header = ({ cartCount, onCartClick }: HeaderProps) => {
       <div className="bg-secondary text-secondary-foreground">
         <div className="container mx-auto px-4 py-2 flex flex-wrap justify-between items-center text-sm">
           <div className="flex items-center gap-4">
-            <a href="tel:+256705154828" className="flex items-center gap-1 hover:text-primary transition-colors">
+            <a href="tel:+256702365176" className="flex items-center gap-1 hover:text-primary transition-colors">
               <Phone className="h-3 w-3" />
-              <span>+256 752 793 244</span>
+              <span>+256 702 365 176 / +256 783 393 721</span>
             </a>
             <span className="hidden sm:flex items-center gap-1">
               <MapPin className="h-3 w-3" />
-              <span>Suncity Mall, Kampala</span>
+              <span>F2-4 Suncity Plaza, Kampala Road</span>
             </span>
           </div>
           <div className="text-xs sm:text-sm">

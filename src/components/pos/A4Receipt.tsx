@@ -71,13 +71,13 @@ const A4Receipt = ({ order }: A4ReceiptProps) => {
           <h1 style={{ fontSize: "14pt", fontWeight: 800, color: "#006600", margin: 0, letterSpacing: "0.5px" }}>ECO PRINT TECHNOLOGIES</h1>
           <p style={{ fontSize: "8pt", color: "#333", margin: "1px 0", fontWeight: 600 }}>Document Solutions</p>
           <p style={{ fontSize: "8pt", color: "#cc0000", margin: "1px 0", fontWeight: 600 }}>
-            📞 0702 365 176 / 0783 935 721
+            📞 +256 702 365 176 / +256 783 393 721
           </p>
           <p style={{ fontSize: "7.5pt", color: "#333", margin: "1px 0" }}>
-            📍 Kampala Rd, Rm F2-4 Suncity Arcade
+            📍 F2-4 Suncity Plaza Kampala Road, Kampala
           </p>
           <p style={{ fontSize: "7.5pt", color: "#333", margin: "1px 0" }}>
-            Email: ecoprinttechnologies2020@gmail.com
+            ✉ ecoprinttechnologies2020@gmail.com · 🌐 www.ecoprinttechnologies.com
           </p>
           <p style={{ fontSize: "7pt", color: "#006600", margin: "2px 0 0", fontWeight: 600, fontStyle: "italic" }}>
             Computer Sales, Repairs, Accessories, Networking &amp; IT Support

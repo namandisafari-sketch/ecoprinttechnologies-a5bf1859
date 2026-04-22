@@ -1,4 +1,4 @@
-import { Phone, Mail, MapPin, Facebook, Instagram, Twitter, Laptop } from "lucide-react";
+import { Phone, Mail, MapPin, Facebook, Instagram, Twitter, Laptop, Globe } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -61,15 +61,23 @@ const Footer = () => {
             <ul className="space-y-3 text-sm">
               <li className="flex items-center gap-3 text-secondary-foreground/70">
                 <Phone className="h-4 w-4 text-primary" />
-                <span>+256 705 154 828</span>
+                <span>+256 702 365 176 / +256 783 393 721</span>
               </li>
               <li className="flex items-center gap-3 text-secondary-foreground/70">
                 <Mail className="h-4 w-4 text-primary" />
-                <span>info@ecohub.ug</span>
+                <a href="mailto:ecoprinttechnologies2020@gmail.com" className="hover:text-primary transition-colors">
+                  ecoprinttechnologies2020@gmail.com
+                </a>
+              </li>
+              <li className="flex items-center gap-3 text-secondary-foreground/70">
+                <Globe className="h-4 w-4 text-primary" />
+                <a href="https://www.ecoprinttechnologies.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+                  www.ecoprinttechnologies.com
+                </a>
               </li>
               <li className="flex items-start gap-3 text-secondary-foreground/70">
                 <MapPin className="h-4 w-4 text-primary mt-0.5" />
-                <span>Suncity Mall, Ground Floor<br />Kampala, Uganda</span>
+                <span>F2-4 Suncity Plaza<br />Kampala Road, Kampala, Uganda</span>
               </li>
             </ul>
           </div>

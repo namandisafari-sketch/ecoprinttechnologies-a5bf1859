@@ -23,15 +23,15 @@ const MobileFooter = () => {
         <div className="flex flex-col items-center gap-3 mb-6 text-sm">
           <a href="tel:+256705154828" className="flex items-center gap-2 text-secondary-foreground/70 hover:text-primary transition-colors">
             <Phone className="h-4 w-4 text-primary" />
-            <span>+256 705 154 828</span>
+            <span>+256 702 365 176 / +256 783 393 721</span>
           </a>
-          <a href="mailto:info@ecohub.ug" className="flex items-center gap-2 text-secondary-foreground/70 hover:text-primary transition-colors">
+          <a href="mailto:ecoprinttechnologies2020@gmail.com" className="flex items-center gap-2 text-secondary-foreground/70 hover:text-primary transition-colors">
             <Mail className="h-4 w-4 text-primary" />
-            <span>info@ecohub.ug</span>
+            <span>ecoprinttechnologies2020@gmail.com</span>
           </a>
           <div className="flex items-center gap-2 text-secondary-foreground/70">
             <MapPin className="h-4 w-4 text-primary" />
-            <span>Suncity Mall, Kampala</span>
+            <span>F2-4 Suncity Plaza, Kampala Road, Kampala</span>
           </div>
         </div>
 
