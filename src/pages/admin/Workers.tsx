@@ -317,25 +317,37 @@ const Workers = () => {
 
       {/* ID Card Preview (front + back) */}
       <Dialog open={!!previewWorker} onOpenChange={(o) => !o && setPreviewWorker(null)}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
-            <DialogTitle className="flex items-center justify-between">
-              <span>Worker ID Card — Front & Back</span>
-              <Button size="sm" onClick={printCard}>
-                <Printer className="h-4 w-4 mr-1" /> Print Both
-              </Button>
+            <DialogTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <span className="text-base sm:text-lg">Worker ID Card — Front & Back</span>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={() => downloadSide("front")}>
+                  <Download className="h-4 w-4 mr-1" /> Front PNG
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => downloadSide("back")}>
+                  <Download className="h-4 w-4 mr-1" /> Back PNG
+                </Button>
+                <Button size="sm" onClick={printCard}>
+                  <Printer className="h-4 w-4 mr-1" /> Print Both
+                </Button>
+              </div>
             </DialogTitle>
           </DialogHeader>
           {previewWorker && (
-            <div className="flex flex-wrap justify-center gap-6 p-4 bg-muted/30 rounded-lg">
-              <div ref={cardRef} className="flex flex-wrap gap-6 justify-center">
+            <div className="p-2 sm:p-4 bg-muted/30 rounded-lg overflow-x-auto">
+              <div ref={cardRef} className="flex flex-wrap gap-4 sm:gap-6 justify-center min-w-fit">
                 <div className="flex flex-col items-center gap-2">
                   <span className="text-xs font-medium text-muted-foreground">FRONT</span>
-                  <WorkerIDCard worker={previewWorker} side="front" />
+                  <div ref={frontRef} className="origin-top scale-[0.85] sm:scale-100">
+                    <WorkerIDCard worker={previewWorker} side="front" />
+                  </div>
                 </div>
                 <div className="flex flex-col items-center gap-2">
                   <span className="text-xs font-medium text-muted-foreground">BACK</span>
-                  <WorkerIDCard worker={previewWorker} side="back" />
+                  <div ref={backRef} className="origin-top scale-[0.85] sm:scale-100">
+                    <WorkerIDCard worker={previewWorker} side="back" />
+                  </div>
                 </div>
               </div>
             </div>
