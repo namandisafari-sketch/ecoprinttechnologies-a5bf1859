@@ -143,6 +143,7 @@ const Staff = () => {
       full_name: s.full_name || "",
       email: s.email || "",
       phone: s.phone || "",
+      password: "",
       role_label: s.role_label,
       is_active: s.is_active,
       permissions: { ...ROLE_TEMPLATES.staff, ...(s.permissions || {}) },
@@ -177,12 +178,12 @@ const Staff = () => {
       </div>
 
       <Card>
-        <CardContent className="p-4 text-sm bg-amber-50 dark:bg-amber-950/20 border-l-4 border-amber-500">
-          <p className="font-medium">How to add a staff account</p>
+        <CardContent className="p-4 text-sm bg-muted/50 border-l-4 border-primary">
+          <p className="font-medium">How staff accounts work</p>
           <ol className="list-decimal pl-5 mt-1 text-muted-foreground space-y-0.5">
-            <li>Have the staff member sign up at <code>/signup</code> with their email & password.</li>
-            <li>Copy their User ID from the Customers page (or ask them).</li>
-            <li>Add them here, pick a role template, then fine-tune access per page.</li>
+            <li>Click <strong>Add Staff</strong> and enter their email + a starter password.</li>
+            <li>Pick a role template, then fine-tune per-page access if needed.</li>
+            <li>Hand the credentials to the staff member — they can log in immediately at <code>/login</code>.</li>
           </ol>
         </CardContent>
       </Card>
@@ -225,17 +226,32 @@ const Staff = () => {
           <div className="space-y-4">
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <Label>User ID (auth UID) *</Label>
-                <Input value={form.user_id} onChange={(e) => setForm({ ...form, user_id: e.target.value })} placeholder="UUID from auth" disabled={!!editing} />
-              </div>
-              <div>
                 <Label>Full Name *</Label>
                 <Input value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
               </div>
               <div>
-                <Label>Email</Label>
-                <Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+                <Label>Email *</Label>
+                <Input
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  disabled={!!editing}
+                  placeholder="staff@example.com"
+                />
               </div>
+              {!editing && (
+                <div>
+                  <Label>Starter Password *</Label>
+                  <Input
+                    type="text"
+                    value={form.password}
+                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    placeholder="At least 6 characters"
+                    autoComplete="new-password"
+                  />
+                  <p className="text-[11px] text-muted-foreground mt-1">Share this with the staff member — they can change it after first login.</p>
+                </div>
+              )}
               <div>
                 <Label>Phone</Label>
                 <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
