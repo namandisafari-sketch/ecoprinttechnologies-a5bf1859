@@ -15,6 +15,17 @@ interface Message {
   created_at: string;
 }
 
+export interface ProductContext {
+  id?: string;
+  name: string;
+  url?: string;
+}
+
+/** Open the chat widget from anywhere with optional product context. */
+export const openChatWithProduct = (product: ProductContext) => {
+  window.dispatchEvent(new CustomEvent("eco-chat:open", { detail: product }));
+};
+
 const ChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -24,6 +35,7 @@ const ChatWidget = () => {
   const [sessionId, setSessionId] = useState<string>("");
   const [customerInfo, setCustomerInfo] = useState({ name: "", phone: "" });
   const [showForm, setShowForm] = useState(true);
+  const [pendingProduct, setPendingProduct] = useState<ProductContext | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { permission, requestPermission, showNotification, isSupported } = useNotifications();
@@ -51,6 +63,23 @@ const ChatWidget = () => {
       loadMessages(savedConversation);
     }
   }, []);
+
+  // Listen for global "open chat with product" requests
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<ProductContext>).detail;
+      if (detail) {
+        setPendingProduct(detail);
+        const prefill = `Hi, I'm interested in ${detail.name}. Could you share more details?`;
+        if (!showForm && conversationId) {
+          setNewMessage(prefill);
+        }
+      }
+      setIsOpen(true);
+    };
+    window.addEventListener("eco-chat:open", handler);
+    return () => window.removeEventListener("eco-chat:open", handler);
+  }, [showForm, conversationId]);
 
   useEffect(() => {
     if (conversationId) {
@@ -127,11 +156,15 @@ const ChatWidget = () => {
       localStorage.setItem("chat_customer_info", JSON.stringify(customerInfo));
       setShowForm(false);
 
+      const initialContent = pendingProduct
+        ? `Hi, I'm ${customerInfo.name}. I'm interested in ${pendingProduct.name}${pendingProduct.url ? ` (${pendingProduct.url})` : ""}. Could you share more details?`
+        : `Hi, I'm ${customerInfo.name}. I'm interested in your products!`;
       await supabase.from("messages").insert({
         conversation_id: data.id,
         sender_type: "customer",
-        content: `Hi, I'm ${customerInfo.name}. I'm interested in your products!`,
+        content: initialContent,
       });
+      setPendingProduct(null);
 
       loadMessages(data.id);
     } catch (error: any) {
