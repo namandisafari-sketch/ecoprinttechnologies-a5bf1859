@@ -11,7 +11,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, userRole, isAdmin, staffPermissions } = useAuth();
+  const { signIn, userRole, isAdmin, staffPermissions, isLoading: authLoading, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -38,15 +38,14 @@ const Login = () => {
   };
 
   useEffect(() => {
-    if (!isLoading && userRole) {
-      const isStaff = staffPermissions && Object.values(staffPermissions).some((p: any) => p?.view);
-      if (isAdmin || isStaff) {
-        navigate("/admin");
-      } else {
-        navigate("/");
-      }
+    if (authLoading || !user) return;
+    const isStaff = staffPermissions && Object.values(staffPermissions).some((p: any) => p?.view);
+    if (isAdmin || isStaff) {
+      navigate("/admin", { replace: true });
+    } else {
+      navigate("/", { replace: true });
     }
-  }, [userRole, isAdmin, staffPermissions, navigate, isLoading]);
+  }, [user, userRole, isAdmin, staffPermissions, navigate, authLoading]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
