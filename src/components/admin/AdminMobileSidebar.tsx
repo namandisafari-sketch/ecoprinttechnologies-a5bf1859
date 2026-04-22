@@ -13,7 +13,13 @@ interface AdminMobileSidebarProps {
 const AdminMobileSidebar = ({ onNavigate }: AdminMobileSidebarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, signOut, isAdmin, can } = useAuth();
+
+  const visibleItems = adminNavItems.filter((item) => {
+    if (item.adminOnly) return isAdmin;
+    if (!item.permKey) return isAdmin;
+    return can(item.permKey, "view");
+  });
 
   const handleSignOut = async () => {
     await signOut();
@@ -30,7 +36,7 @@ const AdminMobileSidebar = ({ onNavigate }: AdminMobileSidebarProps) => {
 
       {/* Navigation */}
       <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-        {adminNavItems.map((item) => {
+        {visibleItems.map((item) => {
           const isActive = location.pathname === item.href ||
             (item.href !== "/admin" && location.pathname.startsWith(item.href));
           return (
@@ -64,7 +70,7 @@ const AdminMobileSidebar = ({ onNavigate }: AdminMobileSidebarProps) => {
             <p className="text-sm font-medium text-secondary-foreground truncate">
               {user?.email}
             </p>
-            <p className="text-xs text-secondary-foreground/60">Administrator</p>
+            <p className="text-xs text-secondary-foreground/60">{isAdmin ? "Administrator" : "Staff"}</p>
           </div>
         </div>
         <Button

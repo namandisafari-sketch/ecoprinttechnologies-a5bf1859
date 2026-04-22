@@ -3,6 +3,8 @@ import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
 export type UserRole = 'admin' | 'manager' | 'seller' | 'customer' | 'user' | null;
+export type PermAction = 'view' | 'create' | 'edit' | 'delete';
+export type StaffPermissions = Record<string, Partial<Record<PermAction, boolean>>>;
 
 interface AuthContextType {
   user: User | null;
@@ -11,6 +13,9 @@ interface AuthContextType {
   isAdmin: boolean;
   isSeller: boolean;
   userRole: UserRole;
+  staffPermissions: StaffPermissions | null;
+  staffActive: boolean;
+  can: (page: string, action?: PermAction) => boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, fullName: string, role?: 'seller' | 'customer') => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -33,6 +38,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isSeller, setIsSeller] = useState(false);
   const [userRole, setUserRole] = useState<UserRole>(null);
+  const [staffPermissions, setStaffPermissions] = useState<StaffPermissions | null>(null);
+  const [staffActive, setStaffActive] = useState<boolean>(true);
+
+  const loadStaffPermissions = async (userId: string) => {
+    try {
+      const { data } = await supabase
+        .from("staff_permissions")
+        .select("permissions, is_active, role_label")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (data) {
+        setStaffPermissions((data.permissions || {}) as StaffPermissions);
+        setStaffActive(data.is_active !== false);
+      } else {
+        setStaffPermissions(null);
+        setStaffActive(true);
+      }
+    } catch {
+      setStaffPermissions(null);
+      setStaffActive(true);
+    }
+  };
 
   const checkUserRole = async (userId: string): Promise<{ isAdmin: boolean; isSeller: boolean; role: UserRole }> => {
     try {
@@ -83,11 +110,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setIsAdmin(isAdmin);
             setIsSeller(isSeller);
             setUserRole(role);
+            await loadStaffPermissions(session.user.id);
           }, 0);
         } else {
           setIsAdmin(false);
           setIsSeller(false);
           setUserRole(null);
+          setStaffPermissions(null);
+          setStaffActive(true);
         }
         
         setIsLoading(false);
@@ -104,6 +134,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setIsAdmin(isAdmin);
         setIsSeller(isSeller);
         setUserRole(role);
+        await loadStaffPermissions(session.user.id);
       }
       
       setIsLoading(false);
@@ -148,6 +179,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await supabase.auth.signOut();
   };
 
+  // Permission helper: admins/managers always pass; otherwise check staff_permissions map
+  const can = (page: string, action: PermAction = 'view') => {
+    if (!user) return false;
+    if (isAdmin) return true;
+    if (!staffActive) return false;
+    return Boolean(staffPermissions?.[page]?.[action]);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -157,6 +196,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isAdmin,
         isSeller,
         userRole,
+        staffPermissions,
+        staffActive,
+        can,
         signIn,
         signUp,
         signOut,
