@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle2, XCircle, ShieldCheck, Phone, Mail, MapPin, Calendar, Building2, Briefcase, ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
 import ecoprintLogo from "@/assets/ecoprint-logo.png";
+import tennahubLogo from "@/assets/tennahub-logo.svg";
 
 const statusBadge = (status: string) => {
   const s = (status || "active").toLowerCase();
@@ -138,10 +139,20 @@ const WorkerVerify = () => {
           </div>
         </Card>
 
-        <div className="text-center mt-6">
+        <div className="text-center mt-6 space-y-3">
           <Button asChild variant="ghost" size="sm">
             <Link to="/"><ArrowLeft className="h-4 w-4 mr-1" /> Back to home</Link>
           </Button>
+          <a
+            href="https://tennahubapps.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 text-xs text-muted-foreground hover:text-primary transition-colors"
+          >
+            <span>Powered by</span>
+            <img src={tennahubLogo} alt="Tennahub Technologies" className="h-4 w-auto" />
+            <span className="font-semibold">Tennahub Technologies Limited</span>
+          </a>
         </div>
       </div>
     </div>
