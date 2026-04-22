@@ -113,7 +113,7 @@ const BrokerStatement = () => {
         <thead><tr><th>Date</th><th>Pickup #</th><th>Item</th><th>Qty</th><th>Unit</th><th>Total</th><th>Status</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
-      <p style="margin-top:30px;font-size:11px;color:#666;text-align:center">Eco Print Technologies • Powered by Kabejja Systems</p>
+      <p style="margin-top:30px;font-size:11px;color:#666;text-align:center">Eco Print Technologies • Powered by Tennahub Technologies Limited</p>
       </body></html>`);
     win.document.close();
     setTimeout(() => { win.print(); }, 300);

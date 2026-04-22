@@ -114,7 +114,7 @@ export const printPickupSlip = (p: any) => {
       <div class="sig"><div class="role">Approved By</div><div class="name">Admin</div></div>
     </div>
 
-    <div class="footer">Eco Print Technologies • Powered by Kabejja Systems (www.kabejjasystems.store)</div>
+    <div class="footer">Eco Print Technologies • Powered by Tennahub Technologies Limited (tennahubapps.com)</div>
     </body></html>`);
   win.document.close();
   setTimeout(() => { win.print(); }, 400);

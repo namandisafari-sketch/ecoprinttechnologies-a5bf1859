@@ -216,7 +216,7 @@ const A4Receipt = ({ order }: A4ReceiptProps) => {
       {/* ===== FOOTER ===== */}
       <div style={{ marginTop: "auto", paddingTop: "5mm", borderTop: "1px solid #ddd" }}>
         <p style={{ fontSize: "6.5pt", color: "#999", textAlign: "center", margin: 0 }}>
-          Powered by Kabejja Systems — www.kabejjasystems.store
+          Powered by Tennahub Technologies Limited — tennahubapps.com
         </p>
       </div>
     </div>

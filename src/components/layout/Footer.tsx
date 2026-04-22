@@ -94,12 +94,12 @@ const Footer = () => {
         </div>
         <div className="border-t border-secondary-foreground/10 mt-4 pt-4 text-center">
           <a
-            href="https://www.kabejjasystems.store"
+            href="https://tennahubapps.com"
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs text-secondary-foreground/40 hover:text-primary transition-colors"
           >
-            Powered by Kabejja Systems
+            Powered by Tennahub Technologies Limited
           </a>
         </div>
       </div>
