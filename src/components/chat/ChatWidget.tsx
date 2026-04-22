@@ -15,6 +15,17 @@ interface Message {
   created_at: string;
 }
 
+export interface ProductContext {
+  id?: string;
+  name: string;
+  url?: string;
+}
+
+/** Open the chat widget from anywhere with optional product context. */
+export const openChatWithProduct = (product: ProductContext) => {
+  window.dispatchEvent(new CustomEvent("eco-chat:open", { detail: product }));
+};
+
 const ChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -24,6 +35,7 @@ const ChatWidget = () => {
   const [sessionId, setSessionId] = useState<string>("");
   const [customerInfo, setCustomerInfo] = useState({ name: "", phone: "" });
   const [showForm, setShowForm] = useState(true);
+  const [pendingProduct, setPendingProduct] = useState<ProductContext | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { permission, requestPermission, showNotification, isSupported } = useNotifications();
