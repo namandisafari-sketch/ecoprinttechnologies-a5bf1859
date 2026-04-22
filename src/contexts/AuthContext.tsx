@@ -3,6 +3,8 @@ import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
 export type UserRole = 'admin' | 'manager' | 'seller' | 'customer' | 'user' | null;
+export type PermAction = 'view' | 'create' | 'edit' | 'delete';
+export type StaffPermissions = Record<string, Partial<Record<PermAction, boolean>>>;
 
 interface AuthContextType {
   user: User | null;
@@ -11,6 +13,9 @@ interface AuthContextType {
   isAdmin: boolean;
   isSeller: boolean;
   userRole: UserRole;
+  staffPermissions: StaffPermissions | null;
+  staffActive: boolean;
+  can: (page: string, action?: PermAction) => boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, fullName: string, role?: 'seller' | 'customer') => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
