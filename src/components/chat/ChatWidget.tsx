@@ -156,11 +156,15 @@ const ChatWidget = () => {
       localStorage.setItem("chat_customer_info", JSON.stringify(customerInfo));
       setShowForm(false);
 
+      const initialContent = pendingProduct
+        ? `Hi, I'm ${customerInfo.name}. I'm interested in ${pendingProduct.name}${pendingProduct.url ? ` (${pendingProduct.url})` : ""}. Could you share more details?`
+        : `Hi, I'm ${customerInfo.name}. I'm interested in your products!`;
       await supabase.from("messages").insert({
         conversation_id: data.id,
         sender_type: "customer",
-        content: `Hi, I'm ${customerInfo.name}. I'm interested in your products!`,
+        content: initialContent,
       });
+      setPendingProduct(null);
 
       loadMessages(data.id);
     } catch (error: any) {
