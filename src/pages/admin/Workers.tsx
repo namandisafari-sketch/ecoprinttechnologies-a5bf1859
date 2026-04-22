@@ -57,6 +57,8 @@ const Workers = () => {
   const [form, setForm] = useState<any>(empty);
   const [previewWorker, setPreviewWorker] = useState<any>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+  const frontRef = useRef<HTMLDivElement>(null);
+  const backRef = useRef<HTMLDivElement>(null);
 
   const { data: workers = [] } = useQuery({
     queryKey: ["workers", search, statusFilter],
