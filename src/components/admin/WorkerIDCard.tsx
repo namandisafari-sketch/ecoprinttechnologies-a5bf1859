@@ -126,9 +126,7 @@ const WorkerIDCard = ({ worker, side = "front" }: WorkerIDCardProps) => {
             height: "12mm",
             width: "auto",
             objectFit: "contain",
-            background: "#fff",
-            padding: "0.5mm",
-            borderRadius: "1mm",
+            background: "transparent",
           }}
         />
         <div style={{ flex: 1, textAlign: "right", lineHeight: 1.05 }}>
