@@ -297,6 +297,17 @@ const AdminStickers = () => {
     setStickers(prev => prev.filter((_, i) => i !== index));
   };
 
+  const applyBuiltIn = (templateId: string, targetIndex: number) => {
+    const tpl = BUILT_IN_TEMPLATES.find(t => t.id === templateId);
+    if (!tpl) return;
+    setStickers(prev => {
+      const updated = [...prev];
+      updated[targetIndex] = tpl.build();
+      return updated;
+    });
+    toast.success(`${tpl.name} applied to Sticker ${targetIndex + 1}`);
+  };
+
   const handlePrint = () => {
     if (!printStickers(stickers)) {
       toast.error("Please allow popups to print stickers");
