@@ -60,7 +60,7 @@ const Login = () => {
       <main className="flex-1 flex flex-col justify-center px-6 py-8">
         {/* Logo */}
         <div className="text-center mb-8">
-          <img src="/logo.png" alt="Eco Print Technologies" className="h-16 w-auto object-contain mx-auto mb-4" />
+          <img src="/logo.png" alt="Eco Print Technologies" className="h-40 md:h-52 w-auto object-contain mx-auto mb-4" />
           <h1 className="text-2xl font-bold">Welcome Back</h1>
           <p className="text-sm text-muted-foreground mt-1">Sign in to continue</p>
         </div>
