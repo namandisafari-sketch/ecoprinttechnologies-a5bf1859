@@ -75,8 +75,9 @@ const MobileHeader = () => {
                 
               </div>
             </nav>
-          </SheetContent>
-        </Sheet>
+            </SheetContent>
+          </Sheet>
+        </div>
 
         {/* Logo - edge to edge */}
         <Link to="/" className="flex items-stretch flex-shrink-0">
@@ -84,7 +85,7 @@ const MobileHeader = () => {
         </Link>
 
         {/* Actions */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 self-center">
           <Button
             variant="ghost"
             size="icon"
