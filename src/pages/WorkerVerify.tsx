@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle2, XCircle, ShieldCheck, Phone, Mail, MapPin, Calendar, Building2, Briefcase, ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
 import ecoprintLogo from "@/assets/ecoprint-logo.png";
+import tennahubLogo from "@/assets/tennahub-logo.svg";
 
 const statusBadge = (status: string) => {
   const s = (status || "active").toLowerCase();
