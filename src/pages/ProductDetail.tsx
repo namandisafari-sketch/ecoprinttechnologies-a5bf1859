@@ -10,7 +10,7 @@ import BottomNavigation from "@/components/layout/BottomNavigation";
 import ImageGallery from "@/components/product/ImageGallery";
 import ProductCard, { Product } from "@/components/home/ProductCard";
 import CartDrawer from "@/components/cart/CartDrawer";
-import ChatWidget from "@/components/chat/ChatWidget";
+import ChatWidget, { openChatWithProduct } from "@/components/chat/ChatWidget";
 import { useProduct, useRelatedProducts, useProductSpecifications } from "@/hooks/useProduct";
 import { trackProductView } from "@/components/home/RecentlyViewed";
 import { useWishlist } from "@/hooks/useWishlist";
@@ -408,17 +408,32 @@ const ProductDetail = () => {
             </div>
 
             {/* Contact */}
-            <div className="flex gap-2">
-              <Button variant="outline" className="flex-1 h-10 text-sm" asChild>
-                <a href="tel:0705154828">
-                  <Phone className="h-4 w-4 mr-2" /> Call Us
-                </a>
+            <div className="space-y-2">
+              <Button
+                className="w-full h-11 text-sm"
+                onClick={() =>
+                  openChatWithProduct({
+                    id: product.id,
+                    name: product.name,
+                    url: window.location.href,
+                  })
+                }
+              >
+                <MessageCircle className="h-4 w-4 mr-2" />
+                Chat about this product
               </Button>
-              <Button variant="outline" className="flex-1 h-10 text-sm" asChild>
-                <a href="https://wa.me/256705154828" target="_blank" rel="noopener noreferrer">
-                  <MessageCircle className="h-4 w-4 mr-2" /> WhatsApp
-                </a>
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" className="flex-1 h-10 text-sm" asChild>
+                  <a href="tel:0705154828">
+                    <Phone className="h-4 w-4 mr-2" /> Call Us
+                  </a>
+                </Button>
+                <Button variant="outline" className="flex-1 h-10 text-sm" asChild>
+                  <a href="https://wa.me/256705154828" target="_blank" rel="noopener noreferrer">
+                    <MessageCircle className="h-4 w-4 mr-2" /> WhatsApp
+                  </a>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
