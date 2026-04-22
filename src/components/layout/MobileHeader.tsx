@@ -37,14 +37,15 @@ const MobileHeader = () => {
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       {/* Main header */}
-      <div className="flex items-center justify-between px-4 h-20">
+      <div className="flex items-stretch justify-between pr-4 min-h-[5rem]">
         {/* Menu */}
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-9 w-9">
-              <Menu className="h-5 w-5" />
-            </Button>
-          </SheetTrigger>
+        <div className="flex items-center pl-2">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-9 w-9">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
           <SheetContent side="left" className="w-[280px]">
             <SheetHeader>
               <SheetTitle className="flex items-center gap-2">
@@ -74,16 +75,17 @@ const MobileHeader = () => {
                 
               </div>
             </nav>
-          </SheetContent>
-        </Sheet>
+            </SheetContent>
+          </Sheet>
+        </div>
 
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 -my-6">
-          <img src="/logo.png" alt="Eco Print Technologies" className="h-32 w-auto object-contain" />
+        {/* Logo - edge to edge */}
+        <Link to="/" className="flex items-stretch flex-shrink-0">
+          <img src="/logo.png" alt="Eco Print Technologies" className="h-full w-auto object-contain" />
         </Link>
 
         {/* Actions */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 self-center">
           <Button
             variant="ghost"
             size="icon"
