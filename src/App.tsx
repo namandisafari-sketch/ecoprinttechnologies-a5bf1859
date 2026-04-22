@@ -97,47 +97,47 @@ const App = () => (
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/worker/:id" element={<WorkerVerify />} />
 
-            {/* Admin */}
+            {/* Admin (any signed-in staff member can enter; per-page guards below filter access) */}
             <Route
               path="/admin"
               element={
-                <ProtectedRoute requireAdmin>
+                <ProtectedRoute>
                   <AdminLayout />
                 </ProtectedRoute>
               }
             >
-              <Route index element={<AdminDashboard />} />
-              <Route path="pos" element={<AdminPOS />} />
-              <Route path="products" element={<AdminProducts />} />
-              <Route path="inventory" element={<AdminInventory />} />
-              <Route path="barcode-tracking" element={<AdminBarcodeTracking />} />
-              <Route path="stock-receiving" element={<AdminStockReceiving />} />
-              <Route path="orders" element={<AdminOrders />} />
-              <Route path="returns-exchanges" element={<AdminReturnsExchanges />} />
-              <Route path="purchase-orders" element={<AdminPurchaseOrders />} />
-              <Route path="expenses" element={<AdminExpenses />} />
-              <Route path="suppliers-payments" element={<AdminSuppliersPayments />} />
-              <Route path="categories" element={<AdminCategories />} />
-              <Route path="customers" element={<AdminCustomers />} />
-              <Route path="notifications" element={<AdminNotifications />} />
-              <Route path="newsletter" element={<AdminNewsletter />} />
-              <Route path="chat" element={<AdminChat />} />
-              <Route path="delivery-zones" element={<AdminDeliveryZones />} />
-              <Route path="delivery-accounts" element={<AdminDeliveryAccounts />} />
-              <Route path="stickers" element={<AdminStickers />} />
-              <Route path="brokers" element={<AdminBrokers />} />
-              <Route path="broker-pickups" element={<AdminBrokerPickups />} />
-              <Route path="broker-statement" element={<AdminBrokerStatement />} />
-              <Route path="staff" element={<AdminStaff />} />
-              <Route path="attendance" element={<AdminAttendance />} />
-              <Route path="quotations" element={<AdminQuotations />} />
-              <Route path="sale-history" element={<AdminSaleHistory />} />
-              <Route path="reports" element={<AdminReports />} />
-              <Route path="settings" element={<AdminSettings />} />
-              <Route path="hero-slides" element={<AdminHeroSlides />} />
-              <Route path="store-location" element={<AdminStoreLocation />} />
-              <Route path="workers" element={<AdminWorkers />} />
-              <Route path="audit-log" element={<AdminAuditLog />} />
+              <Route index element={<PermissionGate page="dashboard"><AdminDashboard /></PermissionGate>} />
+              <Route path="pos" element={<PermissionGate page="pos"><AdminPOS /></PermissionGate>} />
+              <Route path="products" element={<PermissionGate page="products"><AdminProducts /></PermissionGate>} />
+              <Route path="inventory" element={<PermissionGate page="inventory"><AdminInventory /></PermissionGate>} />
+              <Route path="barcode-tracking" element={<PermissionGate page="inventory"><AdminBarcodeTracking /></PermissionGate>} />
+              <Route path="stock-receiving" element={<PermissionGate page="inventory"><AdminStockReceiving /></PermissionGate>} />
+              <Route path="orders" element={<PermissionGate page="orders"><AdminOrders /></PermissionGate>} />
+              <Route path="returns-exchanges" element={<PermissionGate page="orders"><AdminReturnsExchanges /></PermissionGate>} />
+              <Route path="purchase-orders" element={<PermissionGate page="inventory"><AdminPurchaseOrders /></PermissionGate>} />
+              <Route path="expenses" element={<PermissionGate page="expenses"><AdminExpenses /></PermissionGate>} />
+              <Route path="suppliers-payments" element={<PermissionGate page="expenses"><AdminSuppliersPayments /></PermissionGate>} />
+              <Route path="categories" element={<PermissionGate page="categories"><AdminCategories /></PermissionGate>} />
+              <Route path="customers" element={<PermissionGate page="customers"><AdminCustomers /></PermissionGate>} />
+              <Route path="notifications" element={<PermissionGate page="notifications"><AdminNotifications /></PermissionGate>} />
+              <Route path="newsletter" element={<PermissionGate page="newsletter"><AdminNewsletter /></PermissionGate>} />
+              <Route path="chat" element={<PermissionGate page="chat"><AdminChat /></PermissionGate>} />
+              <Route path="delivery-zones" element={<PermissionGate page="delivery_zones"><AdminDeliveryZones /></PermissionGate>} />
+              <Route path="delivery-accounts" element={<PermissionGate page="delivery_accounts"><AdminDeliveryAccounts /></PermissionGate>} />
+              <Route path="stickers" element={<PermissionGate page="stickers"><AdminStickers /></PermissionGate>} />
+              <Route path="brokers" element={<PermissionGate page="brokers"><AdminBrokers /></PermissionGate>} />
+              <Route path="broker-pickups" element={<PermissionGate page="broker_pickups"><AdminBrokerPickups /></PermissionGate>} />
+              <Route path="broker-statement" element={<PermissionGate page="brokers"><AdminBrokerStatement /></PermissionGate>} />
+              <Route path="staff" element={<PermissionGate adminOnly><AdminStaff /></PermissionGate>} />
+              <Route path="attendance" element={<PermissionGate page="attendance"><AdminAttendance /></PermissionGate>} />
+              <Route path="quotations" element={<PermissionGate page="quotations"><AdminQuotations /></PermissionGate>} />
+              <Route path="sale-history" element={<PermissionGate page="sale_history"><AdminSaleHistory /></PermissionGate>} />
+              <Route path="reports" element={<PermissionGate page="reports"><AdminReports /></PermissionGate>} />
+              <Route path="settings" element={<PermissionGate page="settings"><AdminSettings /></PermissionGate>} />
+              <Route path="hero-slides" element={<PermissionGate page="hero_slides"><AdminHeroSlides /></PermissionGate>} />
+              <Route path="store-location" element={<PermissionGate page="settings"><AdminStoreLocation /></PermissionGate>} />
+              <Route path="workers" element={<PermissionGate adminOnly><AdminWorkers /></PermissionGate>} />
+              <Route path="audit-log" element={<PermissionGate adminOnly><AdminAuditLog /></PermissionGate>} />
               <Route path="more" element={<AdminMore />} />
             </Route>
 
