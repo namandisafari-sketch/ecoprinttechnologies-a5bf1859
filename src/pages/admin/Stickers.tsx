@@ -17,6 +17,7 @@ import StickerForm from "@/components/admin/stickers/StickerForm";
 import StickerPreview from "@/components/admin/stickers/StickerPreview";
 import { printStickers } from "@/components/admin/stickers/printStickers";
 import { StickerData, StickerLayout, FooterImage, DEFAULT_SPECS, DEFAULT_DISCLAIMERS, DEFAULT_LAYOUT, emptyStickerData } from "@/components/admin/stickers/types";
+import { BUILT_IN_TEMPLATES } from "@/components/admin/stickers/builtInTemplates";
 
 interface StickerTemplate {
   id: string;
@@ -36,7 +37,7 @@ interface StickerTemplate {
 const TEMPLATES_KEY = "sticker_templates";
 
 const AdminStickers = () => {
-  const [stickers, setStickers] = useState<StickerData[]>([emptyStickerData()]);
+  const [stickers, setStickers] = useState<StickerData[]>(() => [BUILT_IN_TEMPLATES[0].build()]);
   const printRef = useRef<HTMLDivElement>(null);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showLoadDialog, setShowLoadDialog] = useState(false);
@@ -296,6 +297,17 @@ const AdminStickers = () => {
     setStickers(prev => prev.filter((_, i) => i !== index));
   };
 
+  const applyBuiltIn = (templateId: string, targetIndex: number) => {
+    const tpl = BUILT_IN_TEMPLATES.find(t => t.id === templateId);
+    if (!tpl) return;
+    setStickers(prev => {
+      const updated = [...prev];
+      updated[targetIndex] = tpl.build();
+      return updated;
+    });
+    toast.success(`${tpl.name} applied to Sticker ${targetIndex + 1}`);
+  };
+
   const handlePrint = () => {
     if (!printStickers(stickers)) {
       toast.error("Please allow popups to print stickers");
@@ -332,6 +344,45 @@ const AdminStickers = () => {
           </Button>
         </div>
       </div>
+
+      {/* Built-in templates quick pick */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Tag className="h-4 w-4" /> Built-in Brand Templates
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">
+            Pre-configured layouts with logos & footer badges. Just edit the specs — everything else is locked in.
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {BUILT_IN_TEMPLATES.map((tpl) => (
+              <div key={tpl.id} className="border rounded-lg p-3 bg-muted/20">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="font-semibold text-sm">{tpl.name}</p>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">
+                    {tpl.brand}
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {stickers.map((_, i) => (
+                    <Button
+                      key={i}
+                      size="sm"
+                      variant="outline"
+                      className="h-7 text-xs"
+                      onClick={() => applyBuiltIn(tpl.id, i)}
+                    >
+                      Apply → Sticker {i + 1}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Sticker Forms */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
