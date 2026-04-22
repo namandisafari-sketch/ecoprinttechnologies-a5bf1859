@@ -110,11 +110,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setIsAdmin(isAdmin);
             setIsSeller(isSeller);
             setUserRole(role);
+            await loadStaffPermissions(session.user.id);
           }, 0);
         } else {
           setIsAdmin(false);
           setIsSeller(false);
           setUserRole(null);
+          setStaffPermissions(null);
+          setStaffActive(true);
         }
         
         setIsLoading(false);
@@ -131,6 +134,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setIsAdmin(isAdmin);
         setIsSeller(isSeller);
         setUserRole(role);
+        await loadStaffPermissions(session.user.id);
       }
       
       setIsLoading(false);
