@@ -78,8 +78,8 @@ const MobileHeader = () => {
         </Sheet>
 
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 -my-3">
-          <img src="/logo.png" alt="Eco Print Technologies" className="h-24 w-auto object-contain" />
+        <Link to="/" className="flex items-center gap-2 -my-6">
+          <img src="/logo.png" alt="Eco Print Technologies" className="h-32 w-auto object-contain" />
         </Link>
 
         {/* Actions */}
