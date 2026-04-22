@@ -37,9 +37,9 @@ const MobileHeader = () => {
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       {/* Main header */}
-      <div className="flex items-stretch justify-between pr-4 min-h-[5rem]">
+      <div className="flex items-center justify-between px-3 h-14">
         {/* Menu */}
-        <div className="flex items-center pl-2">
+        <div className="flex items-center">
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="h-9 w-9">
@@ -49,7 +49,7 @@ const MobileHeader = () => {
           <SheetContent side="left" className="w-[280px]">
             <SheetHeader>
               <SheetTitle className="flex items-center gap-2">
-          <img src="/logo.png" alt="Eco Print Technologies" className="h-16 w-auto object-contain" />
+          <img src="/logo.png" alt="Eco Print Technologies" className="h-10 w-auto object-contain" />
               </SheetTitle>
             </SheetHeader>
             <nav className="mt-6 flex flex-col gap-1">
@@ -79,9 +79,9 @@ const MobileHeader = () => {
           </Sheet>
         </div>
 
-        {/* Logo - edge to edge */}
-        <Link to="/" className="flex items-stretch flex-shrink-0">
-          <img src="/logo.png" alt="Eco Print Technologies" className="h-full w-auto object-contain" />
+        {/* Logo */}
+        <Link to="/" className="flex items-center flex-shrink-0">
+          <img src="/logo.png" alt="Eco Print Technologies" className="h-9 w-auto object-contain" />
         </Link>
 
         {/* Actions */}
