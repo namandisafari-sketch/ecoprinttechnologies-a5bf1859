@@ -37,7 +37,7 @@ interface StickerTemplate {
 const TEMPLATES_KEY = "sticker_templates";
 
 const AdminStickers = () => {
-  const [stickers, setStickers] = useState<StickerData[]>([emptyStickerData()]);
+  const [stickers, setStickers] = useState<StickerData[]>(() => [BUILT_IN_TEMPLATES[0].build()]);
   const printRef = useRef<HTMLDivElement>(null);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showLoadDialog, setShowLoadDialog] = useState(false);
