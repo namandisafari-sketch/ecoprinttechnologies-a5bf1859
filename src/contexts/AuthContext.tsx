@@ -179,6 +179,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await supabase.auth.signOut();
   };
 
+  // Permission helper: admins/managers always pass; otherwise check staff_permissions map
+  const can = (page: string, action: PermAction = 'view') => {
+    if (!user) return false;
+    if (isAdmin) return true;
+    if (!staffActive) return false;
+    return Boolean(staffPermissions?.[page]?.[action]);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -188,6 +196,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isAdmin,
         isSeller,
         userRole,
+        staffPermissions,
+        staffActive,
+        can,
         signIn,
         signUp,
         signOut,
