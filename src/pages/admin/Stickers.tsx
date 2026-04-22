@@ -17,6 +17,7 @@ import StickerForm from "@/components/admin/stickers/StickerForm";
 import StickerPreview from "@/components/admin/stickers/StickerPreview";
 import { printStickers } from "@/components/admin/stickers/printStickers";
 import { StickerData, StickerLayout, FooterImage, DEFAULT_SPECS, DEFAULT_DISCLAIMERS, DEFAULT_LAYOUT, emptyStickerData } from "@/components/admin/stickers/types";
+import { BUILT_IN_TEMPLATES } from "@/components/admin/stickers/builtInTemplates";
 
 interface StickerTemplate {
   id: string;

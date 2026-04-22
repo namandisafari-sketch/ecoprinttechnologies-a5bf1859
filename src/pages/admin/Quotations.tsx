@@ -89,15 +89,77 @@ const AdminQuotations = () => {
 
   const handlePrint = () => {
     const el = previewRef.current;
-    if (!el) return;
-    const w = window.open("", "_blank");
-    if (!w) return;
-    w.document.write(`<!DOCTYPE html><html><head><title>Quotation</title>
-      <style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:'Segoe UI',Arial,sans-serif;width:210mm;margin:0 auto;}img{display:inline-block;}@page{size:A4;margin:0;}@media print{body{print-color-adjust:exact;-webkit-print-color-adjust:exact;}}</style>
-    </head><body>${el.innerHTML}</body></html>`);
+    if (!el) {
+      toast({ title: "Nothing to print", description: "Preview is not ready", variant: "destructive" });
+      return;
+    }
+    const w = window.open("", "_blank", "width=900,height=1100");
+    if (!w) {
+      toast({ title: "Popup blocked", description: "Please allow popups to print quotations", variant: "destructive" });
+      return;
+    }
+
+    // Resolve all stylesheet/img URLs to absolute so the new window can load them
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Quotation - ${customerName || "draft"}</title>
+  <base href="${window.location.origin}/" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 210mm; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0 auto; background: #fff; }
+    img { display: inline-block; max-width: 100%; }
+    @page { size: A4; margin: 0; }
+    @media print {
+      body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>${el.innerHTML}</body>
+</html>`;
+
+    w.document.open();
+    w.document.write(html);
     w.document.close();
-    w.focus();
-    setTimeout(() => { w.print(); w.close(); }, 300);
+
+    // Wait for images inside the new window to load before printing.
+    const triggerPrint = () => {
+      try {
+        const imgs = Array.from(w.document.images);
+        const pending = imgs.filter((img) => !img.complete);
+        if (pending.length === 0) {
+          w.focus();
+          w.print();
+          return;
+        }
+        let remaining = pending.length;
+        const done = () => {
+          remaining -= 1;
+          if (remaining <= 0) {
+            w.focus();
+            w.print();
+          }
+        };
+        pending.forEach((img) => {
+          img.addEventListener("load", done);
+          img.addEventListener("error", done);
+        });
+        // Safety fallback
+        setTimeout(() => {
+          try { w.focus(); w.print(); } catch { /* noop */ }
+        }, 2500);
+      } catch (err) {
+        console.error("Print error", err);
+      }
+    };
+
+    if (w.document.readyState === "complete") {
+      triggerPrint();
+    } else {
+      w.addEventListener("load", triggerPrint);
+    }
   };
 
   const handleDownload = () => {
